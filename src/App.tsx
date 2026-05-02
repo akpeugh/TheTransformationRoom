@@ -31,7 +31,14 @@ import {
   Plus,
   FileText,
   RefreshCcw,
-  Sparkles
+  Sparkles,
+  ShoppingBag,
+  Network,
+  TrendingDown,
+  Building2,
+  Search,
+  Map,
+  Rocket
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
@@ -58,6 +65,8 @@ const ScrollToTop = () => {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { pathname } = useLocation();
+  const isLightHero = ['/about', '/testimonials'].includes(pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,15 +76,20 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
+  const navBg = scrolled ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200 py-4" : (isLightHero ? "bg-white py-4 shadow-sm" : "bg-transparent py-6");
+  const logoClasses = (!scrolled && !isLightHero) ? "brightness-0 invert scale-110" : "scale-100";
+  const textClasses = (!scrolled && !isLightHero) ? "text-white" : "text-slate-900";
+  const btnClasses = (!scrolled && !isLightHero) ? "bg-white text-brand-primary hover:bg-slate-100" : "bg-brand-primary text-white hover:bg-brand-dark";
+
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200 py-4" : "bg-transparent py-6"}`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${navBg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-12 items-center">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="/Site Photos/TR Logo.png" alt="The Transformation Room" className={`h-14 w-auto transition-all duration-300 ${!scrolled ? "brightness-0 invert scale-110" : "scale-100"}`} />
+            <img src="/Site Photos/TR Logo.png" alt="The Transformation Room" className={`h-14 w-auto transition-all duration-300 ${logoClasses}`} />
           </Link>
           
-          <div className={`hidden md:flex items-center gap-10 ${!scrolled ? "text-white" : "text-slate-900"}`}>
+          <div className={`hidden md:flex items-center gap-10 ${textClasses}`}>
             {['Home', 'Organizations', 'Individuals', 'About'].map((item) => (
               <Link 
                 key={item}
@@ -107,10 +121,10 @@ const Navbar = () => {
                 </div>
               </div>
             </div>
-            <Link to="/contact" className={`px-8 py-3 rounded-full text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 ${!scrolled ? "bg-white text-brand-primary hover:bg-slate-100" : "bg-brand-primary text-white hover:bg-brand-dark"}`}>Book Assessment</Link>
+            <Link to="/contact" className={`px-8 py-3 rounded-full text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 ${btnClasses}`}>Book Assessment</Link>
           </div>
 
-          <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 rounded-lg transition-colors ${!scrolled ? "text-white hover:bg-white/10" : "text-brand-primary hover:bg-slate-100"}`}>
+          <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 rounded-lg transition-colors ${textClasses}`}>
             <Settings className="w-6 h-6" />
           </button>
         </div>
@@ -183,6 +197,20 @@ const Footer = () => (
   </footer>
 );
 
+const videoMap: Record<string, string> = {
+  "Hero/Header": "https://storage.googleapis.com/thetransformationroomassets/Hands%20Touching.mp4",
+  "Connecting People & AI": "https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4",
+  "Modernizing Manufacturing / Warehousing": "https://storage.googleapis.com/thetransformationroomassets/Automated%20Warehouse.mp4",
+  "Analytics": "https://storage.googleapis.com/thetransformationroomassets/Analytics.mp4",
+  "Robots / Cobots": "https://storage.googleapis.com/thetransformationroomassets/Dancing%20Bot.mp4",
+  "AS/RS": "https://storage.googleapis.com/thetransformationroomassets/ASRS.mp4",
+  "Asset Tracking": "https://storage.googleapis.com/thetransformationroomassets/Drone.mp4",
+  "AMR / AGV": "https://storage.googleapis.com/thetransformationroomassets/AMR.mp4",
+  "Auxiliary / AR / VR": "https://storage.googleapis.com/thetransformationroomassets/AR%20Glasses.mp4",
+  "Employee Facing Tools": "https://storage.googleapis.com/thetransformationroomassets/Employee%20Phone.mp4",
+  "Transportation & Logistics": "https://storage.googleapis.com/thetransformationroomassets/ROute.mp4"
+};
+
 const Home = () => {
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
@@ -202,7 +230,7 @@ const Home = () => {
       title: "Analytics",
       label: "Data & Insights",
       icon: <BarChart3 className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/Analytics.mp4",
+      videoKey: "Analytics",
       desc: "Transforming raw operational data into actionable intelligence through real-time dashboards and predictive modeling.",
       details: "Implementation of edge computing data capture, custom AI-driven anomaly detection, and cross-functional reporting suites that provide a single source of truth for leadership."
     },
@@ -210,7 +238,7 @@ const Home = () => {
       title: "Co-robots & Humanoid Robots",
       label: "Robotics Strategy",
       icon: <Bot className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/Dancing%20Bot.mp4",
+      videoKey: "Robots / Cobots",
       desc: "Deploying intelligent robotics to handle repetitive, ergonomic-straining, or hazardous tasks, allowing your human workforce to focus on high-value operations.",
       details: "Evaluation of cobot integration for assembly, deployment of humanoid robots for warehouse movement, and safety-first workspace redesign for human-machine collaboration."
     },
@@ -218,7 +246,7 @@ const Home = () => {
       title: "AS/RS (Automated Storage & Retrieval)",
       label: "Space Optimization",
       icon: <Layers className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/ASRS.mp4",
+      videoKey: "AS/RS",
       desc: "Maximizing vertical cube utilization and picking speed for high-density environments, specifically optimized for e-commerce and wholesale throughput.",
       details: "Selection and implementation of shuttle systems, vertical lift modules (VLMs), and mini-load systems to drive density and eliminate manual travel time."
     },
@@ -226,7 +254,7 @@ const Home = () => {
       title: "Asset Tracking & AI Detection",
       label: "Digital Visibility",
       icon: <Cpu className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/Drone.mp4",
+      videoKey: "Asset Tracking",
       desc: "Total visibility across the four walls and beyond using Drones, Computer Vision, RFID, and BLE tag technology.",
       details: "Autonomous drone inventory counts, AI camera detection for safety/compliance, smart locker integrations, and real-time asset localization for high-value equipment."
     },
@@ -234,7 +262,7 @@ const Home = () => {
       title: "AMRs/AGVs",
       label: "Autonomous Flow",
       icon: <Truck className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/AMR%202.mp4",
+      videoKey: "AMR / AGV",
       desc: "Automating horizontal movement through autonomous mobile robots for lifting, tugging, and facility maintenance.",
       details: "Fleet management for autonomous fork lifts, scrubbers, and tuggers. Path-planning optimization and integration with existing WMS for seamless task interleaving."
     },
@@ -242,7 +270,7 @@ const Home = () => {
       title: "Auxiliary & Training Tools",
       label: "Workforce Enablement",
       icon: <Cpu className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/Glasses.mp4",
+      videoKey: "Auxiliary / AR / VR",
       desc: "Bridging the skill gap through immersive technologies like AR/VR for training and physical exoskeletons for performance safety.",
       details: "AR-guided picking and assembly instructions, VR safety simulators, and passive/active exoskeleton rollouts to reduce work-related injury and accelerate onboarding."
     },
@@ -250,7 +278,7 @@ const Home = () => {
       title: "Employee Facing Tools",
       label: "User Experience",
       icon: <Users className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/EE%20Phone.mp4",
+      videoKey: "Employee Facing Tools",
       desc: "Modernizing the workforce experience through digital tools that drive engagement, flexibility, and performance rewards.",
       details: "Development of gamification engines for productivity, mobile-first shift bidding/scheduling, and real-time performance feedback portals that boost retention."
     },
@@ -258,7 +286,7 @@ const Home = () => {
       title: "Transportation & Logistics Systems",
       label: "Network Logistics",
       icon: <Truck className="w-6 h-6" />,
-      video: "https://storage.googleapis.com/thetransformationroomassets/ROute.mp4",
+      videoKey: "Transportation & Logistics",
       desc: "Connecting the facility to the outside world through intelligent dispatch, driver tech, and yard management systems.",
       details: "TMS implementation, driver mobile application deployments, Yard Management System (YMS) automation and real-time bank scheduling for inbound/outbound flow."
     }
@@ -282,35 +310,27 @@ const Home = () => {
 
   return (
     <div className="">
-      {/* Background Preload for Category Videos */}
-      <div className="hidden" aria-hidden="true">
-        {categories.map((cat, i) => (
-          <video 
-            key={`preload-${i}`} 
-            src={cat.video} 
-            preload={activeCategory !== null && (i === (activeCategory + 1) % categories.length) ? "auto" : "metadata"} 
-            muted 
-            playsInline 
-          />
-        ))}
-      </div>
-
       {/* Hero Section */}
       <section className="relative h-screen flex items-center overflow-hidden bg-slate-900">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/20 to-slate-900/90 z-10" />
           <motion.video 
+            key={videoMap["Hero/Header"]}
             initial={{ scale: 1.2 }}
             animate={{ scale: 1.05 }}
             transition={{ duration: 30, repeat: Infinity, repeatType: "mirror", ease: "linear" }}
-            src="https://storage.googleapis.com/thetransformationroomassets/Hands%20Touching.mp4" 
+            src={videoMap["Hero/Header"]} 
             autoPlay 
             muted 
             loop 
             playsInline 
-            preload="auto"
+            preload="metadata"
             className="w-full h-full object-cover"
+            onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           />
+          <div className="absolute bottom-2 left-2 z-[999] bg-black/80 text-white text-xs p-1 font-mono">
+            Debug: Hero/Header<br />{videoMap["Hero/Header"]}
+          </div>
         </div>
         
         <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center">
@@ -327,10 +347,10 @@ const Home = () => {
               whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
               className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300"
             >
-              Operations. Technology. People. Built to Work Together.
+              Turn Operational Complexity Into Scalable, High-Performing Systems
             </motion.span>
             <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
-              We translate operational challenges into technical solutions, helping you build a future where people and technology thrive together.
+              We help growing companies fix broken processes, align teams, and build systems that actually work at scale.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <a href={DISCOVERY_CALL_1HR} className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/20">
@@ -351,8 +371,78 @@ const Home = () => {
         </div>
       </section>
 
+      {/* WHO WE WORK WITH */}
+      <section className="py-32 bg-slate-50 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/5 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/5 blur-3xl rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-20 text-slate-800">
+            <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block">WHO WE HELP</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're likely dealing with:</h2>
+            <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: "Scale & Expansion",
+                issue: "Multi-site Operations",
+                desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
+                icon: <Globe className="w-6 h-6" />
+              },
+              {
+                title: "Omnichannel Fulfillment",
+                issue: "Retail Stores & E-com",
+                desc: "Complex inventory allocation and high-velocity order fulfillment.",
+                icon: <ShoppingBag className="w-6 h-6" />
+              },
+              {
+                title: "Data Silos",
+                issue: "Disconnected Systems",
+                desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
+                icon: <Network className="w-6 h-6" />
+              },
+              {
+                title: "Margin Pressure",
+                issue: "Labor Inefficiencies",
+                desc: "Rising operational costs and difficulty retaining skilled facility talent.",
+                icon: <TrendingDown className="w-6 h-6" />
+              },
+              {
+                title: "Outgrown Processes",
+                issue: "Growth Without Structure",
+                desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
+                icon: <Building2 className="w-6 h-6" />
+              },
+              {
+                title: "Burnout Risk",
+                issue: "Working Hard, Not Smart",
+                desc: "Teams expending massive effort without cohesive strategic alignment.",
+                icon: <Users className="w-6 h-6" />
+              }
+            ].map((item, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                key={i} 
+                className="group p-8 bg-white border border-slate-200 rounded-3xl hover:border-brand-secondary/50 hover:shadow-2xl hover:shadow-brand-secondary/10 transition-all duration-500 relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/5 rounded-full blur-2xl group-hover:bg-brand-secondary/20 transition-all duration-500" />
+                <div className="w-12 h-12 bg-slate-50 text-brand-primary border border-slate-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
+                  {item.icon}
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary mb-2">{item.title}</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.issue}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* The Transformation Engine - Consolidated Innovation Section */}
-      <section className="py-24 bg-slate-50 border-y border-slate-200" id="tech-engine">
+      <section className="py-24 bg-white border-y border-slate-200" id="tech-engine">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Bridging Operations & Intelligence</h2>
@@ -409,13 +499,19 @@ const Home = () => {
                   
                   <div className="relative rounded-2xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,86,77,0.4)] border border-white/20">
                     <video 
-                      src="https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4" 
+                      key={videoMap["Connecting People & AI"]}
+                      src={videoMap["Connecting People & AI"]} 
                       autoPlay 
                       muted 
                       loop 
                       playsInline 
+                      preload="metadata"
                       className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
+                      onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
                     />
+                    <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
+                      Debug: Connecting People & AI<br />{videoMap["Connecting People & AI"]}
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/40 via-transparent to-brand-secondary/10" />
                   </div>
 
@@ -463,13 +559,19 @@ const Home = () => {
                     className="relative rounded-3xl overflow-hidden bg-slate-900 shadow-[0_32px_64px_-16px_rgba(0,86,77,0.3)] border border-white/10 aspect-video"
                   >
                     <video 
-                      src="https://storage.googleapis.com/thetransformationroomassets/Automated%20Warehouse.mp4" 
+                      key={videoMap["Modernizing Manufacturing / Warehousing"]}
+                      src={videoMap["Modernizing Manufacturing / Warehousing"]} 
                       autoPlay 
                       muted 
                       loop 
                       playsInline 
+                      preload="metadata"
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                      onError={() => console.error("Error loading video: Modernizing Manufacturing / Warehousing", videoMap["Modernizing Manufacturing / Warehousing"])}
                     />
+                    <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
+                      Debug: Modernizing Manufacturing / Warehousing<br />{videoMap["Modernizing Manufacturing / Warehousing"]}
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
                   </motion.div>
                 </motion.div>
@@ -549,13 +651,19 @@ const Home = () => {
                           </div>
                           <div className="relative h-64 lg:h-auto rounded-2xl overflow-hidden shadow-lg border border-slate-200 my-6 bg-slate-900">
                             <video 
-                              src={cat.video} 
+                              key={videoMap[cat.videoKey]}
+                              src={videoMap[cat.videoKey]} 
                               autoPlay 
                               muted 
                               loop 
                               playsInline 
+                              preload="metadata"
                               className="w-full h-full object-cover"
+                              onError={() => console.error(`Error loading video: ${cat.videoKey}`, videoMap[cat.videoKey])}
                             />
+                            <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
+                              Debug: {cat.videoKey}<br />{videoMap[cat.videoKey]}
+                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -813,12 +921,81 @@ const Organizations = () => {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay z-0" />
 
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-20 relative z-10">
+          <div className="text-center mb-16 relative z-10">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Service Integration Models</h2>
             <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)]" />
             <p className="text-slate-300 max-w-2xl mx-auto text-lg leading-relaxed">
               Scalable transformation paths designed to meet you where your operation is today, while preparing you for where it will be tomorrow.
             </p>
+          </div>
+
+          {/* New 3 Ways / Flow Section */}
+          <div className="mb-32 relative z-10 bg-slate-800/80 border border-slate-700/50 rounded-[3rem] p-12 backdrop-blur-xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] pointer-events-none" />
+            <h3 className="text-4xl font-bold text-white mb-6 text-center tracking-tight">3 Ways We Work With You</h3>
+            <p className="text-slate-300 text-center mb-16 max-w-2xl mx-auto text-lg font-light">Our engagement models are designed to flex with your current organizational maturity.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 relative">
+               {[
+                 { title: "Clarity", desc: "Identify gaps and opportunities before investing cap-ex.", detail: "Deep-dive assessments of current processes and bottlenecks.", icon: <Search className="w-6 h-6" /> },
+                 { title: "Strategy", desc: "Build a structured roadmap for technological integration.", detail: "A detailed blueprint mapping workforce, software, and hardware.", icon: <Map className="w-6 h-6" /> },
+                 { title: "Execution", desc: "Drive implementation, adoption, and sustained results.", detail: "Hands-on project management to ensure successful go-live.", icon: <Rocket className="w-6 h-6" /> }
+               ].map((way, idx) => (
+                 <motion.div 
+                    key={idx} 
+                    whileHover={{ y: -10 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    className="bg-slate-900/60 rounded-3xl p-8 border border-white/10 hover:border-brand-secondary/50 hover:bg-slate-900/80 transition-all duration-300 group relative z-10"
+                 >
+                    <div className="absolute inset-0 bg-gradient-to-b from-brand-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
+                    <div className="w-14 h-14 bg-brand-primary/20 border border-brand-primary/30 rounded-2xl flex items-center justify-center mb-6 text-brand-secondary group-hover:scale-110 group-hover:bg-brand-primary group-hover:border-brand-secondary group-hover:text-white transition-all duration-500 shadow-lg">
+                      {way.icon}
+                    </div>
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-sm font-mono text-brand-secondary font-bold tracking-widest block group-hover:text-white transition-colors">0{idx + 1}</span>
+                      <h4 className="text-2xl font-bold text-white tracking-tight">{way.title}</h4>
+                    </div>
+                    <p className="text-slate-300 mb-4 font-medium text-lg">{way.desc}</p>
+                    <p className="text-slate-500 text-sm leading-relaxed">{way.detail}</p>
+                 </motion.div>
+               ))}
+            </div>
+
+            <div className="text-center mb-16">
+              <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">The Transformation Flow</h3>
+              <p className="text-lg text-slate-400 font-light max-w-xl mx-auto">Our proven five-step methodology for driving lasting change.</p>
+            </div>
+            
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 relative">
+              <div className="absolute top-1/2 left-[10%] w-[80%] h-1 bg-slate-800 -translate-y-1/2 rounded-full hidden lg:block" />
+              {[
+                { step: "Assess", icon: <Database className="w-6 h-6" /> },
+                { step: "Align", icon: <Users className="w-6 h-6" /> },
+                { step: "Build", icon: <Settings className="w-6 h-6" /> },
+                { step: "Execute", icon: <Zap className="w-6 h-6" /> },
+                { step: "Sustain", icon: <RefreshCcw className="w-6 h-6" /> }
+              ].map((flow, idx, arr) => (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  key={idx} 
+                  className="flex flex-col items-center gap-5 w-full flex-1 relative z-10"
+                >
+                  <div className="bg-slate-900 border-2 border-brand-primary text-white w-24 h-24 rounded-full flex flex-col items-center justify-center shadow-[0_0_20px_rgba(20,184,166,0.1)] hover:shadow-[0_0_40px_rgba(20,184,166,0.3)] hover:border-brand-secondary hover:scale-110 transition-all duration-300 group cursor-default">
+                    <div className="text-brand-secondary group-hover:scale-125 transition-transform duration-300">
+                      {flow.icon}
+                    </div>
+                  </div>
+                  <span className="font-bold text-white tracking-widest uppercase text-sm mt-2">{flow.step}</span>
+                  {idx < arr.length - 1 && (
+                     <div className="lg:hidden flex items-center justify-center mt-4">
+                       <ChevronDown className="w-6 h-6 text-brand-secondary animate-bounce" />
+                     </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
@@ -1563,6 +1740,50 @@ const About = () => {
                 </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Community Impact Section */}
+      <section className="bg-slate-50 py-24 relative overflow-hidden border-t border-slate-200">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center flex-row-reverse">
+            <div className="relative lg:order-2">
+              <div className="grid grid-cols-2 gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  className="h-80 bg-slate-200 rounded-3xl overflow-hidden shadow-2xl"
+                >
+                   <img src="https://images.unsplash.com/photo-1593113630400-ea4288922497?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" />
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="h-64 bg-slate-200 rounded-3xl overflow-hidden shadow-xl mt-12"
+                >
+                   <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" />
+                </motion.div>
+              </div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-brand-secondary rounded-full blur-3xl opacity-20" />
+            </div>
+            <div className="lg:order-1">
+              <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline decoration-brand-primary underline-offset-4">COMMUNITY IMPACT</span>
+              <h1 className="text-5xl font-bold mb-8 leading-tight text-slate-900">Built to <br /><span className="text-brand-primary">Give Back.</span></h1>
+              <p className="text-xl text-slate-600 mb-10 leading-relaxed">
+                At The Transformation Room, we believe that true transformation extends beyond business operations. We dedicate a portion of our time and resources to community upliftment and workforce development.
+              </p>
+              <motion.div 
+                whileHover={{ x: -10 }}
+                className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 w-2 h-full bg-brand-secondary" />
+                <h3 className="text-xl font-bold mb-2 text-brand-primary">Support Our Initiatives</h3>
+                <p className="text-slate-700 relative z-10 font-medium">Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.</p>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
