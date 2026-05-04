@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import { 
   ArrowRight, 
   Settings, 
@@ -38,12 +38,15 @@ import {
   Building2,
   Search,
   Map,
-  Rocket
+  Rocket,
+  ArrowDown
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import { ChatBot } from "./components/ChatBot";
 import { ResumeOptimizer } from "./components/ResumeOptimizer";
+import { ScorecardTool } from "./components/ScorecardTool";
+
 
 // Constants
 const BRAND_PRIMARY = "#00564d";
@@ -66,7 +69,6 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
-  const isLightHero = ['/about', '/testimonials'].includes(pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,55 +78,70 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
-  const navBg = scrolled ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200 py-4" : (isLightHero ? "bg-white py-4 shadow-sm" : "bg-transparent py-6");
-  const logoClasses = (!scrolled && !isLightHero) ? "brightness-0 invert scale-110" : "scale-100";
-  const textClasses = (!scrolled && !isLightHero) ? "text-white" : "text-slate-900";
-  const btnClasses = (!scrolled && !isLightHero) ? "bg-white text-brand-primary hover:bg-slate-100" : "bg-brand-primary text-white hover:bg-brand-dark";
+  const navBg = scrolled 
+    ? "bg-white/90 backdrop-blur-2xl shadow-lg border-b border-slate-200/50 py-3" 
+    : "bg-white/60 backdrop-blur-xl border-b border-white/20 py-5";
+  const logoClasses = scrolled ? "scale-95" : "scale-100";
+  const textClasses = "text-slate-900";
+  const btnClasses = "bg-brand-primary text-white hover:bg-brand-dark";
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${navBg}`}>
+    <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${navBg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-12 items-center">
+        <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
             <img src="/Site Photos/TR Logo.png" alt="The Transformation Room" className={`h-14 w-auto transition-all duration-300 ${logoClasses}`} />
           </Link>
           
-          <div className={`hidden md:flex items-center gap-10 ${textClasses}`}>
-            {['Home', 'Organizations', 'Individuals', 'About'].map((item) => (
+          <div className={`hidden md:flex items-center gap-8 ${textClasses}`}>
+            {['Home', 'Organizations', 'Individuals', 'About', 'Contact'].map((item) => (
               <Link 
                 key={item}
                 to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} 
-                className="text-sm font-semibold tracking-wide hover:text-brand-secondary transition-all relative group"
+                className="text-sm font-bold tracking-wide hover:text-brand-secondary transition-colors duration-300 relative group"
               >
                 {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-secondary transition-all group-hover:w-full" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-secondary transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
-            <div className="relative group">
-              <button className="text-sm font-semibold tracking-wide hover:text-brand-secondary transition-all relative flex items-center gap-2 h-full py-2">
+            <div className="relative group h-full flex items-center">
+              <button className="text-sm font-bold tracking-wide focus:outline-none outline-none group-hover:text-brand-secondary transition-colors relative flex items-center gap-1.5 py-6 cursor-pointer">
                 <Sparkles className="w-4 h-4 text-brand-secondary" />
-                Guide
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-brand-secondary opacity-50 transition-all" />
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-brand-secondary transition-all group-hover:w-full" />
+                Tools
+                <ChevronDown className="w-4 h-4 text-slate-500 group-hover:text-brand-secondary transition-transform duration-300 group-hover:-rotate-180" />
               </button>
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 overflow-hidden transform origin-top group-hover:scale-100 scale-95 z-[60]">
-                <div className="flex flex-col py-2 p-1">
-                  <button onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat'))} className="text-left px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors">
-                    <Sparkles className="w-4 h-4 text-brand-secondary" /> Project Guide
-                  </button>
-                  <Link to="/individuals" className="px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors">
-                    <FileText className="w-4 h-4 text-brand-primary" /> Resume Optimizer
-                  </Link>
-                  <Link to="/?tool=scorecard" className="px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors">
-                    <CheckCircle2 className="w-4 h-4 text-brand-primary" /> Strategic Scorecard
-                  </Link>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100]">
+                <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 p-2 transform origin-top scale-95 group-hover:scale-100 transition-all duration-300">
+                  <div className="flex flex-col gap-1">
+                    <Link to="/organizations?tool=scorecard" className="group/item px-4 py-3 rounded-xl hover:bg-brand-primary/5 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors">
+                      <div className="bg-brand-primary/10 p-2 rounded-lg group-hover/item:bg-brand-primary group-hover/item:text-white transition-colors duration-300">
+                        <CheckCircle2 className="w-4 h-4 text-brand-primary group-hover/item:text-white" />
+                      </div>
+                      Strategic Scorecard
+                    </Link>
+                    <Link to="/individuals?tool=resume" className="group/item px-4 py-3 rounded-xl hover:bg-brand-primary/5 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors">
+                      <div className="bg-brand-primary/10 p-2 rounded-lg group-hover/item:bg-brand-primary group-hover/item:text-white transition-colors duration-300">
+                        <FileText className="w-4 h-4 text-brand-primary group-hover/item:text-white" />
+                      </div>
+                      Resume Optimizer
+                    </Link>
+                    <button onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat'))} className="group/item text-left px-4 py-3 rounded-xl hover:bg-brand-secondary/10 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors cursor-pointer w-full">
+                      <div className="bg-brand-secondary/20 p-2 rounded-lg group-hover/item:bg-brand-secondary group-hover/item:text-slate-900 transition-colors duration-300">
+                        <Sparkles className="w-4 h-4 text-brand-secondary group-hover/item:text-slate-900" />
+                      </div>
+                      AI Guide
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-            <Link to="/contact" className={`px-8 py-3 rounded-full text-sm font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 ${btnClasses}`}>Book Assessment</Link>
+            <Link to="/contact" className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-md hover:shadow-brand-secondary/40 hover:shadow-lg hover:-translate-y-1 active:translate-y-0 ml-2 cursor-pointer ${btnClasses} relative overflow-hidden group/btn`}>
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-shimmer" />
+              Book Assessment
+            </Link>
           </div>
 
-          <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 rounded-lg transition-colors ${textClasses}`}>
+          <button onClick={() => setIsOpen(!isOpen)} className={`md:hidden p-2 rounded-lg transition-colors cursor-pointer ${textClasses}`}>
             <Settings className="w-6 h-6" />
           </button>
         </div>
@@ -135,17 +152,24 @@ const Navbar = () => {
         {isOpen && (
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-slate-100 overflow-hidden"
+            className="md:hidden bg-white border-t border-slate-100 overflow-hidden shadow-xl"
           >
             <div className="p-6 space-y-4">
-              <Link to="/" className="block text-xl font-bold text-slate-900" onClick={() => setIsOpen(false)}>Home</Link>
-              <Link to="/organizations" className="block text-xl font-bold text-slate-900" onClick={() => setIsOpen(false)}>For Organizations</Link>
-              <Link to="/individuals" className="block text-xl font-bold text-slate-900" onClick={() => setIsOpen(false)}>For Individuals</Link>
-              <Link to="/about" className="block text-xl font-bold text-slate-900" onClick={() => setIsOpen(false)}>About</Link>
-              <Link to="/testimonials" className="block text-xl font-bold text-slate-900" onClick={() => setIsOpen(false)}>Testimonials</Link>
-              <Link to="/contact" className="block bg-brand-primary text-white px-6 py-4 rounded-2xl text-center font-bold shadow-lg" onClick={() => setIsOpen(false)}>Book a Call</Link>
+              <Link to="/" className="block text-xl font-bold text-slate-900 hover:text-brand-secondary transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>Home</Link>
+              <Link to="/organizations" className="block text-xl font-bold text-slate-900 hover:text-brand-secondary transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>For Organizations</Link>
+              <Link to="/individuals" className="block text-xl font-bold text-slate-900 hover:text-brand-secondary transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>For Individuals</Link>
+              <Link to="/about" className="block text-xl font-bold text-slate-900 hover:text-brand-secondary transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>About</Link>
+              <Link to="/contact" className="block text-xl font-bold text-slate-900 hover:text-brand-secondary transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>Contact</Link>
+              <div className="h-px w-full bg-slate-100 my-4" />
+              <Link to="/organizations?tool=scorecard" className="block text-lg font-medium text-slate-600 hover:text-brand-primary flex items-center gap-3 transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>
+                <div className="bg-brand-primary/10 p-2 rounded-lg"><CheckCircle2 className="w-4 h-4 text-brand-primary"/></div> Strategic Scorecard
+              </Link>
+              <Link to="/individuals?tool=resume" className="block text-lg font-medium text-slate-600 hover:text-brand-primary flex items-center gap-3 transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>
+                <div className="bg-brand-primary/10 p-2 rounded-lg"><FileText className="w-4 h-4 text-brand-primary"/></div> Resume Optimizer
+              </Link>
+              <Link to="/contact" className="block bg-brand-primary text-white px-6 py-4 rounded-xl mt-4 text-center font-bold shadow-lg shadow-brand-primary/20 hover:bg-brand-dark hover:-translate-y-1 transition-all" onClick={() => setIsOpen(false)}>Book a Call</Link>
             </div>
           </motion.div>
         )}
@@ -215,6 +239,22 @@ const Home = () => {
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const location = useLocation();
+
+  const { scrollY, scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const opacity1 = useTransform(scrollY, [0, 500], [1, 0]);
+  const scale1 = useTransform(scrollY, [0, 1000], [1.05, 1.2]);
+  
+  const yBg1 = useTransform(scrollYProgress, [0, 1], [0, 500]);
+  const yBg2 = useTransform(scrollYProgress, [0, 1], [0, -500]);
+
+  const solutionRef1 = useRef(null);
+  const { scrollYProgress: scrollYProgress1 } = useScroll({ target: solutionRef1, offset: ["start end", "end start"] });
+  const yImage1 = useTransform(scrollYProgress1, [0, 1], [150, -150]);
+
+  const solutionRef2 = useRef(null);
+  const { scrollYProgress: scrollYProgress2 } = useScroll({ target: solutionRef2, offset: ["start end", "end start"] });
+  const yImage2 = useTransform(scrollYProgress2, [0, 1], [150, -150]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -309,11 +349,11 @@ const Home = () => {
   };
 
   return (
-    <div className="">
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/20 to-slate-900/90 z-10" />
+    <div className="bg-slate-900">
+      {/* Hero Content */}
+      <section className="relative min-h-screen flex items-center perspective-1000 pb-20">
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900 z-10" />
           <motion.video 
             key={videoMap["Hero/Header"]}
             initial={{ scale: 1.2 }}
@@ -325,125 +365,152 @@ const Home = () => {
             loop 
             playsInline 
             preload="metadata"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)]"
             onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           />
-          <div className="absolute bottom-2 left-2 z-[999] bg-black/80 text-white text-xs p-1 font-mono">
-            Debug: Hero/Header<br />{videoMap["Hero/Header"]}
-          </div>
         </div>
         
-        <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center">
+        <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center px-4 pt-20">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 50, rotateX: 10 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ y: y1 }}
             className="max-w-4xl"
           >
-            <h1 className="text-5xl md:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter text-shine cursor-default hover:scale-[1.02] transition-transform duration-500">
-              The Transformation Room
-            </h1>
-            <motion.span 
-              whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
-              className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300"
-            >
-              Turn Operational Complexity Into Scalable, High-Performing Systems
-            </motion.span>
-            <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light">
-              We help growing companies fix broken processes, align teams, and build systems that actually work at scale.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <a href={DISCOVERY_CALL_1HR} className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/20">
-                Start Your Transformation <ArrowRight className="w-5 h-5" />
-              </a>
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "How can The Transformation Room help modernize my supply chain operations?" } }))}
-                className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all flex items-center justify-center gap-2 group"
+              <motion.h1 
+                className="text-5xl md:text-8xl lg:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter cursor-default drop-shadow-2xl z-20 relative"
+                whileHover={{ scale: 1.02, rotateX: -5, rotateY: 2, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
               >
-                Ask the Guide <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
-              </button>
-            </div>
+                The Transformation Room
+              </motion.h1>
+              <motion.span 
+                whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
+                className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300 drop-shadow-md"
+              >
+                Turn Operational Complexity Into Scalable, High-Performing Systems
+              </motion.span>
+              <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light drop-shadow-lg">
+                We help growing companies fix broken processes, align teams, and build systems that actually work at scale.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                <a href={DISCOVERY_CALL_1HR} className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer">
+                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                  Start Your Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </a>
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "How can The Transformation Room help modernize my supply chain operations?" } }))}
+                  className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 hover:border-white/40 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
+                >
+                  Ask the Guide <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
+            </motion.div>
+          </div>
+          
+          <motion.div 
+            style={{ opacity: opacity1 }}
+            onClick={() => document.getElementById('tech-engine')?.scrollIntoView({ behavior: 'smooth' })}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-white/50 animate-bounce cursor-pointer hover:text-white transition-colors duration-300 z-30"
+          >
+            <ChevronsDown className="w-8 h-8 text-brand-secondary/80 drop-shadow-lg" />
           </motion.div>
-        </div>
-        
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center text-white/50 animate-bounce cursor-pointer hover:text-white transition-colors duration-300">
-          <ChevronsDown className="w-8 h-8 text-brand-secondary/80" />
-        </div>
-      </section>
 
-      {/* WHO WE WORK WITH */}
-      <section className="py-32 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/5 blur-3xl rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/5 blur-3xl rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-20 text-slate-800">
-            <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block">WHO WE HELP</span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're likely dealing with:</h2>
-            <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
+          {/* Tech Grid Transition */}
+          <div className="absolute bottom-0 left-0 w-full h-64 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_top,black,transparent)] z-10 pointer-events-none opacity-40"></div>
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-secondary/50 to-transparent z-20 shadow-[0_0_20px_rgba(45,212,191,0.5)]"></div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
+
+        </section>
+
+        {/* WHO WE WORK WITH */}
+        <section className="pt-24 pb-32 relative overflow-hidden perspective-1000 bg-transparent">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_bottom,black_40%,transparent)] -z-10 pointer-events-none opacity-40"></div>
+          
+          <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+          <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="text-center mb-20 text-white">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're right for you if you're dealing with:</h2>
+              <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
+              {[
+                {
+                  title: "Scale & Expansion",
+                  issue: "Multi-site Operations",
+                  desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
+                  icon: <Globe className="w-6 h-6" />
+                },
+                {
+                  title: "Omnichannel Fulfillment",
+                  issue: "Retail Stores & E-com",
+                  desc: "Complex inventory allocation and high-velocity order fulfillment.",
+                  icon: <ShoppingBag className="w-6 h-6" />
+                },
+                {
+                  title: "Data Silos",
+                  issue: "Disconnected Systems",
+                  desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
+                  icon: <Network className="w-6 h-6" />
+                },
+                {
+                  title: "Margin Pressure",
+                  issue: "Labor Inefficiencies",
+                  desc: "Rising operational costs and difficulty retaining skilled facility talent.",
+                  icon: <TrendingDown className="w-6 h-6" />
+                },
+                {
+                  title: "Outgrown Processes",
+                  issue: "Growth Without Structure",
+                  desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
+                  icon: <Building2 className="w-6 h-6" />
+                },
+                {
+                  title: "Burnout Risk",
+                  issue: "Working Hard, Not Smart",
+                  desc: "Teams expending massive effort without cohesive strategic alignment.",
+                  icon: <Users className="w-6 h-6" />
+                }
+              ].map((item, i) => (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20, rotateX: -5 }}
+                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                  transition={{ delay: i * 0.1, duration: 0.6 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
+                  key={i} 
+                  className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none rounded-3xl" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-2xl group-hover:bg-brand-secondary/30 transition-all duration-500" />
+                  <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 shadow-sm relative z-20" style={{ transform: "translateZ(20px)" }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ transform: "translateZ(10px)" }}>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary/80 mb-2">{item.title}</p>
+                    <h3 className="text-xl font-bold text-white mb-3">{item.issue}</h3>
+                    <p className="text-slate-300 font-light text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Scale & Expansion",
-                issue: "Multi-site Operations",
-                desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
-                icon: <Globe className="w-6 h-6" />
-              },
-              {
-                title: "Omnichannel Fulfillment",
-                issue: "Retail Stores & E-com",
-                desc: "Complex inventory allocation and high-velocity order fulfillment.",
-                icon: <ShoppingBag className="w-6 h-6" />
-              },
-              {
-                title: "Data Silos",
-                issue: "Disconnected Systems",
-                desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
-                icon: <Network className="w-6 h-6" />
-              },
-              {
-                title: "Margin Pressure",
-                issue: "Labor Inefficiencies",
-                desc: "Rising operational costs and difficulty retaining skilled facility talent.",
-                icon: <TrendingDown className="w-6 h-6" />
-              },
-              {
-                title: "Outgrown Processes",
-                issue: "Growth Without Structure",
-                desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
-                icon: <Building2 className="w-6 h-6" />
-              },
-              {
-                title: "Burnout Risk",
-                issue: "Working Hard, Not Smart",
-                desc: "Teams expending massive effort without cohesive strategic alignment.",
-                icon: <Users className="w-6 h-6" />
-              }
-            ].map((item, i) => (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                key={i} 
-                className="group p-8 bg-white border border-slate-200 rounded-3xl hover:border-brand-secondary/50 hover:shadow-2xl hover:shadow-brand-secondary/10 transition-all duration-500 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/5 rounded-full blur-2xl group-hover:bg-brand-secondary/20 transition-all duration-500" />
-                <div className="w-12 h-12 bg-slate-50 text-brand-primary border border-slate-100 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white transition-all duration-300">
-                  {item.icon}
-                </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary mb-2">{item.title}</p>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.issue}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
 
       {/* The Transformation Engine - Consolidated Innovation Section */}
-      <section className="py-24 bg-white border-y border-slate-200" id="tech-engine">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-24 bg-white border-b border-slate-200 relative pt-32" id="tech-engine">
+        {/* Seamless transition from the dark section above using an SVG wave */}
+        <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] pointer-events-none -translate-y-full z-10">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="block w-full h-[60px] md:h-[100px] transform rotate-180" style={{ fill: '#ffffff' }}>
+            <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" />
+            <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" />
+            <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" />
+          </svg>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Bridging Operations & Intelligence</h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
@@ -481,23 +548,28 @@ const Home = () => {
                 </div>
               </div>
               <motion.div 
+                ref={solutionRef1}
+                style={{ y: yImage1 }}
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="relative group pr-8 h-full"
+                className="relative group pr-8 h-full perspective-1000"
               >
-                <div className="absolute -inset-16 bg-brand-secondary/5 rounded-full blur-[100px] opacity-40 animate-pulse pointer-events-none" />
+                <div className="absolute -inset-16 bg-brand-secondary/20 rounded-full blur-[100px] opacity-60 animate-pulse pointer-events-none" />
                 
                 <motion.div 
-                  whileHover={{ y: -10, scale: 1.02 }}
+                  initial={{ rotateX: 0, rotateY: 0 }}
+                  whileHover={{ y: -10, scale: 1.05, rotateX: 5, rotateY: -5 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="relative z-10"
+                  style={{ transformStyle: "preserve-3d" }}
                 >
                   {/* Stylized background frame */}
-                  <div className="absolute -inset-4 bg-slate-900 rounded-3xl -rotate-2 border border-white/5 opacity-50" />
-                  <div className="absolute -inset-4 bg-brand-primary/10 rounded-3xl rotate-1 blur-xl" />
+                  <div className="absolute -inset-4 bg-slate-900 rounded-3xl -rotate-2 border border-white/10 opacity-70 shadow-2xl" style={{ transform: "translateZ(-20px)" }} />
+                  <div className="absolute -inset-4 bg-brand-primary/20 rounded-3xl rotate-1 blur-2xl" style={{ transform: "translateZ(-30px)" }} />
                   
-                  <div className="relative rounded-2xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,86,77,0.4)] border border-white/20">
+                  <div className="relative rounded-2xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,86,77,0.5)] border border-white/30" style={{ transform: "translateZ(20px)" }}>
                     <video 
                       key={videoMap["Connecting People & AI"]}
                       src={videoMap["Connecting People & AI"]} 
@@ -509,17 +581,15 @@ const Home = () => {
                       className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
                       onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
                     />
-                    <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
-                      Debug: Connecting People & AI<br />{videoMap["Connecting People & AI"]}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/40 via-transparent to-brand-secondary/10" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 via-brand-secondary/5 to-transparent pointer-events-none mix-blend-overlay" />
                   </div>
 
                   {/* Floating Data Badge */}
                   <motion.div 
-                    animate={{ x: [0, 5, 0], y: [0, -5, 0] }}
+                    initial={{ z: 80 }}
+                    animate={{ x: [0, 5, 0], y: [0, -5, 0], z: 80 }}
                     transition={{ duration: 5, repeat: Infinity }}
-                    className="absolute -bottom-10 -right-4 p-4 bg-white rounded-2xl shadow-2xl border border-slate-100 z-30 flex items-center gap-3"
+                    className="absolute -bottom-10 -right-4 p-4 bg-white/90 backdrop-blur-md rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-brand-secondary/30 z-[100] flex items-center gap-3"
                   >
                     <div className="w-8 h-8 rounded-full bg-brand-secondary/10 flex items-center justify-center">
                       <Zap className="w-4 h-4 text-brand-secondary" />
@@ -547,16 +617,21 @@ const Home = () => {
                   </p>
                 </div>
                 <motion.div 
+                  ref={solutionRef2}
+                  style={{ y: yImage2 }}
                   initial={{ opacity: 0, x: -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="relative group pr-8"
+                  className="relative group pr-8 perspective-1000"
                 >
-                  <div className="absolute -inset-8 bg-gradient-to-l from-brand-secondary/10 to-transparent rounded-full blur-3xl opacity-50 pulse" />
+                  <div className="absolute -inset-8 bg-gradient-to-l from-brand-secondary/30 to-brand-primary/20 rounded-full blur-3xl opacity-60 pulse pointer-events-none" />
                   <motion.div 
-                    whileHover={{ scale: 1.05, rotateY: -5 }}
-                    className="relative rounded-3xl overflow-hidden bg-slate-900 shadow-[0_32px_64px_-16px_rgba(0,86,77,0.3)] border border-white/10 aspect-video"
+                    initial={{ rotateX: 0, rotateY: 0 }}
+                    whileHover={{ scale: 1.05, rotateY: 5, rotateX: 5 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    style={{ transformStyle: "preserve-3d" }}
+                    className="relative rounded-3xl overflow-hidden bg-slate-900 shadow-[0_32px_64px_-16px_rgba(0,86,77,0.5)] border border-white/20 aspect-video z-10"
                   >
                     <video 
                       key={videoMap["Modernizing Manufacturing / Warehousing"]}
@@ -566,13 +641,10 @@ const Home = () => {
                       loop 
                       playsInline 
                       preload="metadata"
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500"
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 scale-105"
                       onError={() => console.error("Error loading video: Modernizing Manufacturing / Warehousing", videoMap["Modernizing Manufacturing / Warehousing"])}
                     />
-                    <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
-                      Debug: Modernizing Manufacturing / Warehousing<br />{videoMap["Modernizing Manufacturing / Warehousing"]}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-brand-secondary/10 pointer-events-none mix-blend-overlay" />
                   </motion.div>
                 </motion.div>
               </div>
@@ -661,9 +733,6 @@ const Home = () => {
                               className="w-full h-full object-cover"
                               onError={() => console.error(`Error loading video: ${cat.videoKey}`, videoMap[cat.videoKey])}
                             />
-                            <div className="absolute inset-x-0 bottom-0 z-[999] bg-black/80 text-white text-[10px] p-1 font-mono break-all">
-                              Debug: {cat.videoKey}<br />{videoMap[cat.videoKey]}
-                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -688,7 +757,7 @@ const Home = () => {
             <div className="w-20 h-1.5 bg-brand-secondary mx-auto" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 perspective-1000">
             {[
               { 
                 title: "Optimized Process", 
@@ -713,14 +782,21 @@ const Home = () => {
             ].map((pillar, i) => (
               <motion.div 
                 key={i}
-                whileHover={{ y: -10 }}
-                className="p-8 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand-secondary/50 transition-all"
+                initial={{ opacity: 0, y: 20, rotateX: 5 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                whileHover={{ y: -10, scale: 1.05, rotateX: 5, rotateY: 5, boxShadow: "0px 20px 40px rgba(0,0,0,0.1)" }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="p-8 bg-white rounded-3xl border border-slate-200 hover:border-brand-secondary/50 transition-colors duration-500 z-10 relative cursor-default"
               >
-                <div className="w-14 h-14 bg-brand-primary text-white rounded-xl flex items-center justify-center mb-6">
+                <div className="w-14 h-14 bg-brand-primary text-white rounded-xl flex items-center justify-center mb-6 shadow-lg" style={{ transform: "translateZ(20px)" }}>
                   {pillar.icon}
                 </div>
-                <h3 className="text-xl font-bold mb-4">{pillar.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
+                <div style={{ transform: "translateZ(10px)" }}>
+                  <h3 className="text-xl font-bold mb-4">{pillar.title}</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -778,6 +854,20 @@ const Home = () => {
 
 const Organizations = () => {
   const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('tool') === 'scorecard') {
+      setTimeout(() => {
+        document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    }
+  }, [location.search]);
+
+  const { scrollY } = useScroll();
+  const yHero = useTransform(scrollY, [0, 800], [0, 200]);
+  const opacityHero = useTransform(scrollY, [0, 600], [1, 0]);
 
   const challenges = [
     {
@@ -801,19 +891,19 @@ const Organizations = () => {
   ];
 
   return (
-    <div className="pt-20 bg-slate-50 min-h-screen pb-24 font-sans">
-      <header className="relative py-40 bg-brand-primary overflow-hidden">
-        <div className="absolute inset-0 bg-brand-dark/40 z-10" />
-        <div className="absolute inset-0 z-0">
+    <div className="bg-slate-50 min-h-screen pb-24 font-sans">
+      <header className="relative py-40 bg-brand-primary overflow-hidden perspective-1000">
+        <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/40 z-10" />
+        <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=2000" 
             alt="Logistics Facility" 
             className="w-full h-full object-cover opacity-60 scale-105"
           />
-        </div>
+        </motion.div>
         
         {/* Floating Corporate Tech Nodes */}
-        <div className="absolute inset-0 pointer-events-none z-20">
+        <motion.div style={{ y: yHero }} className="absolute inset-0 pointer-events-none z-20">
           {[
             { icon: <Briefcase className="w-6 h-6" />, pos: "top-[15%] left-[10%]", label: "Strategy" },
             { icon: <Database className="w-6 h-6" />, pos: "bottom-[20%] right-[15%]", label: "Data Architecture" },
@@ -823,27 +913,36 @@ const Organizations = () => {
             <motion.div
               key={i}
               animate={{ 
-                y: [0, -20, 0],
-                opacity: [0.3, 0.8, 0.3]
+                y: [0, -30, 0],
+                rotateX: [0, 10, 0],
+                rotateY: [0, -10, 0],
+                opacity: [0.4, 0.9, 0.4]
               }}
-              transition={{ duration: 5 + i, repeat: Infinity, ease: "easeInOut" }}
-              className={`absolute ${node.pos} hidden lg:flex items-center gap-3 bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl`}
+              transition={{ duration: 6 + i, repeat: Infinity, ease: "easeInOut" }}
+              className={`absolute ${node.pos} hidden lg:flex items-center gap-3 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 shadow-2xl z-30`}
+              style={{ transformStyle: "preserve-3d" }}
             >
-              <div className="text-brand-secondary">{node.icon}</div>
-              <span className="text-[10px] font-bold text-white uppercase tracking-widest">{node.label}</span>
+              <div className="text-brand-secondary" style={{ transform: "translateZ(20px)" }}>{node.icon}</div>
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest" style={{ transform: "translateZ(10px)" }}>{node.label}</span>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div className="max-w-7xl mx-auto px-4 relative z-30">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -20, rotateY: 5 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-6 block border-l-2 border-brand-secondary pl-4">FOR CORPORATE ENTITIES</span>
-              <h1 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.9] tracking-tighter">Operational <br /><span className="text-brand-secondary">Excellence.</span></h1>
-              <p className="text-xl text-slate-300 max-w-xl leading-relaxed font-light">
+              <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-6 block border-l-2 border-brand-secondary pl-4 drop-shadow-md">FOR CORPORATE ENTITIES</span>
+              <motion.h1 
+                className="text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
+                whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
+              >
+                Operational <br /><span className="text-brand-secondary">Excellence.</span>
+              </motion.h1>
+              <p className="text-xl text-slate-300 max-w-xl leading-relaxed font-light drop-shadow-lg">
                 We empower middle-market to enterprise leaders to outgrow operational complexity. Our approach merges industrial systems with cognitive strategy.
               </p>
               
@@ -853,28 +952,34 @@ const Organizations = () => {
                   { val: "3.5x", label: "Throughput ROI" },
                   { val: "15%", label: "Retention Bonus" }
                 ].map((stat, i) => (
-                  <div key={i}>
-                    <p className="text-4xl font-bold text-white mb-1">{stat.val}</p>
+                  <motion.div 
+                    key={i}
+                    whileHover={{ scale: 1.1, originX: 0 }}
+                  >
+                    <p className="text-4xl font-bold text-white mb-1 drop-shadow-md text-shine">{stat.val}</p>
                     <p className="text-[10px] text-brand-secondary uppercase font-black tracking-widest">{stat.label}</p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
 
             <motion.div 
-               initial={{ opacity: 0, scale: 0.9 }}
-               animate={{ opacity: 1, scale: 1 }}
-               className="bg-white/5 backdrop-blur-3xl border border-white/10 p-10 rounded-[3rem] shadow-2xl"
+               initial={{ opacity: 0, scale: 0.9, rotateX: -5 }}
+               animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+               whileHover={{ rotateY: -3, rotateX: 3, scale: 1.02 }}
+               transition={{ duration: 0.8 }}
+               className="bg-white/10 backdrop-blur-3xl border border-white/20 p-10 rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] transform-gpu hover:shadow-[0_60px_100px_rgba(0,0,0,0.6)]"
+               style={{ transformStyle: "preserve-3d" }}
             >
-                <h3 className="text-2xl font-bold text-white mb-8">Identify Your Stoppage</h3>
-                <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-white mb-8" style={{ transform: "translateZ(30px)" }}>Identify Your Biggest Bottleneck</h3>
+                <div className="space-y-4" style={{ transform: "translateZ(20px)" }}>
                   {challenges.map((challenge, i) => (
                     <button
                       key={i}
                       onMouseEnter={() => setActiveChallenge(i)}
-                      className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 ${
+                      className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 transform-gpu ${
                         activeChallenge === i 
-                          ? 'bg-brand-secondary border-transparent text-slate-900 shadow-xl scale-105' 
+                          ? 'bg-brand-secondary border-brand-secondary text-slate-900 shadow-[0_20px_40px_rgba(20,184,166,0.3)] scale-105 z-10 relative' 
                           : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                       }`}
                     >
@@ -898,14 +1003,14 @@ const Organizations = () => {
                     </button>
                    ))}
                 </div>
-                <div className="mt-10 p-6 bg-brand-primary/20 rounded-2xl border border-brand-primary/30 flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-full bg-brand-secondary flex items-center justify-center shrink-0">
-                      <Sparkles className="w-6 h-6 text-slate-900" />
-                   </div>
-                   <div>
-                      <p className="text-white font-bold text-sm">Strategic Maturity Audit</p>
-                      <p className="text-slate-400 text-xs">Included in all Tier 1 Corporate Engagements.</p>
-                   </div>
+                <div className="mt-8 border-t border-white/10 pt-8" style={{ transform: "translateZ(30px)" }}>
+                   <p className="text-slate-300 text-sm mb-4 font-medium text-center">Ready to see where your operation stands?</p>
+                   <button 
+                     onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
+                     className="w-full bg-brand-secondary text-slate-900 hover:bg-white hover:text-brand-dark px-8 py-5 rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(20,184,166,0.3)] hover:shadow-[0_0_50px_rgba(20,184,166,0.6)] hover:-translate-y-1 flex items-center justify-center gap-3 text-lg leading-none group cursor-pointer"
+                   >
+                     Take our assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                   </button>
                 </div>
             </motion.div>
           </div>
@@ -935,7 +1040,7 @@ const Organizations = () => {
             <h3 className="text-4xl font-bold text-white mb-6 text-center tracking-tight">3 Ways We Work With You</h3>
             <p className="text-slate-300 text-center mb-16 max-w-2xl mx-auto text-lg font-light">Our engagement models are designed to flex with your current organizational maturity.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 relative perspective-1000">
                {[
                  { title: "Clarity", desc: "Identify gaps and opportunities before investing cap-ex.", detail: "Deep-dive assessments of current processes and bottlenecks.", icon: <Search className="w-6 h-6" /> },
                  { title: "Strategy", desc: "Build a structured roadmap for technological integration.", detail: "A detailed blueprint mapping workforce, software, and hardware.", icon: <Map className="w-6 h-6" /> },
@@ -943,8 +1048,10 @@ const Organizations = () => {
                ].map((way, idx) => (
                  <motion.div 
                     key={idx} 
-                    whileHover={{ y: -10 }}
+                    initial={{ rotateX: 0, rotateY: 0 }}
+                    whileHover={{ y: -10, rotateX: 5, rotateY: -5, scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300 }}
+                    style={{ transformStyle: "preserve-3d" }}
                     className="bg-slate-900/60 rounded-3xl p-8 border border-white/10 hover:border-brand-secondary/50 hover:bg-slate-900/80 transition-all duration-300 group relative z-10"
                  >
                     <div className="absolute inset-0 bg-gradient-to-b from-brand-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
@@ -998,7 +1105,7 @@ const Organizations = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10 perspective-1000">
           {[
             {
               tier: "Tier 1: Foundation",
@@ -1045,11 +1152,13 @@ const Organizations = () => {
           ].map((pkg, i) => (
             <motion.div 
               key={i} 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30, rotateX: 5 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
-              className="group relative bg-slate-800/50 backdrop-blur-md rounded-[3rem] p-10 border border-slate-700 hover:border-brand-secondary shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(20,184,166,0.2)] transition-all duration-500 overflow-hidden flex flex-col h-full"
+              whileHover={{ y: -20, rotateX: 5, rotateY: 5, scale: 1.02 }}
+              style={{ transformStyle: "preserve-3d" }}
+              className="group relative bg-slate-800/50 backdrop-blur-md rounded-[3rem] p-10 border border-slate-700 hover:border-brand-secondary shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:shadow-[0_0_40px_rgba(20,184,166,0.2)] transition-all duration-500 overflow-hidden flex flex-col h-full cursor-default"
             >
               <div className="absolute top-0 right-0 p-8 w-48 h-48 bg-brand-secondary/5 rounded-full blur-3xl group-hover:bg-brand-secondary/20 transition-all duration-500" />
               
@@ -1097,65 +1206,7 @@ const Organizations = () => {
         </div>
         
           {/* Interactive ROI / Transformation Scorecard */}
-          <div id="strategic-scorecard-section" className="mt-20 lg:mt-32 bg-slate-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden shadow-[0_0_50px_rgba(20,184,166,0.15)] border border-slate-800">
-            <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-brand-secondary/10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 pointer-events-none" />
-            
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-              <div>
-                <h3 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">Your Transformation Scorecard</h3>
-                <p className="text-xl text-slate-400 mb-10 leading-relaxed font-light">
-                  Where does your organization stand on the path to total operational excellence? Get an instant maturity baseline across our three core pillars.
-                </p>
-                <div className="space-y-8">
-                  {[
-                    { label: "Hardware & Automation", icon: <Factory className="w-5 h-5" />, score: 65 },
-                    { label: "Data & AI Readiness", icon: <Database className="w-5 h-5" />, score: 42 },
-                    { label: "Workforce Digital Experience", icon: <Users className="w-5 h-5" />, score: 28 },
-                  ].map((item, i) => (
-                    <div key={i} className="group">
-                      <div className="flex justify-between mb-3 items-end">
-                        <span className="text-white font-bold flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-brand-secondary group-hover:bg-brand-secondary group-hover:text-white transition-all">
-                            {item.icon}
-                          </div>
-                          {item.label}
-                        </span>
-                        <span className="text-brand-secondary font-mono text-lg font-bold">{item.score}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${item.score}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1.5, delay: i * 0.2 }}
-                          className="h-full bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full relative"
-                        >
-                          <div className="absolute inset-0 bg-white/20 w-full h-full [mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,1),transparent)] -translate-x-full animate-[shimmer_2s_infinite]" />
-                        </motion.div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 md:p-12 text-center group hover:border-brand-secondary/50 transition-colors duration-500">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold uppercase tracking-widest mb-8 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                  <Sparkles className="w-4 h-4" /> Personalized Benchmark
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-6">Want a complete technical audit?</h4>
-                <p className="text-slate-400 mb-10">Our AI Transformation Guide can help you map out the specific steps needed to bridge these gaps today.</p>
-                <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                    detail: { prompt: "I've reviewed my Transformation Scorecard. Can you explain how to bridge the gaps in our hardware and AI readiness?" } 
-                  }))}
-                  className="w-full bg-white text-slate-900 px-8 py-5 rounded-2xl font-bold text-lg hover:bg-brand-secondary hover:text-white transition-all shadow-xl hover:shadow-[0_0_30px_rgba(20,184,166,0.4)] hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
-                >
-                  <Bot className="w-5 h-5" /> Open AI Guide
-                </button>
-                <p className="mt-6 text-xs text-slate-500 italic">"Technology is the bridge, but strategy is the blueprint."</p>
-              </div>
-            </div>
-          </div>
+          <ScorecardTool />
 
         </div>
       </section>
@@ -1167,6 +1218,10 @@ const Individuals = () => {
   const [activeStage, setActiveStage] = useState(0);
   const [showOptimizer, setShowOptimizer] = useState(false);
   const location = useLocation();
+
+  const { scrollY } = useScroll();
+  const yHero = useTransform(scrollY, [0, 800], [0, 200]);
+  const opacityHero = useTransform(scrollY, [0, 600], [1, 0]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -1201,44 +1256,51 @@ const Individuals = () => {
   ];
 
   return (
-    <div className="pt-20 bg-slate-50 min-h-screen pb-24 font-sans">
-      <header className="relative py-40 bg-brand-primary overflow-hidden">
-        <div className="absolute inset-0 bg-brand-dark/50 mix-blend-overlay z-10" />
-        <div className="absolute inset-0 opacity-30 scale-110">
+    <div className="bg-slate-50 min-h-screen pb-24 font-sans">
+      <header className="relative py-40 bg-slate-900 overflow-hidden perspective-1000">
+        <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/50 mix-blend-overlay z-10" />
+        <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 opacity-40 scale-105">
           <img 
             src="https://images.unsplash.com/photo-1552581230-c01374138763?auto=format&fit=crop&q=80&w=2000" 
             alt="Career Transformation" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover mix-blend-luminosity"
           />
-        </div>
+        </motion.div>
         
         <motion.div 
           animate={{ x: ['-100%', '200%'] }}
           transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-brand-secondary/10 to-transparent z-10 skew-x-12 translate-x-1/2 pointer-events-none"
+          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-brand-secondary/20 to-transparent z-10 skew-x-12 translate-x-1/2 pointer-events-none"
         />
 
         <div className="max-w-7xl mx-auto px-4 relative z-30 text-white">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
-               initial={{ opacity: 0, x: -20 }}
-               animate={{ opacity: 1, x: 0 }}
+               initial={{ opacity: 0, x: -20, rotateY: 5 }}
+               animate={{ opacity: 1, x: 0, rotateY: 0 }}
                transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-secondary/10 border border-brand-secondary/30 rounded-full text-brand-secondary text-[10px] uppercase font-bold tracking-[0.2em] mb-10 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-secondary/10 border border-brand-secondary/30 rounded-full text-brand-secondary text-[10px] uppercase font-bold tracking-[0.2em] mb-10 backdrop-blur-sm self-start drop-shadow-lg">
                 <Sparkles className="w-3.5 h-3.5" />
                 TECH-ENABLED CAREER COACHING
               </div>
-              <h1 className="text-6xl md:text-8xl font-bold mb-8 leading-[0.9] tracking-tighter">
+              <motion.h1 
+                className="text-6xl md:text-8xl font-bold mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
+                whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
+              >
                 Engineer Your <br />
-                <span className="text-brand-secondary font-mono tracking-tighter">Authority.</span>
-              </h1>
-              <div className="bg-white/5 border border-white/10 p-6 sm:p-8 rounded-[2rem] backdrop-blur-sm mb-12 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-3xl group-hover:bg-brand-secondary/20 transition-all duration-700" />
-                <div className="flex gap-4 items-start relative z-10">
+                <span className="text-brand-secondary font-mono tracking-tighter text-shine">Authority.</span>
+              </motion.h1>
+              <motion.div 
+                whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
+                className="bg-white/5 border border-white/10 p-6 sm:p-8 rounded-[2rem] backdrop-blur-xl mb-12 relative overflow-hidden group shadow-2xl transform-gpu"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-3xl group-hover:bg-brand-secondary/30 transition-all duration-700" />
+                <div className="flex gap-4 items-start relative z-10" style={{ transform: "translateZ(20px)" }}>
                   <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-brand-secondary to-transparent rounded-full" />
                   <div className="pl-6">
-                    <p className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight">
+                    <p className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight drop-shadow-md">
                       <span className="text-brand-secondary">Positioning</span> is your competitive edge.
                     </p>
                     <p className="text-lg opacity-90 leading-relaxed text-slate-300 font-light">
@@ -1246,17 +1308,22 @@ const Individuals = () => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               
               <div className="flex flex-col sm:flex-row gap-4">
                  <a href={INFO_FORM} className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:scale-105 transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2">
                     Start Your Path <ArrowRight className="w-5 h-5" />
                  </a>
                  <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "How can I use AI to help my career in logistics?" } }))}
-                  className="px-10 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group"
+                  onClick={() => {
+                    setShowOptimizer(true);
+                    setTimeout(() => {
+                      document.getElementById('resume-optimizer-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                  }}
+                  className="px-10 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer"
                  >
-                    Try our Optimizer tool <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                    Try our Resume Optimizer <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                  </button>
               </div>
             </motion.div>
@@ -1273,7 +1340,7 @@ const Individuals = () => {
                         x: activeStage === i ? 20 : 0,
                         scale: activeStage === i ? 1.05 : 1
                       }}
-                      className={`p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-xl border transition-all cursor-pointer ${
+                      className={`p-8 rounded-[2.5rem] bg-white/5 backdrop-blur-xl border transition-all cursor-default ${
                         activeStage === i ? 'border-brand-secondary shadow-2xl' : 'border-white/10'
                       }`}
                     >
@@ -1378,7 +1445,16 @@ const Individuals = () => {
               cta: "Start AI Journey"
             }
           ].map((pkg, i) => (
-            <div key={i} className="group bg-white rounded-[3rem] p-8 lg:p-10 border border-slate-200 flex flex-col hover:border-brand-secondary/50 shadow-sm hover:shadow-2xl transition-all duration-500 relative">
+            <motion.div 
+              key={i} 
+              initial={{ opacity: 0, y: 30, rotateX: 5 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15 }}
+              whileHover={{ y: -15, scale: 1.05, rotateX: 5, rotateY: 3, boxShadow: "0px 20px 40px rgba(0,0,0,0.15)" }}
+              style={{ transformStyle: "preserve-3d" }}
+              className="group bg-white rounded-[3rem] p-8 lg:p-10 border border-slate-200 flex flex-col hover:border-brand-secondary/50 shadow-sm transition-all duration-500 relative z-10"
+            >
               <div className="relative mb-10">
                 <p className="text-brand-secondary font-bold text-xs uppercase tracking-[0.2em] mb-2">{pkg.price}</p>
                 <h3 className="text-3xl font-black mb-1 uppercase tracking-tighter">{pkg.tier}</h3>
@@ -1410,7 +1486,7 @@ const Individuals = () => {
               <a href={INFO_FORM} className="block text-center w-full bg-brand-primary text-white py-5 rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg active:scale-95">
                 Apply for {pkg.tier}
               </a>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -1567,25 +1643,25 @@ const About = () => {
     {
       name: "Katie Peugh",
       role: "Operations & Talent Strategy",
-      image: "/Team Photos/Katie.jpg",
+      image: "https://storage.googleapis.com/thetransformationroomassets/Katie.jpg",
       desc: "10+ years across supply chain and warehouse environments. Focuses on aligning people, processes, and strategy."
     },
     {
       name: "Fawn Cook",
       role: "Business Insights & Organizational Design",
-      image: "/Team Photos/Fawn.JPG",
+      image: "https://storage.googleapis.com/thetransformationroomassets/Fawn.JPG",
       desc: "Proven track record of building high-performing teams and driving transformation at scale."
     },
     {
       name: "Emily Zraunig",
       role: "Solution Design & Leadership",
-      image: "/Team Photos/Emily Z.jpg",
+      image: "https://storage.googleapis.com/thetransformationroomassets/Emily%20Z.jpg",
       desc: "Worked closely with leaders to assess challenges, design practical solutions, and create clarity."
     },
     {
       name: "Valeria Mazo",
       role: "Finance & ROI Strategy",
-      image: "/Team Photos/Valeria Mazo.jpg",
+      image: "https://storage.googleapis.com/thetransformationroomassets/Valeria%20Mazo.jpg",
       desc: "Expertise in finance, technology solutions, and marketing alignment with a focus on measurable outcomes."
     }
   ];
@@ -1616,8 +1692,8 @@ const About = () => {
   }, [testimonials.length]);
 
   return (
-    <div className="pt-20">
-      <section className="bg-slate-50 py-24 relative overflow-hidden">
+    <div>
+      <section className="bg-slate-50 pt-40 pb-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -1649,7 +1725,7 @@ const About = () => {
               </p>
               <motion.div 
                 whileHover={{ x: 10 }}
-                className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden group"
+                className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden group cursor-default"
               >
                 <div className="absolute top-0 left-0 w-2 h-full bg-brand-secondary" />
                 <Quote className="w-12 h-12 text-slate-50 absolute -top-2 -right-2 transform rotate-12" />
@@ -1777,7 +1853,7 @@ const About = () => {
               </p>
               <motion.div 
                 whileHover={{ x: -10 }}
-                className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden group"
+                className="p-8 bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden group cursor-default"
               >
                 <div className="absolute top-0 right-0 w-2 h-full bg-brand-secondary" />
                 <h3 className="text-xl font-bold mb-2 text-brand-primary">Support Our Initiatives</h3>
@@ -1868,8 +1944,8 @@ const Testimonials = () => (
 
 const Contact = () => {
   return (
-    <div className="pt-20">
-      <section className="bg-slate-900 py-24 text-white">
+    <div>
+      <section className="bg-slate-900 pt-40 pb-24 text-white">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div>
             <h1 className="text-5xl font-bold mb-8">Let's Build Something Better.</h1>

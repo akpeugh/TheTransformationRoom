@@ -18,6 +18,12 @@
 }
 
 @layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
+  }
   .text-shine {
     background: linear-gradient(
       to right,
