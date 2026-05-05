@@ -90,7 +90,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="/Site-Photos/TR-Logo.png" alt="The Transformation Room" className={`h-14 w-auto transition-all duration-300 ${logoClasses}`} />
+            <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="The Transformation Room" referrerPolicy="no-referrer" className={`h-14 w-auto transition-all duration-300 ${logoClasses}`} />
           </Link>
           
           <div className={`hidden md:flex items-center gap-8 ${textClasses}`}>
@@ -182,7 +182,7 @@ const Footer = () => (
   <footer className="bg-slate-900 text-white py-16">
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
       <div className="space-y-4">
-        <img src="/Site-Photos/TR-Logo.png" alt="The Transformation Room" className="h-16 w-auto brightness-0 invert" />
+        <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="The Transformation Room" referrerPolicy="no-referrer" className="h-16 w-auto brightness-0 invert" />
         <p className="text-slate-400 text-sm">Operations. Technology. People. Built to Work Together.</p>
         <div className="flex items-center gap-4 text-slate-400">
           {/* Social icons placeholder */}
