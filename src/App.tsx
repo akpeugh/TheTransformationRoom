@@ -354,18 +354,17 @@ const Home = () => {
       <section className="relative min-h-screen flex items-center perspective-1000 pb-20">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900 z-10" />
-          <motion.video 
+          <video 
             key={videoMap["Hero/Header"]}
-            initial={{ scale: 1.2 }}
-            animate={{ scale: 1.05 }}
-            transition={{ duration: 30, repeat: Infinity, repeatType: "mirror", ease: "linear" }}
             src={videoMap["Hero/Header"]} 
             autoPlay 
             muted 
             loop 
             playsInline 
-            preload="metadata"
-            className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)]"
+            preload="auto"
+            // @ts-ignore - fetchPriority is supported in modern browsers
+            fetchPriority="high"
+            className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
             onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           />
         </div>
