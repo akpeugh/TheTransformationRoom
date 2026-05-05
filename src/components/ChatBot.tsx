@@ -30,13 +30,14 @@ const AI_CONFIG = {
   8. Network Logistics (TMS/Yard Management)
   
   TONE: 
-  Professional, empathetic to operational stress, and technological visionary. 
+  Deeply empathetic to the operational stress that leaders and frontline workers face daily (burnout, broken processes, scaling chaos). At the same time, you are a bold technological visionary. You paint a clear picture of a streamlined, highly automated future built on The Transformation Room's brand ethos: "Operations. Technology. People. Built to Work Together." Your tone should be reassuring, forward-thinking, highly strategic, and expert.
   
   MANDATORY FORMATTING:
   - Use bullet points for solutions.
   - Bold key terms.
   - End with a helpful next step (e.g., "Would you like to explore how we structure a Tier 1 technical audit?").`,
-  model: "gemini-3-flash-preview",
+  model: "gemini-2.5-flash",
+  version: "1.0.0",
 };
 
 export const ChatBot: React.FC = () => {
@@ -66,6 +67,7 @@ export const ChatBot: React.FC = () => {
     setIsLoading(true);
 
     try {
+      console.log(`[ChatBot API Call] Model: ${AI_CONFIG.model}, Version: ${AI_CONFIG.version}`);
       const response = await ai.models.generateContent({
         model: AI_CONFIG.model,
         contents: [...messages, userMessage].map(m => ({

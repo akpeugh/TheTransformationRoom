@@ -123,7 +123,7 @@ const Navbar = () => {
                       <div className="bg-brand-primary/10 p-2 rounded-lg group-hover/item:bg-brand-primary group-hover/item:text-white transition-colors duration-300">
                         <FileText className="w-4 h-4 text-brand-primary group-hover/item:text-white" />
                       </div>
-                      Resume Optimizer
+                      Career Assessment Tool
                     </Link>
                     <button onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat'))} className="group/item text-left px-4 py-3 rounded-xl hover:bg-brand-secondary/10 text-slate-700 text-sm font-medium flex items-center gap-3 transition-colors cursor-pointer w-full">
                       <div className="bg-brand-secondary/20 p-2 rounded-lg group-hover/item:bg-brand-secondary group-hover/item:text-slate-900 transition-colors duration-300">
@@ -167,7 +167,7 @@ const Navbar = () => {
                 <div className="bg-brand-primary/10 p-2 rounded-lg"><CheckCircle2 className="w-4 h-4 text-brand-primary"/></div> Strategic Scorecard
               </Link>
               <Link to="/individuals?tool=resume" className="block text-lg font-medium text-slate-600 hover:text-brand-primary flex items-center gap-3 transition-colors hover:translate-x-2 duration-300" onClick={() => setIsOpen(false)}>
-                <div className="bg-brand-primary/10 p-2 rounded-lg"><FileText className="w-4 h-4 text-brand-primary"/></div> Resume Optimizer
+                <div className="bg-brand-primary/10 p-2 rounded-lg"><FileText className="w-4 h-4 text-brand-primary"/></div> Career Assessment Tool
               </Link>
               <Link to="/contact" className="block bg-brand-primary text-white px-6 py-4 rounded-xl mt-4 text-center font-bold shadow-lg shadow-brand-primary/20 hover:bg-brand-dark hover:-translate-y-1 transition-all" onClick={() => setIsOpen(false)}>Book a Call</Link>
             </div>
@@ -390,8 +390,8 @@ const Home = () => {
               >
                 Turn Operational Complexity Into Scalable, High-Performing Systems
               </motion.span>
-              <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-2xl mx-auto font-light drop-shadow-lg">
-                We help growing companies fix broken processes, align teams, and build systems that actually work at scale.
+              <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-3xl mx-auto font-light drop-shadow-lg">
+                We guide organizations to streamline broken processes for scale, and equip individuals with the operational acumen to thrive in a high-tech world.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <a href={DISCOVERY_CALL_1HR} className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer">
@@ -418,7 +418,6 @@ const Home = () => {
 
           {/* Tech Grid Transition */}
           <div className="absolute bottom-0 left-0 w-full h-64 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_top,black,transparent)] z-10 pointer-events-none opacity-40"></div>
-          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-secondary/50 to-transparent z-20 shadow-[0_0_20px_rgba(45,212,191,0.5)]"></div>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
 
         </section>
@@ -430,10 +429,16 @@ const Home = () => {
           <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
           <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
           <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <div className="text-center mb-20 text-white">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-20 text-white"
+            >
               <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're right for you if you're dealing with:</h2>
               <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
-            </div>
+            </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
               {[
                 {
@@ -467,10 +472,10 @@ const Home = () => {
                   icon: <Building2 className="w-6 h-6" />
                 },
                 {
-                  title: "Burnout Risk",
-                  issue: "Working Hard, Not Smart",
-                  desc: "Teams expending massive effort without cohesive strategic alignment.",
-                  icon: <Users className="w-6 h-6" />
+                  title: "Skill & Tech Transition",
+                  issue: "Individuals Expanding Scope",
+                  desc: "Professionals looking to leverage AI in their lives, expand their operational scope, or transition industries and careers.",
+                  icon: <User className="w-6 h-6" />
                 }
               ].map((item, i) => (
                 <motion.div 
@@ -511,17 +516,28 @@ const Home = () => {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
+          >
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Bridging Operations & Intelligence</h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               Innovation is only effective when it connects. We integrate AI strategy, industrial hardware, and workforce experience into a single, high-output ecosystem.
             </p>
-          </div>
+          </motion.div>
 
           <div className="space-y-32">
             {/* Phase 1: AI & Intelligence */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
                 <div className="inline-flex items-center gap-2 text-brand-primary font-bold text-xs uppercase tracking-widest mb-6">
                   <Database className="w-5 h-5" />
                   Strategy & Intelligence
@@ -546,7 +562,7 @@ const Home = () => {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
               <motion.div 
                 ref={solutionRef1}
                 style={{ y: yImage1 }}
@@ -606,7 +622,12 @@ const Home = () => {
             {/* Phase 2: Industrial Systems & Advanced Categories */}
             <div className="space-y-16">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                >
                   <div className="inline-flex items-center gap-2 text-brand-primary font-bold text-xs uppercase tracking-widest mb-6">
                     <Cpu className="w-5 h-5" />
                     Industrial Implementation
@@ -615,7 +636,7 @@ const Home = () => {
                   <p className="text-lg text-slate-600 mb-8 leading-relaxed">
                     Working across complex supply chain networks, we help you evaluate and implement the hardware, from humanoid robotics to AS/RS, that turns bottlenecks into throughput.
                   </p>
-                </div>
+                </motion.div>
                 <motion.div 
                   ref={solutionRef2}
                   style={{ y: yImage2 }}
@@ -1323,7 +1344,7 @@ const Individuals = () => {
                   }}
                   className="px-10 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer"
                  >
-                    Try our Resume Optimizer <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                    Try our Interactive Tool <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                  </button>
               </div>
             </motion.div>
@@ -1537,16 +1558,16 @@ const Individuals = () => {
                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 text-brand-secondary rounded-full text-xs font-bold uppercase tracking-widest mb-8">
                      <Sparkles className="w-4 h-4" /> Free Community Tool
                    </div>
-                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tighter">Optimize Your <br /><span className="text-brand-primary">Technical Narrative.</span></h2>
+                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tighter">Discover Your Next <br /><span className="text-brand-primary">Career Move.</span></h2>
                    <p className="text-lg text-slate-500 mb-10 leading-relaxed font-light">
-                     Transitioning to high-tech operations requires a shift in how you present your impact. Our AI-driven tool analyzes your background and optimizes your summary for the next generation of logistics.
+                     Transitioning to high-tech operations requires the right direction and presentation. Our AI-driven tool acts as your career copilot—helping you discover the best roles based on your behavioral traits, or optimizing your current resume for the next generation of logistics.
                    </p>
                    <div className="flex flex-col sm:flex-row gap-6">
                       <button 
                         onClick={() => setShowOptimizer(true)}
-                        className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95"
+                        className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
                       >
-                         Launch Optimizer <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                         Launch Tool <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                       </button>
                       <div className="flex -space-x-3 items-center">
                          {[1,2,3,4].map(i => (
@@ -1572,7 +1593,7 @@ const Individuals = () => {
                        </div>
                        <div className="mx-auto flex bg-black/30 px-12 py-1 rounded-md border border-white/5 items-center gap-2">
                          <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                         <span className="text-[10px] text-slate-400 font-mono">optimizer.transformationroom.com</span>
+                         <span className="text-[10px] text-slate-400 font-mono">career-tool.transformationroom.com</span>
                        </div>
                      </div>
 
@@ -1857,7 +1878,10 @@ const About = () => {
               >
                 <div className="absolute top-0 right-0 w-2 h-full bg-brand-secondary" />
                 <h3 className="text-xl font-bold mb-2 text-brand-primary">Support Our Initiatives</h3>
-                <p className="text-slate-700 relative z-10 font-medium">Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.</p>
+                <p className="text-slate-700 relative z-10 font-medium mb-6">Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.</p>
+                <a href="https://buy.stripe.com/14k7swbAh3ludRS5kl" target="_blank" rel="noopener noreferrer" className="inline-flex px-8 py-3 rounded-full text-base font-bold transition-all border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/40 relative z-10">
+                  Donate Now
+                </a>
               </motion.div>
             </div>
           </div>
