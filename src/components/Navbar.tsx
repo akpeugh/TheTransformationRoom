@@ -25,7 +25,6 @@ export const Navbar = () => {
           <Link to="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2 transition-transform group-hover:scale-105">
                  <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className="h-8 md:h-10 w-auto" />
-                 <span className="text-xl md:text-2xl font-black text-brand-primary tracking-tighter">THE TRANSFORMATION ROOM</span>
             </div>
           </Link>
           

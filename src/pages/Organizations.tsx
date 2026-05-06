@@ -8,7 +8,7 @@ import {
   Sparkles, 
   ArrowRight, 
   Search, 
-  Map, 
+  Map as LucideMap, 
   Rocket, 
   Users, 
   Zap, 
@@ -16,7 +16,8 @@ import {
   ChevronDown, 
   Factory, 
   Layers, 
-  CheckCircle2 
+  CheckCircle2,
+  Bot
 } from "lucide-react";
 import { ScorecardTool } from "../components/ScorecardTool";
 
@@ -103,7 +104,10 @@ const Organizations = () => {
               animate={{ opacity: 1, x: 0, rotateY: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-6 block border-l-2 border-brand-secondary pl-4 drop-shadow-md">FOR CORPORATE ENTITIES</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-secondary/10 border border-brand-secondary/30 rounded-full mb-6">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Operational Intelligence Mode Active</span>
+              </div>
               <motion.h1 
                 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
                 whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
@@ -177,7 +181,7 @@ const Organizations = () => {
                      onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
                      className="w-full bg-brand-secondary text-slate-900 hover:bg-white hover:text-brand-dark px-8 py-5 rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(20,184,166,0.3)] hover:shadow-[0_0_50px_rgba(20,184,166,0.6)] hover:-translate-y-1 flex items-center justify-center gap-3 text-lg leading-none group cursor-pointer"
                    >
-                     Take our assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                     Consult with NOVA <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                    </button>
                 </div>
             </motion.div>
@@ -196,7 +200,7 @@ const Organizations = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16 relative z-10">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Service Integration Models</h2>
-            <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-8 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)]" />
+            <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-12 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)]" />
             <p className="text-slate-300 max-w-2xl mx-auto text-lg leading-relaxed">
               Scalable transformation paths designed to meet you where your operation is today, while preparing you for where it will be tomorrow.
             </p>
@@ -211,7 +215,7 @@ const Organizations = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 relative perspective-1000">
                {[
                  { title: "Clarity", desc: "Identify gaps and opportunities before investing cap-ex.", detail: "Deep-dive assessments of current processes and bottlenecks.", icon: <Search className="w-6 h-6" /> },
-                 { title: "Strategy", desc: "Build a structured roadmap for technological integration.", detail: "A detailed blueprint mapping workforce, software, and hardware.", icon: <Map className="w-6 h-6" /> },
+                 { title: "Strategy", desc: "Build a structured roadmap for technological integration.", detail: "A detailed blueprint mapping workforce, software, and hardware.", icon: <LucideMap className="w-6 h-6" /> },
                  { title: "Execution", desc: "Drive implementation, adoption, and sustained results.", detail: "Hands-on project management to ensure successful go-live.", icon: <Rocket className="w-6 h-6" /> }
                ].map((way, idx) => (
                  <motion.div 
@@ -287,7 +291,7 @@ const Organizations = () => {
                 "Manual Work Identification Report"
               ],
               outcome: "Strategic Blueprint & Priority Roadmap",
-              cta: "Start Your Audit"
+              cta: "Consult with NOVA"
             },
             {
               tier: "Tier 2: Strategy",

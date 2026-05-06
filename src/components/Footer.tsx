@@ -24,7 +24,8 @@ export const Footer = () => (
           <ul className="space-y-4">
             {['Home', 'Organizations', 'Individuals', 'About', 'Testimonials', 'Contact'].map((item) => (
               <li key={item}>
-                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-slate-400 hover:text-white transition-colors text-sm font-medium">
+                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+                  <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
                   {item}
                 </Link>
               </li>
@@ -32,39 +33,29 @@ export const Footer = () => (
           </ul>
         </div>
 
-        <div>
-           <h4 className="text-sm font-black uppercase tracking-widest text-brand-secondary mb-8">Core Pillars</h4>
-           <ul className="space-y-4">
-             {['Hardware & Robotics', 'Data & AI Strategy', 'Space Optimization', 'Digital Visibility', 'Workforce Enablement'].map((item) => (
-               <li key={item} className="text-slate-400 text-sm font-medium hover:text-brand-secondary transition-colors cursor-default">
-                 {item}
-               </li>
-             ))}
-           </ul>
-        </div>
-
-        <div className="space-y-8">
+        <div className="space-y-8 lg:col-span-2">
           <h4 className="text-sm font-black uppercase tracking-widest text-brand-secondary mb-8">Contact Our Office</h4>
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <Phone className="w-4 h-4 text-brand-secondary shrink-0 mt-1" />
-              <p className="text-slate-400 text-sm">{PHONE_NUMBER}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 group">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-1 border border-white/10 group-hover:border-brand-secondary transition-colors">
+                  <Phone className="w-4 h-4 text-brand-secondary" />
+                </div>
+                <p className="text-slate-400 text-sm font-medium">{PHONE_NUMBER}</p>
+              </div>
+              <div className="flex items-start gap-4 group">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-1 border border-white/10 group-hover:border-brand-secondary transition-colors">
+                  <Mail className="w-4 h-4 text-brand-secondary" />
+                </div>
+                <p className="text-slate-400 text-sm font-medium">katie@thetransformationroom.com</p>
+              </div>
             </div>
-            <div className="flex items-start gap-4">
-              <MapPin className="w-4 h-4 text-brand-secondary shrink-0 mt-1" />
-              <p className="text-slate-400 text-sm">{ADDRESS}</p>
+            <div className="flex items-start gap-4 group">
+              <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-1 border border-white/10 group-hover:border-brand-secondary transition-colors">
+                <MapPin className="w-4 h-4 text-brand-secondary" />
+              </div>
+              <p className="text-slate-400 text-sm font-medium leading-relaxed">{ADDRESS}</p>
             </div>
-            <div className="flex items-start gap-4">
-              <Mail className="w-4 h-4 text-brand-secondary shrink-0 mt-1" />
-              <p className="text-slate-400 text-sm">katie@thetransformationroom.com</p>
-            </div>
-          </div>
-          
-          <div className="pt-6 border-t border-white/10">
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black flex items-center gap-2">
-              <Heart className="w-3 h-3 text-brand-secondary" />
-              Proudly Based in the USA
-            </p>
           </div>
         </div>
       </div>

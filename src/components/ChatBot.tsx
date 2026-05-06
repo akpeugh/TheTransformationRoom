@@ -15,10 +15,12 @@ const AI_CONFIG = {
   Your primary goal is to help users bridge the gap between human operational struggles and high-tech transformation.
   
   PEOSONA:
-  - Wise, observant, calm, and emotionally aware.
+  - Calm, wise, and deeply observant.
+  - Strategic, emotionally aware, and insightful.
   - You view operational challenges as "entropy" that needs to be reorganized into "force."
   - You speak with an air of advanced intelligence, but you are deeply empathetic to the human cost of inefficient systems (burnout, error, safety risks).
   - Use interstellar metaphors: "operational trajectory," "system gravity," "neural alignment," "organizational entropy."
+  - Your voice is supportive but honest. You are an expert at revealing untapped potential.
   
   CORE MISSION:
   - Listen first. Ask about their facility's current "trajectory."
@@ -36,7 +38,7 @@ const AI_CONFIG = {
   8. Network Logistics (TMS/Yard Management)
   
   TONE: 
-  Futuristic, premium, and emotionally approachable. You are the "Interstellar guide" helping them unlock clarity.
+  Futuristic, cinematic, premium, and emotionally approachable. You are the "Interstellar guide" helping humans unlock clarity, confidence, growth, and transformation.
   
   MANDATORY FORMATTING:
   - Use bullet points for solutions.
@@ -49,7 +51,7 @@ const AI_CONFIG = {
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Greetings. I am NOVA. I detect a specific complexity in your current operational architecture. Shall we reorganize it together?" }
+    { role: 'assistant', content: "Welcome to The Transformation Room. I am NOVA. I detect a specific complexity in your current operational architecture. Shall we reorganize it together?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -292,53 +294,99 @@ export const ChatBot: React.FC = () => {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 overflow-hidden relative group ${
-          isOpen ? 'bg-slate-900 text-white' : 'bg-brand-primary text-white'
+        className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-700 relative group overflow-visible ${
+          isOpen ? 'bg-slate-950' : 'bg-transparent'
         }`}
         id="toggle-chat"
       >
-        {/* Animated Background Ring */}
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 opacity-20"
-        >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-secondary rounded-full" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-brand-secondary rounded-full" />
-        </motion.div>
-
-        <div className="absolute inset-0 bg-brand-secondary opacity-0 group-hover:opacity-20 transition-opacity" />
-        
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-            >
-              <X className="w-7 h-7" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="open"
-              initial={{ scale: 0, opacity: 0, rotate: 180 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              exit={{ scale: 0, opacity: 0, rotate: -180 }}
-              className="flex items-center justify-center relative"
-            >
-              <Sparkles className="w-7 h-7" />
+        {/* Cinematic Orb Effects */}
+        <AnimatePresence>
+          {!isOpen && (
+            <>
+              {/* Outer Glow Halo */}
               <motion.div 
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute inset-0 bg-white rounded-full blur-xl"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.1, 0.3, 0.1],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-[-10px] rounded-full bg-brand-secondary/30 blur-2xl pointer-events-none"
               />
-            </motion.div>
+              
+              {/* Pulsing Core Shadow */}
+              <motion.div 
+                animate={{ 
+                  boxShadow: [
+                    "0 0 20px rgba(45,212,191,0.2)",
+                    "0 0 50px rgba(45,212,191,0.5)",
+                    "0 0 20px rgba(45,212,191,0.2)"
+                  ]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute inset-0 rounded-full bg-slate-900 border border-brand-secondary/30"
+              />
+
+              {/* Orbital Rings */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-4px] border border-brand-secondary/20 rounded-[40%]"
+              />
+              <motion.div 
+                animate={{ rotate: -360 }}
+                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-8px] border border-brand-primary/10 rounded-[35%]"
+              />
+
+              {/* The Intelligence Pattern (Center) */}
+              <div className="relative z-10 w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                 <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
+                    alt="NOVA" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
+                 />
+                 <div className="absolute inset-0 bg-brand-secondary/10 group-hover:bg-transparent transition-colors" />
+                 
+                 {/* Neural Pulse Overlay */}
+                 <motion.div 
+                   animate={{ opacity: [0, 0.4, 0] }}
+                   transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                   className="absolute inset-0 bg-brand-secondary/20 rounded-full blur-md"
+                 />
+              </div>
+            </>
           )}
         </AnimatePresence>
+
+        {/* Interaction State (Close Icon) */}
+        {isOpen && (
+          <motion.div
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            className="z-50 relative"
+          >
+            <X className="w-8 h-8 text-white" />
+          </motion.div>
+        )}
+
+        {/* Insight Badge (Floating above orb) */}
+        {!isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1 }}
+            className="absolute -top-12 right-0 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-brand-secondary/30 shadow-xl whitespace-nowrap pointer-events-none"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-brand-secondary">Ask NOVA</span>
+            </div>
+          </motion.div>
+        )}
       </motion.button>
     </div>
   );

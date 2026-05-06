@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { 
   BarChart3, 
   Bot, 
@@ -24,8 +24,31 @@ import {
   Zap,
   Globe,
   Database,
-  Video
+  Video,
+  Activity,
+  Brain
 } from "lucide-react";
+
+const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    className={`p-6 bg-slate-900 shadow-2xl rounded-2xl border border-brand-secondary/30 relative overflow-hidden group ${className}`}
+  >
+    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+      <Bot className="w-12 h-12 text-brand-secondary" />
+    </div>
+    <div className="flex items-center gap-3 mb-3">
+      <div className="w-8 h-8 rounded-lg bg-brand-secondary/10 flex items-center justify-center">
+        <Sparkles className="w-4 h-4 text-brand-secondary" />
+      </div>
+      <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">NOVA Observation</span>
+    </div>
+    <p className="text-slate-200 text-sm italic font-light leading-relaxed">"{text}"</p>
+    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-secondary/30 to-transparent" />
+  </motion.div>
+);
+// ... categories and videoMap ...
 
 const videoMap: Record<string, string> = {
   "Hero/Header": "https://storage.googleapis.com/thetransformationroomassets/Hands%20Touching.mp4",
@@ -223,84 +246,78 @@ const Home = () => {
         </section>
 
         {/* WHO WE WORK WITH */}
-        <section className="pt-24 pb-32 relative overflow-hidden perspective-1000 bg-transparent">
-          <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-          <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-4 relative z-10">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-20 text-white"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're right for you if you're dealing with:</h2>
-              <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
-            </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
-              {[
-                {
-                  title: "Scale & Expansion",
-                  issue: "Multi-site Operations",
-                  desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
-                  icon: <Globe className="w-6 h-6" />
-                },
-                {
-                  title: "Omnichannel Fulfillment",
-                  issue: "Retail Stores & E-com",
-                  desc: "Complex inventory allocation and high-velocity order fulfillment.",
-                  icon: <ShoppingBag className="w-6 h-6" />
-                },
-                {
-                  title: "Data Silos",
-                  issue: "Disconnected Systems",
-                  desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
-                  icon: <Network className="w-6 h-6" />
-                },
-                {
-                  title: "Margin Pressure",
-                  issue: "Labor Inefficiencies",
-                  desc: "Rising operational costs and difficulty retaining skilled facility talent.",
-                  icon: <TrendingDown className="w-6 h-6" />
-                },
-                {
-                  title: "Outgrown Processes",
-                  issue: "Growth Without Structure",
-                  desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
-                  icon: <Building2 className="w-6 h-6" />
-                },
-                {
-                  title: "Skill & Tech Transition",
-                  issue: "Individuals Expanding Scope",
-                  desc: "Professionals looking to leverage AI in their lives, expand their operational scope, or transition industries and careers.",
-                  icon: <User className="w-6 h-6" />
-                }
-              ].map((item, i) => (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20, rotateX: -5 }}
-                  whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                  transition={{ delay: i * 0.1, duration: 0.6 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
-                  key={i} 
-                  className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
-                  style={{ transformStyle: "preserve-3d" }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none rounded-3xl" />
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-2xl group-hover:bg-brand-secondary/30 transition-all duration-500" />
-                  <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 shadow-sm relative z-20" style={{ transform: "translateZ(20px)" }}>
-                    {item.icon}
-                  </div>
-                  <div style={{ transform: "translateZ(10px)" }}>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary/80 mb-2">{item.title}</p>
-                    <h3 className="text-xl font-bold text-white mb-3">{item.issue}</h3>
-                    <p className="text-slate-300 font-light text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+      <section className="pt-24 pb-32 relative overflow-hidden perspective-1000 bg-transparent">
+        <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20 text-white"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're right for you if you're dealing with:</h2>
+            <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
+            {[
+              {
+                title: "Scale & Expansion",
+                issue: "Multi-site Operations",
+                desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
+                icon: <Globe className="w-6 h-6" />
+              },
+              {
+                title: "Omnichannel Fulfillment",
+                issue: "Retail Stores & E-com",
+                desc: "Complex inventory allocation and high-velocity order fulfillment.",
+                icon: <ShoppingBag className="w-6 h-6" />
+              },
+              {
+                title: "Data Silos",
+                issue: "Disconnected Systems",
+                desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
+                icon: <Network className="w-6 h-6" />
+              },
+              {
+                title: "Margin Pressure",
+                issue: "Labor Inefficiencies",
+                desc: "Rising operational costs and difficulty retaining skilled facility talent.",
+                icon: <TrendingDown className="w-6 h-6" />
+              },
+              {
+                title: "Outgrown Processes",
+                issue: "Growth Without Structure",
+                desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
+                icon: <Building2 className="w-6 h-6" />
+              }
+            ].map((item, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 20, rotateX: -5 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                viewport={{ once: true, margin: "-100px" }}
+                whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
+                key={i} 
+                className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none rounded-3xl" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-2xl group-hover:bg-brand-secondary/30 transition-all duration-500" />
+                <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 shadow-sm relative z-20" style={{ transform: "translateZ(20px)" }}>
+                  {item.icon}
+                </div>
+                <div style={{ transform: "translateZ(10px)" }}>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary/80 mb-2">{item.title}</p>
+                  <h3 className="text-xl font-bold text-white mb-3">{item.issue}</h3>
+                  <p className="text-slate-300 font-light text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
       {/* The Transformation Engine - Consolidated Innovation Section */}
       <section className="py-24 bg-white relative pt-32" id="tech-engine">
@@ -560,100 +577,15 @@ const Home = () => {
       </section>
 
 
-      {/* Meet NOVA Section */}
-      <section className="py-24 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="relative"
-            >
-              <div className="relative aspect-[4/5] max-w-md mx-auto">
-                <motion.div 
-                  animate={{ 
-                    scale: [1, 1.05, 1],
-                    opacity: [0.3, 0.5, 0.3],
-                    rotate: [0, 5, 0]
-                  }}
-                  transition={{ duration: 5, repeat: Infinity }}
-                  className="absolute -inset-10 bg-brand-secondary/20 rounded-full blur-3xl"
-                />
-                <div className="absolute inset-0 bg-slate-900 rounded-[3rem] overflow-hidden border border-slate-200 shadow-2xl">
-                  <img 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20full%20body" 
-                    alt="NOVA Interstellar Intelligence" 
-                    className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-700 hover:scale-105" 
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
-                </div>
-                
-                <motion.div 
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -right-6 top-1/4 p-4 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-brand-secondary/30 flex items-center gap-3"
-                >
-                  <Bot className="w-5 h-5 text-brand-secondary" />
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-none">Cognitive Link: Active</span>
-                </motion.div>
-                
-                <motion.div 
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -left-6 bottom-1/4 p-4 bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-brand-primary/30 flex items-center gap-3"
-                >
-                  <Sparkles className="w-5 h-5 text-brand-primary" />
-                  <span className="text-xs font-bold text-slate-800 uppercase tracking-widest leading-none">Interstellar Strategy</span>
-                </motion.div>
-              </div>
-            </motion.div>
-            
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-secondary/10 border border-brand-secondary/20 rounded-full">
-                <Sparkles className="w-3 h-3 text-brand-secondary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Strategic Intelligence Layer</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Meet <span className="text-brand-primary">NOVA</span>. <br/>Your Interstellar Guide.</h2>
-              <p className="text-xl text-slate-600 leading-relaxed font-light">
-                NOVA is more than an AI. She is an emotionally intelligent strategic guide designed to bridge the gap between human operational pain and high-tech solutions.
-              </p>
-              <div className="space-y-4">
-                {[
-                  "Wise, observant, and outcome-focused.",
-                  "Analyzes organizational entropy to reveal ROI opportunities.",
-                  "Available 24/7 for real-time strategic discovery sessions."
-                ].map((point, i) => (
-                  <div key={i} className="flex gap-4 items-center">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary" />
-                    <p className="text-slate-700 font-medium">{point}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="pt-6">
-                <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-video-call'))}
-                  className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-brand-primary transition-all flex items-center gap-3 group shadow-xl"
-                >
-                  <Video className="w-5 h-5 text-brand-secondary group-hover:scale-110 transition-transform" />
-                  Start NOVA Video Session
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Core Pillar Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Four Pillars of Transformation</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Pillars of Transformation</h2>
             <div className="w-20 h-1.5 bg-brand-secondary mx-auto" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 perspective-1000">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { 
                 title: "Optimized Process", 
@@ -665,34 +597,25 @@ const Home = () => {
                 icon: <Cpu className="w-8 h-8" />, 
                 desc: "Evaluate, integrate, and optimize systems across warehouse, workforce, and business functions."
               },
-              { 
-                title: "Real-Time Insights", 
-                icon: <BarChart3 className="w-8 h-8" />, 
-                desc: "Design dashboards and frameworks that give leaders the visibility they need to decide faster."
-              },
-              { 
-                title: "Workforce Alignment", 
-                icon: <Users className="w-8 h-8" />, 
-                desc: "Connect labor planning, scheduling, and change management so strategy turns into action."
+              {
+                title: "Operational Acumen",
+                icon: <Bot className="w-8 h-8" />,
+                desc: "Equipping your team with the skills and mindset to master high-velocity technical environments."
               }
             ].map((pillar, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 20, rotateX: 5 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ delay: i * 0.1, duration: 0.6 }}
-                whileHover={{ y: -10, scale: 1.05, rotateX: 5, rotateY: 5, boxShadow: "0px 20px 40px rgba(0,0,0,0.1)" }}
-                style={{ transformStyle: "preserve-3d" }}
-                className="p-8 bg-white rounded-3xl border border-slate-200 hover:border-brand-secondary/50 transition-colors duration-500 z-10 relative cursor-default"
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="p-8 bg-slate-50 rounded-3xl border border-slate-200 hover:border-brand-secondary/50 transition-all duration-300 relative cursor-default"
               >
-                <div className="w-14 h-14 bg-brand-primary text-white rounded-xl flex items-center justify-center mb-6 shadow-lg" style={{ transform: "translateZ(20px)" }}>
+                <div className="w-14 h-14 bg-brand-primary text-white rounded-xl flex items-center justify-center mb-6 shadow-lg">
                   {pillar.icon}
                 </div>
-                <div style={{ transform: "translateZ(10px)" }}>
-                  <h3 className="text-xl font-bold mb-4">{pillar.title}</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
-                </div>
+                <h3 className="text-xl font-bold mb-4">{pillar.title}</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
               </motion.div>
             ))}
           </div>

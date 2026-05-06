@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
-import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft } from "lucide-react";
+import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft, Brain } from "lucide-react";
 
 type Question = {
   id: string;
@@ -195,8 +195,8 @@ export const ScorecardTool = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold uppercase tracking-widest mb-8 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
                   <Sparkles className="w-4 h-4" /> Personalized Benchmark
                 </div>
-                <h4 className="text-2xl font-bold text-white mb-6">Want a complete technical audit?</h4>
-                <p className="text-slate-400 mb-10">Use our interactive diagnostic to locate your fastest path to ROI and see how you stack up.</p>
+                <h4 className="text-2xl font-bold text-white mb-6">Ready for Strategic Discovery?</h4>
+                <p className="text-slate-400 mb-10">Engage NOVA's diagnostic engine to locate your fastest path to ROI and identify hidden operational gaps.</p>
                 <motion.button 
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -219,7 +219,7 @@ export const ScorecardTool = () => {
                   >
                     <div className="absolute inset-0 bg-brand-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <Bot className="w-5 h-5 text-brand-secondary relative z-10" /> 
-                    <span className="relative z-10">Open Our Guide</span>
+                    <span className="relative z-10">Consult with NOVA</span>
                   </motion.button>
                   <p className="mt-6 text-xs text-slate-500 italic">"Technology is the bridge, but strategy is the blueprint."</p>
                 </div>
@@ -332,9 +332,35 @@ export const ScorecardTool = () => {
               className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
             >
               <div className="lg:col-span-7 space-y-10">
-                <div>
-                  <h3 className="text-4xl font-bold text-white mb-4 tracking-tight">Your Diagnosis</h3>
-                  <p className="text-lg text-slate-400 font-light">Based on your responses, here is where your organization is leaving efficiency and ROI on the table.</p>
+                <div className="bg-slate-950 p-8 rounded-3xl border border-brand-secondary/20 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Brain className="w-16 h-16 text-brand-secondary" />
+                  </div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/30 shadow-[0_0_15px_rgba(45,212,191,0.2)]">
+                      <Bot className="w-6 h-6 text-brand-secondary" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary block mb-1">Intelligence Layer Analysis</span>
+                      <h3 className="text-2xl font-bold text-white tracking-tight leading-none">NOVA Strategy Diagnosis</h3>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4 text-slate-300 font-light leading-relaxed prose prose-invert max-w-none">
+                    <p className="italic text-lg">
+                      "{scores.total > 70 
+                        ? "Your operational architecture shows significant resilience, but the final 30% of transformation is often where the greatest competitive advantage is hidden." 
+                        : scores.total > 40 
+                        ? "I detect a structural drift between your strategy and your execution engine. You are working harder than you need to because the systems aren't yet aligned." 
+                        : "Your CURRENT trajectory is encountering significant organizational entropy. Without immediate realignment, your ability to scale will be constrained by legacy gravity."}"
+                    </p>
+                    <div className="h-px w-full bg-gradient-to-r from-brand-secondary/50 via-transparent to-transparent my-6" />
+                    <p>
+                      {scores.hardware < 50 && "Your physical infrastructure is currently a bottleneck. Adding intelligent software to broken physical processes only creates 'digital friction'."}
+                      {scores.data < 50 && "You are making decisions in the dark. Your data silos are preventing you from seeing the operational patterns that drive ROI."}
+                      {scores.workforce < 50 && "There is a cognitive gap in your workforce. Technology isn't an asset if your people perceive it as a threat or a burden."}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-8">

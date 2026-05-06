@@ -12,13 +12,16 @@ import {
   RefreshCcw, 
   ShieldCheck, 
   User, 
-  Layers 
+  Layers,
+  Map as LucideMap
 } from "lucide-react";
 import { ResumeOptimizer } from "../components/ResumeOptimizer";
+import { CareerPathSimulator } from "../components/CareerPathSimulator";
 
 const Individuals = () => {
   const [activeStage, setActiveStage] = useState(0);
   const [showOptimizer, setShowOptimizer] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
   const location = useLocation();
 
   const { scrollY } = useScroll();
@@ -32,6 +35,12 @@ const Individuals = () => {
       // scroll to tool section
       setTimeout(() => {
         document.getElementById('resume-optimizer-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
+    }
+    if (params.get('tool') === 'career') {
+      setShowSimulator(true);
+      setTimeout(() => {
+        document.getElementById('career-simulator-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 500);
     }
   }, [location.search]);
@@ -293,6 +302,82 @@ const Individuals = () => {
         </div>
       </section>
 
+      {/* Career Path Simulator Section */}
+      <section className="py-32 max-w-7xl mx-auto px-4" id="career-simulator-section">
+        <div className="relative">
+          <div className="absolute inset-0 bg-brand-secondary rounded-[4rem] rotate-1 scale-105 opacity-5" />
+          <div className="relative bg-white border border-slate-200 rounded-[3rem] p-8 md:p-16 overflow-hidden shadow-xl">
+             <div className="absolute top-0 left-0 w-1/2 h-full bg-slate-50 skew-x-12 -translate-x-1/4 z-0" />
+             
+             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+                <div className="lg:col-span-5">
+                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 text-brand-secondary rounded-full text-xs font-bold uppercase tracking-widest mb-8">
+                     <LucideMap className="w-4 h-4" /> Career Intelligence Layer
+                   </div>
+                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tighter">Career Path <br /><span className="text-brand-secondary font-mono">Simulator.</span></h2>
+                   <p className="text-lg text-slate-500 mb-10 leading-relaxed font-light">
+                      Growth is not a guess—it's a calculated trajectory. Use NOVA to explore your next role based on your strengths, mapping specific skill gaps and positioning advice for a high-velocity career transformation.
+                   </p>
+                   <div className="flex flex-col sm:flex-row gap-6">
+                      <button 
+                        onClick={() => setShowSimulator(true)}
+                        className="bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-900 hover:text-white transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
+                      >
+                         Simulate Path <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      </button>
+                      <div className="flex items-center gap-3">
+                         <div className="w-3 h-3 rounded-full bg-brand-secondary animate-pulse" />
+                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">NOVA Ready</span>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="lg:col-span-7 relative group">
+                   <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/10 to-brand-primary/10 blur-[50px] rounded-full scale-90 z-0" />
+                   
+                   <div className="bg-slate-900 rounded-[2rem] border border-slate-700/50 overflow-hidden shadow-2xl relative z-10 p-10">
+                      <div className="flex items-center gap-6 mb-10">
+                         <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/30">
+                            <LucideMap className="w-8 h-8 text-brand-secondary" />
+                         </div>
+                         <div>
+                            <p className="text-white font-bold text-lg leading-tight uppercase tracking-tight">Pattern Detected</p>
+                            <p className="text-brand-secondary text-xs uppercase font-black tracking-widest mt-1">NOVA Strategy Layer Active</p>
+                         </div>
+                      </div>
+                      
+                      <div className="space-y-6">
+                         {[
+                           { label: "Target Sector", val: "High-Tech Logistics" },
+                           { label: "Strategic Play", val: "Authority Reframing" },
+                           { label: "Success Trajectory", val: "+34% Operational Acumen" }
+                         ].map((item, i) => (
+                           <motion.div 
+                             key={i} 
+                             initial={{ opacity: 0, x: -20 }}
+                             whileInView={{ opacity: 1, x: 0 }}
+                             transition={{ delay: i * 0.1 }}
+                             className="flex justify-between items-center bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md"
+                           >
+                              <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">{item.label}</span>
+                              <span className="text-sm font-bold text-white italic">{item.val}</span>
+                           </motion.div>
+                         ))}
+                      </div>
+
+                      <div className="mt-8 pt-8 border-t border-white/10 flex justify-center">
+                         <div className="flex items-center gap-3">
+                            <Bot className="w-5 h-5 text-brand-secondary" />
+                            <span className="text-xs font-bold text-slate-400 font-mono">Cognitive mapping in progress...</span>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
       {/* Specialized Support Section */}
       <section className="py-32 bg-slate-900 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-slate-50 to-transparent z-10" />
@@ -432,6 +517,9 @@ const Individuals = () => {
         <AnimatePresence>
           {showOptimizer && (
             <ResumeOptimizer onClose={() => setShowOptimizer(false)} />
+          )}
+          {showSimulator && (
+            <CareerPathSimulator onClose={() => setShowSimulator(false)} />
           )}
         </AnimatePresence>
       </section>
