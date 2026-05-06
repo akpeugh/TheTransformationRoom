@@ -61,7 +61,7 @@ const Organizations = () => {
   ];
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-24 font-sans">
+    <div className="bg-slate-900 min-h-screen pb-24 font-sans selection:bg-brand-secondary selection:text-brand-dark">
       <header className="relative py-40 bg-brand-primary overflow-hidden perspective-1000">
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/40 z-10" />
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 z-0">
@@ -200,15 +200,25 @@ const Organizations = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Curved bottom transition to podcast section */}
+        <div className="absolute bottom-0 inset-x-0 overflow-hidden w-full" style={{ transform: "translateY(1px)", lineHeight: 0 }}>
+          <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+            <path d="M0 100V40C0 40 360 0 720 0C1080 0 1440 40 1440 40V100H0Z" fill="#0f172a" />
+          </svg>
+        </div>
       </header>
 
       {/* Audio Overview Section */}
-      <section className="py-24 bg-white relative overflow-hidden">
+      <section className="py-24 bg-slate-900 relative">
+        {/* Background blend from hero to this section */}
+        <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-brand-primary/20 to-transparent z-0 pointer-events-none" />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none" />
+        
         <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="bg-slate-50 border border-slate-200 rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-secondary/15 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+          <div className="bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-secondary/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
               <motion.div 
@@ -217,20 +227,20 @@ const Organizations = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border border-slate-200 rounded-full mb-8 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-800">Featured Audio Insight</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-full mb-8 shadow-sm">
+                  <div className="w-2 h-2 rounded-full bg-brand-secondary animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-200">Featured Podcast Episode</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-[1.1] tracking-tight">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
                   Escape the Trap of <br className="hidden md:block"/>
-                  <span className="text-brand-primary">Manual Heroics.</span>
+                  <span className="text-brand-secondary">Manual Heroics.</span>
                 </h2>
-                <div className="w-20 h-1.5 bg-brand-primary mb-8 rounded-full" />
-                <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                  Listen to a dynamic discussion between two industry experts on how The Transformation Room builds scalable, automated operational ecosystems. We explore moving past daily firefighting into a state of structural resilience.
+                <div className="w-20 h-1.5 bg-brand-secondary mb-8 rounded-full" />
+                <p className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
+                  Listen to the latest episode of The Transformation Room Podcast. A dynamic discussion between two industry experts on how we build scalable, automated operational ecosystems. We explore moving past daily firefighting into a state of structural resilience.
                 </p>
-                <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  Discover how we integrate <span className="font-bold text-slate-900">AI strategy, industrial hardware, and workforce experience</span> into a single, high-output engine powered by our Four Pillars of Transformation:
+                <p className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
+                  Discover how we integrate <span className="font-bold text-white">AI strategy, industrial hardware, and workforce experience</span> into a single, high-output engine powered by our Four Pillars of Transformation:
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
@@ -241,15 +251,15 @@ const Organizations = () => {
                     "Workforce Alignment"
                   ].map((pillar, idx) => (
                     <div key={idx} className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
-                        <CheckCircle2 className="w-4 h-4 text-brand-primary" />
+                      <div className="w-8 h-8 rounded-full bg-brand-secondary/20 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-brand-secondary" />
                       </div>
-                      <span className="text-slate-800 font-bold text-sm tracking-wide">{pillar}</span>
+                      <span className="text-slate-200 font-bold text-sm tracking-wide">{pillar}</span>
                     </div>
                   ))}
                 </div>
 
-                <Link to="/contact" className="inline-flex items-center gap-3 bg-brand-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-dark transition-all shadow-xl hover:shadow-brand-primary/30 active:scale-95 group">
+                <Link to="/contact" className="inline-flex items-center gap-3 bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold hover:bg-white transition-all shadow-xl hover:shadow-brand-secondary/30 active:scale-95 group">
                   Book a Discovery Call
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -266,7 +276,7 @@ const Organizations = () => {
                 {/* Audio Player UI */}
                 <div className="absolute -top-5 -right-5 md:-top-8 md:-right-8 bg-brand-secondary text-brand-dark px-6 py-3 rounded-2xl font-bold text-sm shadow-2xl transform rotate-3 flex items-center gap-2 border border-white/20">
                   <Sparkles className="w-4 h-4" />
-                  <span>Audio Overview</span>
+                  <span>Our Podcast</span>
                 </div>
                 
                 <div className="mb-10 text-center">
@@ -315,10 +325,18 @@ const Organizations = () => {
             </div>
           </div>
         </div>
+
+        {/* Scroll connector to next section */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-20 translate-y-1/2">
+          <div className="w-0.5 h-16 bg-gradient-to-b from-brand-secondary/0 to-brand-secondary" />
+          <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center shadow-[0_0_20px_rgba(20,184,166,0.5)]">
+            <ChevronDown className="w-6 h-6 text-brand-dark animate-bounce" />
+          </div>
+        </div>
       </section>
 
       {/* Tiered Offerings Section */}
-      <section className="py-32 relative bg-slate-900 overflow-hidden">
+      <section className="py-32 pt-24 relative bg-slate-900 overflow-hidden">
         {/* Deep graphical background */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/40 via-slate-900 to-slate-900 z-0" />
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-secondary/10 blur-[150px] -translate-y-1/2 z-0" />

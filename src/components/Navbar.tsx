@@ -18,8 +18,8 @@ export const Navbar = () => {
   }, []);
   
   const navBg = scrolled 
-    ? "bg-white/90 backdrop-blur-2xl shadow-lg border-b border-slate-200/50 py-3" 
-    : "bg-white/60 backdrop-blur-xl border-b border-white/20 py-5";
+    ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3" 
+    : "bg-white/0 border-b border-transparent py-5";
 
   const tools = [
     { 
@@ -49,7 +49,7 @@ export const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ${navBg}`}>
+    <nav className={`sticky top-0 z-[100] w-full transition-all duration-300 ${navBg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
