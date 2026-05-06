@@ -20,6 +20,7 @@ import {
   Bot
 } from "lucide-react";
 import { ScorecardTool } from "../components/ScorecardTool";
+import { CORPORATE_PAYMENT, DISCOVERY_CALL_1HR } from "../constants";
 
 const Organizations = () => {
   const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
@@ -118,6 +119,18 @@ const Organizations = () => {
                 We empower middle-market to enterprise leaders to outgrow operational complexity. Our approach merges industrial systems with cognitive strategy.
               </p>
               
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                 <Link to="/contact" className="bg-white text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-brand-secondary hover:scale-105 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-2 cursor-pointer">
+                    Start Transformation <ArrowRight className="w-5 h-5" />
+                 </Link>
+                 <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
+                  className="px-8 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer text-white"
+                 >
+                    Consult NOVA <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                 </button>
+              </div>
+
               <div className="mt-12 flex flex-wrap gap-10">
                 {[
                   { val: "22%+", label: "Efficiency Lift" },

@@ -12,6 +12,7 @@ import { AIVideoCall } from "./components/AIVideoCall";
 import Home from "./pages/Home";
 import Organizations from "./pages/Organizations";
 import Individuals from "./pages/Individuals";
+import CareerTool from "./pages/CareerTool";
 import About from "./pages/About";
 import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/organizations" element={<Organizations />} />
             <Route path="/individuals" element={<Individuals />} />
+            <Route path="/display" element={<CareerTool />} />
             <Route path="/about" element={<About />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />

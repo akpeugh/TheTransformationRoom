@@ -28,6 +28,7 @@ import {
   Activity,
   Brain
 } from "lucide-react";
+import { DISCOVERY_CALL_1HR } from "../constants";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -219,13 +220,13 @@ const Home = () => {
                 We guide organizations to streamline broken processes for scale, and equip individuals with the operational acumen to thrive in a high-tech world.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Link to="/contact" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer">
+                <Link to="/contact" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer text-center">
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                  Start Your Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Start Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "How can NOVA help modernize my supply chain operations?" } }))}
-                  className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 hover:border-white/40 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
+                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
+                  className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 hover:border-white/40 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
                 >
                   Consult NOVA <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 group-hover:scale-110 transition-transform" />
                 </button>
@@ -291,6 +292,12 @@ const Home = () => {
                 issue: "Growth Without Structure",
                 desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
                 icon: <Building2 className="w-6 h-6" />
+              },
+              {
+                title: "Individual Growth",
+                issue: "Career Velocity & AI",
+                desc: "Professionals looking to transition careers, master AI integration, or get a step ahead in the modern workforce.",
+                icon: <Zap className="w-6 h-6" />
               }
             ].map((item, i) => (
               <motion.div 

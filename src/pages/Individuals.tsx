@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { 
   FileText, 
@@ -17,12 +17,14 @@ import {
 } from "lucide-react";
 import { ResumeOptimizer } from "../components/ResumeOptimizer";
 import { CareerPathSimulator } from "../components/CareerPathSimulator";
+import { DISCOVERY_CALL_1HR } from "../constants";
 
 const Individuals = () => {
   const [activeStage, setActiveStage] = useState(0);
   const [showOptimizer, setShowOptimizer] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { scrollY } = useScroll();
   const yHero = useTransform(scrollY, [0, 800], [0, 200]);
@@ -30,20 +32,13 @@ const Individuals = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('tool') === 'resume') {
-      setShowOptimizer(true);
-      // scroll to tool section
-      setTimeout(() => {
-        document.getElementById('resume-optimizer-section')?.scrollIntoView({ behavior: 'smooth' });
-      }, 500);
+    const tool = params.get('tool');
+    if (tool === 'resume') {
+      navigate('/display?path=resume');
+    } else if (tool === 'career') {
+      navigate('/display?path=simulator');
     }
-    if (params.get('tool') === 'career') {
-      setShowSimulator(true);
-      setTimeout(() => {
-        document.getElementById('career-simulator-section')?.scrollIntoView({ behavior: 'smooth' });
-      }, 500);
-    }
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   const stages = [
     {
@@ -123,18 +118,13 @@ const Individuals = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                  <Link to="/contact" className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:scale-105 transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 cursor-pointer">
-                    Start Your Path <ArrowRight className="w-5 h-5" />
+                    Start Transformation <ArrowRight className="w-5 h-5" />
                  </Link>
                  <button 
-                  onClick={() => {
-                    setShowOptimizer(true);
-                    setTimeout(() => {
-                      document.getElementById('resume-optimizer-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
-                  }}
+                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
                   className="px-10 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer"
                  >
-                    Talk with NOVA <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                    Consult NOVA <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                  </button>
               </div>
             </motion.div>
@@ -302,73 +292,97 @@ const Individuals = () => {
         </div>
       </section>
 
-      {/* Career Path Simulator Section */}
-      <section className="py-32 max-w-7xl mx-auto px-4" id="career-simulator-section">
+      {/* Career Transformation Hub */}
+      <section className="py-32 max-w-7xl mx-auto px-4" id="transformation-hub-section">
         <div className="relative">
-          <div className="absolute inset-0 bg-brand-secondary rounded-[4rem] rotate-1 scale-105 opacity-5" />
-          <div className="relative bg-white border border-slate-200 rounded-[3rem] p-8 md:p-16 overflow-hidden shadow-xl">
+          <div className="absolute inset-0 bg-brand-primary rounded-[4rem] rotate-1 scale-105 opacity-5" />
+          <div className="relative bg-white border border-slate-200 rounded-[3rem] p-8 md:p-20 overflow-hidden shadow-2xl">
              <div className="absolute top-0 left-0 w-1/2 h-full bg-slate-50 skew-x-12 -translate-x-1/4 z-0" />
              
              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-                <div className="lg:col-span-5">
+                <div className="lg:col-span-6">
                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 text-brand-secondary rounded-full text-xs font-bold uppercase tracking-widest mb-8">
-                     <LucideMap className="w-4 h-4" /> Career Intelligence Layer
+                     <Sparkles className="w-4 h-4" /> Integrated Career Intelligence
                    </div>
-                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tighter">Career Path <br /><span className="text-brand-secondary font-mono">Simulator.</span></h2>
-                   <p className="text-lg text-slate-500 mb-10 leading-relaxed font-light">
-                      Growth is not a guess—it's a calculated trajectory. Use NOVA to explore your next role based on your strengths, mapping specific skill gaps and positioning advice for a high-velocity career transformation.
+                   <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mb-8 leading-[0.95] tracking-tighter">
+                     NOVA Career <br />
+                     <span className="text-brand-primary font-mono tracking-tighter">Transformation Hub.</span>
+                   </h2>
+                   <p className="text-xl text-slate-500 mb-12 leading-relaxed font-light max-w-xl">
+                      Unify your trajectory. From simulate growth paths to optimizing your professional narrative—our integrated suite of tools uses NOVA Intelligence to ensure you are positioned for high-velocity career moves.
                    </p>
+                   
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
+                      <div className="flex gap-4">
+                         <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
+                            <LucideMap className="w-5 h-5 text-brand-secondary" />
+                         </div>
+                         <div>
+                            <h4 className="font-bold text-slate-900 text-sm">Path Simulation</h4>
+                            <p className="text-xs text-slate-500">Map your next transition.</p>
+                         </div>
+                      </div>
+                      <div className="flex gap-4">
+                         <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shrink-0">
+                            <FileText className="w-5 h-5 text-brand-secondary" />
+                         </div>
+                         <div>
+                            <h4 className="font-bold text-slate-900 text-sm">Resume Optimization</h4>
+                            <p className="text-xs text-slate-500">Reframing legacy experience.</p>
+                         </div>
+                      </div>
+                   </div>
+
                    <div className="flex flex-col sm:flex-row gap-6">
-                      <button 
-                        onClick={() => setShowSimulator(true)}
-                        className="bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-900 hover:text-white transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
+                      <Link 
+                        to="/display"
+                        className="bg-brand-primary text-white px-10 py-6 rounded-2xl font-bold text-xl hover:bg-brand-dark transition-all shadow-2xl shadow-brand-primary/30 flex items-center justify-center gap-3 group hover:scale-[1.02] active:scale-95 cursor-pointer"
                       >
-                         Simulate Path <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                      </button>
-                      <div className="flex items-center gap-3">
-                         <div className="w-3 h-3 rounded-full bg-brand-secondary animate-pulse" />
-                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">NOVA Ready</span>
+                         Launch Hub <Zap className="w-6 h-6 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                      </Link>
+                      <div className="flex -space-x-3 items-center">
+                         {[1,2,3,4].map(i => (
+                           <div key={i} className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-slate-200 shrink-0">
+                              <img src={`https://i.pravatar.cc/100?img=${i + 20}`} alt="User" />
+                           </div>
+                         ))}
+                         <span className="pl-6 text-xs text-slate-400 font-bold uppercase tracking-widest">1,200+ professionals onboarded</span>
                       </div>
                    </div>
                 </div>
 
-                <div className="lg:col-span-7 relative group">
-                   <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/10 to-brand-primary/10 blur-[50px] rounded-full scale-90 z-0" />
+                <div className="lg:col-span-6 relative group">
+                   <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/20 to-brand-primary/20 blur-[60px] rounded-full scale-90 z-0 animate-pulse" />
                    
-                   <div className="bg-slate-900 rounded-[2rem] border border-slate-700/50 overflow-hidden shadow-2xl relative z-10 p-10">
-                      <div className="flex items-center gap-6 mb-10">
-                         <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/30">
-                            <LucideMap className="w-8 h-8 text-brand-secondary" />
+                   <div className="bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl relative z-10 p-1">
+                      <div className="bg-slate-800/80 p-8 rounded-[2.8rem]">
+                         <div className="flex items-center gap-6 mb-12">
+                            <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/30">
+                               <Bot className="w-8 h-8 text-brand-secondary" />
+                            </div>
+                            <div>
+                               <p className="text-white font-bold text-xl tracking-tight">NOVA Intelligence Active</p>
+                               <span className="text-[10px] text-brand-secondary font-black uppercase tracking-[0.2em]">Synchronizing data layers...</span>
+                            </div>
                          </div>
-                         <div>
-                            <p className="text-white font-bold text-lg leading-tight uppercase tracking-tight">Pattern Detected</p>
-                            <p className="text-brand-secondary text-xs uppercase font-black tracking-widest mt-1">NOVA Strategy Layer Active</p>
+                         
+                         <div className="space-y-4">
+                            {[
+                              { label: "Simulator", val: "Operational Flow Mapping", color: "bg-brand-secondary/20 text-brand-secondary" },
+                              { label: "Optimizer", val: "Narrative Authority Shift", color: "bg-brand-primary/20 text-brand-primary" }
+                            ].map((item, i) => (
+                              <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-6 rounded-2xl hover:bg-white/10 transition-colors">
+                                 <div>
+                                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-2 inline-block ${item.color}`}>{item.label}</span>
+                                    <p className="text-white font-bold">{item.val}</p>
+                                 </div>
+                                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }} className="w-2 h-2 rounded-full bg-brand-secondary" />
+                              </div>
+                            ))}
                          </div>
-                      </div>
-                      
-                      <div className="space-y-6">
-                         {[
-                           { label: "Target Sector", val: "High-Tech Logistics" },
-                           { label: "Strategic Play", val: "Authority Reframing" },
-                           { label: "Success Trajectory", val: "+34% Operational Acumen" }
-                         ].map((item, i) => (
-                           <motion.div 
-                             key={i} 
-                             initial={{ opacity: 0, x: -20 }}
-                             whileInView={{ opacity: 1, x: 0 }}
-                             transition={{ delay: i * 0.1 }}
-                             className="flex justify-between items-center bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md"
-                           >
-                              <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest">{item.label}</span>
-                              <span className="text-sm font-bold text-white italic">{item.val}</span>
-                           </motion.div>
-                         ))}
-                      </div>
 
-                      <div className="mt-8 pt-8 border-t border-white/10 flex justify-center">
-                         <div className="flex items-center gap-3">
-                            <Bot className="w-5 h-5 text-brand-secondary" />
-                            <span className="text-xs font-bold text-slate-400 font-mono">Cognitive mapping in progress...</span>
+                         <div className="mt-12 text-center">
+                            <p className="text-slate-500 text-[10px] uppercase font-black tracking-widest italic">"Transformation requires both vision and velocity."</p>
                          </div>
                       </div>
                    </div>
@@ -412,117 +426,14 @@ const Individuals = () => {
         <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent z-10" />
       </section>
 
-      {/* AI Resume Feature Section */}
-      <section className="py-32 max-w-7xl mx-auto px-4" id="resume-optimizer-section">
-        <div className="relative">
-          <div className="absolute inset-0 bg-brand-primary rounded-[4rem] -rotate-1 scale-105 opacity-5" />
-          <div className="relative bg-white border border-slate-200 rounded-[3rem] p-8 md:p-16 overflow-hidden shadow-xl">
-             <div className="absolute top-0 right-0 w-1/2 h-full bg-slate-50 -skew-x-12 translate-x-1/4 z-0" />
-             
-             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
-                <div className="lg:col-span-5">
-                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 text-brand-secondary rounded-full text-xs font-bold uppercase tracking-widest mb-8">
-                     <Sparkles className="w-4 h-4" /> Free Community Tool
-                   </div>
-                   <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 leading-tight tracking-tighter">Discover Your Next <br /><span className="text-brand-primary">Career Move.</span></h2>
-                   <p className="text-lg text-slate-500 mb-10 leading-relaxed font-light">
-                     Transitioning to high-tech operations requires the right direction and presentation. Our AI-driven tool acts as your career copilot—helping you discover the best roles based on your behavioral traits, or optimizing your current resume for the next generation of logistics.
-                   </p>
-                   <div className="flex flex-col sm:flex-row gap-6">
-                      <button 
-                        onClick={() => setShowOptimizer(true)}
-                        className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-[0_0_30px_rgba(20,184,166,0.5)] transition-all shadow-xl shadow-brand-primary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer"
-                      >
-                         Launch Tool <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
-                      </button>
-                      <div className="flex -space-x-3 items-center">
-                         {[1,2,3,4].map(i => (
-                           <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-slate-200 shrink-0">
-                              <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
-                           </div>
-                         ))}
-                         <span className="pl-6 text-xs text-slate-400 font-medium">Joined by 1,200+ professionals</span>
-                      </div>
-                   </div>
-                </div>
-
-                <div className="lg:col-span-7 relative group">
-                   <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/20 to-brand-primary/20 blur-[50px] rounded-full scale-90 z-0" />
-                   
-                   <div className="bg-slate-900 rounded-[2rem] border border-slate-700/50 overflow-hidden shadow-2xl relative z-10">
-                     {/* Window Header */}
-                     <div className="h-10 border-b border-white/5 bg-slate-800/80 flex items-center px-4 gap-2 backdrop-blur-md">
-                       <div className="flex gap-1.5">
-                         <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
-                         <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
-                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
-                       </div>
-                       <div className="mx-auto flex bg-black/30 px-12 py-1 rounded-md border border-white/5 items-center gap-2">
-                         <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                         <span className="text-[10px] text-slate-400 font-mono">career-tool.transformationroom.com</span>
-                       </div>
-                     </div>
-
-                     <div className="p-6 md:p-8 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
-                       {/* Scanner overlay */}
-                       <motion.div 
-                         initial={{ left: "-20%" }}
-                         animate={{ left: "120%" }}
-                         transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
-                         className="absolute top-0 bottom-0 w-[2px] bg-brand-secondary shadow-[0_0_25px_4px_rgba(20,184,166,0.8)] z-30 pointer-events-none hidden sm:block"
-                       />
-
-                       {/* Input Side */}
-                       <div className="space-y-3 relative z-10">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Original Input</span>
-                          <div className="p-5 rounded-2xl bg-white/5 border border-white/5 opacity-80 h-full">
-                             <p className="text-[13px] text-slate-400 font-mono leading-relaxed line-through decoration-red-500/50 decoration-2">
-                                "Managed warehouse operations and team of 50. Supervised inbound/outbound shipments and ensured safety compliance. Used Excel for reporting."
-                             </p>
-                          </div>
-                          
-                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-700 text-brand-secondary shadow-lg group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all">
-                             <ArrowRight className="w-4 h-4" />
-                          </div>
-                          
-                          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 z-20 flex sm:hidden items-center justify-center w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-700 text-brand-secondary shadow-lg">
-                             <ArrowRight className="w-4 h-4 rotate-90" />
-                          </div>
-                       </div>
-
-                       {/* Output Side */}
-                       <div className="space-y-3 relative z-10 pt-4 sm:pt-0">
-                          <span className="text-[10px] font-bold text-brand-secondary uppercase tracking-widest flex items-center gap-1.5 pl-1">
-                            <Sparkles className="w-3 h-3" /> AI Optimized Narrative
-                          </span>
-                          <div className="p-5 rounded-2xl bg-brand-primary/10 border border-brand-secondary/30 relative overflow-hidden h-full shadow-[0_0_20px_rgba(20,184,166,0.05)] group-hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] transition-shadow duration-500">
-                             <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                             <p className="text-[13px] text-white leading-relaxed font-medium relative z-10">
-                                "Directed high-volume fulfillment operations across an automated 500k sqft facility. Implemented data-driven labor management tracking, <span className="text-brand-secondary bg-brand-secondary/10 px-1 py-0.5 rounded font-bold">achieving a 15% increase in throughput</span> and driving full-cycle safety protocols."
-                             </p>
-                             
-                             <div className="mt-4 flex gap-2">
-                                <div className="text-[9px] px-2 py-1 rounded bg-brand-primary/20 text-brand-secondary font-bold uppercase tracking-wider border border-brand-secondary/20">Data-Driven</div>
-                                <div className="text-[9px] px-2 py-1 rounded bg-brand-primary/20 text-brand-secondary font-bold uppercase tracking-wider border border-brand-secondary/20">Scale</div>
-                             </div>
-                          </div>
-                       </div>
-                     </div>
-                   </div>
-                </div>
-             </div>
-          </div>
-        </div>
-
-        <AnimatePresence>
-          {showOptimizer && (
-            <ResumeOptimizer onClose={() => setShowOptimizer(false)} />
-          )}
-          {showSimulator && (
-            <CareerPathSimulator onClose={() => setShowSimulator(false)} />
-          )}
-        </AnimatePresence>
-      </section>
+      <AnimatePresence>
+        {showOptimizer && (
+          <ResumeOptimizer onClose={() => setShowOptimizer(false)} />
+        )}
+        {showSimulator && (
+          <CareerPathSimulator onClose={() => setShowSimulator(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
