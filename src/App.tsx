@@ -53,6 +53,11 @@ const BRAND_PRIMARY = "#00564d";
 const SCHEDULING_30MIN = "https://calendar.app.google/V9y46Cj4VQfiizHq7";
 const DISCOVERY_CALL_1HR = "https://calendar.app.google/nCiGLhG5QGHb2SqL6";
 const INFO_FORM = "https://forms.gle/eVuPpQwxRzH7iUpU9";
+const CORPORATE_PAYMENT = "https://book.stripe.com/7sYdR97ZT1HD6yN0yZ7N601";
+const DONATION_LINK = "https://buy.stripe.com/cNidR95RLeup9KZ4Pf7N600";
+const PHONE_NUMBER = "(717) 707-8997";
+const ADDRESS = "8401 MAYLAND DR STE A, RICHMOND, VA, 23294, USA";
+const LEGAL_NAME = "The Transformation Room, LLC";
 
 // Components
 const ScrollToTop = () => {
@@ -203,20 +208,24 @@ const Footer = () => (
           <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
           <li><Link to="/testimonials" className="hover:text-white transition-colors">Success Stories</Link></li>
           <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-          <li><a href="#" className="hover:text-white transition-colors">Donation Center</a></li>
+          <li><a href={CORPORATE_PAYMENT} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Service Payment</a></li>
+          <li><a href={DONATION_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Donation Center</a></li>
         </ul>
       </div>
       <div>
         <h4 className="font-semibold mb-6">Contact</h4>
-        <p className="text-sm text-slate-400 mb-2">(717) 461-5402</p>
-        <p className="text-sm text-slate-400">Transformation Room</p>
+        <p className="text-sm text-slate-400 mb-2">{PHONE_NUMBER}</p>
+        <p className="text-sm text-slate-400 mb-4">{LEGAL_NAME}</p>
+        <p className="text-[10px] text-slate-500 max-w-[200px] leading-relaxed">
+          {ADDRESS}
+        </p>
         <div className="mt-6 flex flex-col gap-3">
           <a href={DISCOVERY_CALL_1HR} className="text-xs bg-brand-primary/20 text-brand-secondary border border-brand-secondary/30 px-3 py-2 rounded-md text-center hover:bg-brand-primary/30 transition-all">Free Discovery Call</a>
         </div>
       </div>
     </div>
     <div className="max-w-7xl mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
-      © {new Date().getFullYear()} The Transformation Room. All rights reserved.
+      © {new Date().getFullYear()} {LEGAL_NAME}. All rights reserved.
     </div>
   </footer>
 );
@@ -1853,7 +1862,7 @@ const About = () => {
                 <div className="absolute top-0 right-0 w-2 h-full bg-brand-secondary" />
                 <h3 className="text-xl font-bold mb-2 text-brand-primary">Support Our Initiatives</h3>
                 <p className="text-slate-700 relative z-10 font-medium mb-6">Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.</p>
-                <a href="https://buy.stripe.com/14k7swbAh3ludRS5kl" target="_blank" rel="noopener noreferrer" className="inline-flex px-8 py-3 rounded-full text-base font-bold transition-all border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/40 relative z-10">
+                <a href={DONATION_LINK} target="_blank" rel="noopener noreferrer" className="inline-flex px-8 py-3 rounded-full text-base font-bold transition-all border border-brand-primary/20 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/40 relative z-10">
                   Donate Now
                 </a>
               </motion.div>
@@ -1968,7 +1977,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-lg mb-2">Location</h4>
-                  <p className="text-slate-400 text-sm">Remote First & On-Site Deployments</p>
+                  <p className="text-slate-400 text-sm">{ADDRESS}</p>
                 </div>
               </div>
             </div>
@@ -2001,8 +2010,23 @@ const Contact = () => {
             </div>
             
             <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+              <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-4">Client Services</p>
+              <div className="px-6 py-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <p className="text-sm text-slate-600 mb-3">Settling an invoice or initiating a new engagement?</p>
+                <a 
+                  href={CORPORATE_PAYMENT} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center justify-center gap-2 text-brand-primary font-bold hover:text-brand-secondary transition-colors"
+                >
+                  Access Business Payment Portal <ArrowRight className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+            
+            <div className="mt-8 pt-8 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-4">Direct Contact</p>
-              <p className="text-xl font-bold text-brand-primary">(717) 461-5402</p>
+              <p className="text-xl font-bold text-brand-primary">{PHONE_NUMBER}</p>
             </div>
           </div>
         </div>
