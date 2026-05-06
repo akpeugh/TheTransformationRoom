@@ -18,6 +18,7 @@ import CareerTool from "./pages/CareerTool";
 import About from "./pages/About";
 import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
+import PodcastLibrary from "./pages/PodcastLibrary";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
+            <Route path="/podcasts" element={<PodcastLibrary />} />
           </Routes>
         </main>
         <Footer />

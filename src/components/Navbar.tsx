@@ -47,26 +47,10 @@ export const Navbar = () => {
       path: "/display?path=resume" 
     },
     {
-      name: "Podcast",
-      desc: "Trap of Growth Without Structure",
+      name: "Podcast Library",
+      desc: "Studio sessions & strategy",
       icon: <Headphones className="w-4 h-4" />,
-      action: () => window.dispatchEvent(new CustomEvent('play-global-podcast', {
-        detail: {
-          title: "Trap of Growth Without Structure",
-          url: "https://storage.googleapis.com/thetransformationroomassets/Trap_of_Growth_Without_Structure.m4a"
-        }
-      }))
-    },
-    {
-      name: "Latest Podcast",
-      desc: "Why Robots Need AI Fluent Humans",
-      icon: <Headphones className="w-4 h-4" />,
-      action: () => window.dispatchEvent(new CustomEvent('play-global-podcast', {
-        detail: {
-          title: "Why Robots Need AI Fluent Humans",
-          url: "https://storage.googleapis.com/thetransformationroomassets/Why_Robots_Need_AI_Fluent_Humans.m4a"
-        }
-      }))
+      path: "/podcasts"
     }
   ];
 
