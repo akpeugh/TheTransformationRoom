@@ -281,9 +281,14 @@ const Organizations = () => {
                   </div>
                   <span className="font-bold text-white tracking-widest uppercase text-sm mt-2">{flow.step}</span>
                   {idx < arr.length - 1 && (
-                     <div className="lg:hidden flex items-center justify-center mt-4">
-                       <ChevronDown className="w-6 h-6 text-brand-secondary animate-bounce" />
-                     </div>
+                     <>
+                       <div className="lg:hidden flex items-center justify-center mt-4">
+                         <ChevronDown className="w-6 h-6 text-brand-secondary animate-bounce" />
+                       </div>
+                       <div className="hidden lg:flex absolute top-1/2 -right-8 -translate-y-1/2 items-center justify-center z-0">
+                         <ArrowRight className="w-6 h-6 text-brand-secondary animate-pulse opacity-50" />
+                       </div>
+                     </>
                   )}
                 </motion.div>
               ))}

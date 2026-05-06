@@ -59,6 +59,16 @@ export const Navbar = () => {
           </Link>
           
           <div className="hidden md:flex space-x-8 items-center">
+            {['Organizations', 'Individuals', 'About', 'Contact'].map((item) => (
+              <Link 
+                key={item}
+                to={`/${item.toLowerCase()}`} 
+                className={`text-sm font-bold uppercase tracking-widest hover:text-brand-secondary transition-colors ${pathname === `/${item.toLowerCase()}` ? 'text-brand-secondary' : 'text-slate-900'}`}
+              >
+                {item}
+              </Link>
+            ))}
+
             {/* Tools Dropdown */}
             <div className="relative group/tools">
               <button 
@@ -108,15 +118,6 @@ export const Navbar = () => {
               </div>
             </div>
 
-            {['Organizations', 'Individuals', 'About', 'Contact'].map((item) => (
-              <Link 
-                key={item}
-                to={`/${item.toLowerCase()}`} 
-                className={`text-sm font-bold uppercase tracking-widest hover:text-brand-secondary transition-colors ${pathname === `/${item.toLowerCase()}` ? 'text-brand-secondary' : 'text-slate-900'}`}
-              >
-                {item}
-              </Link>
-            ))}
             <Link 
               to="/contact" 
               className="bg-brand-primary text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-brand-dark transition-all shadow-lg active:scale-95"

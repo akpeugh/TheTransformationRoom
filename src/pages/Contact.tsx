@@ -105,6 +105,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                 <div>
                   <h4 className="font-bold text-lg mb-2">Location</h4>
                   <p className="text-slate-400 text-sm">{ADDRESS}</p>
+                  <p className="text-slate-500 text-xs italic mt-1 pb-2">Remote to start w/ travel</p>
                 </div>
               </div>
             </div>

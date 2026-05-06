@@ -68,26 +68,26 @@ export const Footer = () => (
         <div className="space-y-12">
           <div>
             <h4 className="text-sm font-black uppercase tracking-widest text-brand-secondary mb-8">Payments & Support</h4>
-            <div className="space-y-6">
-              <a href={CORPORATE_PAYMENT} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
-                <div className="w-8 h-8 rounded-lg bg-brand-secondary/10 flex items-center justify-center shrink-0 border border-brand-secondary/30 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all">
-                  <Briefcase className="w-4 h-4" />
-                </div>
-                <span className="text-brand-secondary text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors underline underline-offset-4 decoration-2 text-left">Corporate Payment Link</span>
-              </a>
-              <a href={DONATION_LINK} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
-                <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center shrink-0 border border-brand-primary/30 group-hover:bg-brand-primary group-hover:text-white transition-all text-brand-primary">
-                  <Heart className="w-4 h-4" />
-                </div>
-                <span className="text-brand-primary text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors underline underline-offset-4 decoration-2 text-left">Support Our Mission</span>
-              </a>
-              <a href={DISCOVERY_CALL_1HR} target="_blank" rel="noreferrer" className="flex items-center gap-4 group">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:bg-white group-hover:text-slate-900 transition-all text-white/50">
-                  <Phone className="w-4 h-4" />
-                </div>
-                <span className="text-white text-xs font-bold uppercase tracking-widest group-hover:text-brand-secondary transition-colors underline underline-offset-4 decoration-2 text-left">Discovery Call Link</span>
-              </a>
-            </div>
+            <ul className="space-y-4">
+              <li>
+                <a href={CORPORATE_PAYMENT} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+                  <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
+                  Corporate Payment
+                </a>
+              </li>
+              <li>
+                <a href={DONATION_LINK} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+                  <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
+                  Support Our Mission
+                </a>
+              </li>
+              <li>
+                <a href={DISCOVERY_CALL_1HR} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+                  <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
+                  Discovery Call Link
+                </a>
+              </li>
+            </ul>
           </div>
           
           <div>

@@ -234,14 +234,6 @@ const Home = () => {
             </motion.div>
           </div>
           
-          <motion.div 
-            style={{ opacity: opacity1 }}
-            onClick={() => document.getElementById('tech-engine')?.scrollIntoView({ behavior: 'smooth' })}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-white/50 animate-bounce cursor-pointer hover:text-white transition-colors duration-300 z-30"
-          >
-            <ChevronsDown className="w-8 h-8 text-brand-secondary/80 drop-shadow-lg" />
-          </motion.div>
-
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
 
         </section>
