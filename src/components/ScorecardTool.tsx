@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { Link, useNavigate } from "react-router-dom";
 import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft } from "lucide-react";
 
 type Question = {
@@ -79,21 +80,23 @@ const QUESTIONS: Question[] = [
 ];
 
 export const ScorecardTool = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<"intro" | "questions" | "calculating" | "results">("intro");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [scores, setScores] = useState({ hardware: 0, data: 0, workforce: 0, total: 0 });
 
   const handleAnswer = (score: number) => {
-    setAnswers(prev => ({ ...prev, [QUESTIONS[currentQ].id]: score }));
+    const nextAnswers = { ...answers, [QUESTIONS[currentQ].id]: score };
+    setAnswers(nextAnswers);
     if (currentQ < QUESTIONS.length - 1) {
       setCurrentQ(prev => prev + 1);
     } else {
-      calculateScores();
+      calculateScores(nextAnswers);
     }
   };
 
-  const calculateScores = () => {
+  const calculateScores = (finalAnswers: Record<string, number>) => {
     setStep("calculating");
     
     setTimeout(() => {
@@ -101,7 +104,7 @@ export const ScorecardTool = () => {
       let hwMax = 0, dtMax = 0, wfMax = 0;
 
       QUESTIONS.forEach((q) => {
-        const score = answers[q.id] || 0;
+        const score = finalAnswers[q.id] || 0;
         if (q.category === "Hardware & Automation") { hw += score; hwMax += 100; }
         if (q.category === "Data & AI Readiness") { dt += score; dtMax += 100; }
         if (q.category === "Workforce Digital Experience") { wf += score; wfMax += 100; }
@@ -113,12 +116,6 @@ export const ScorecardTool = () => {
         workforce: Math.round((wf / wfMax) * 100),
         total: Math.round(((hw + dt + wf) / (hwMax + dtMax + wfMax)) * 100)
       };
-
-      // Ensure answers from the last question are updated before calculation
-      setAnswers(prev => {
-        const latestAnswers = { ...prev, [QUESTIONS[currentQ].id]: answers[QUESTIONS[currentQ].id] || 0 };
-        return latestAnswers;
-      });
 
       setScores(finalScores);
       setStep("results");
@@ -149,9 +146,13 @@ export const ScorecardTool = () => {
               className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center"
             >
               <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full mb-6">
+                  <Sparkles className="w-3 h-3 text-brand-primary" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Powered by NOVA Intelligence</span>
+                </div>
                 <h3 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">Your Transformation Scorecard</h3>
                 <p className="text-xl text-slate-400 mb-10 leading-relaxed font-light">
-                  Where does your organization stand on the path to total operational excellence? Get an instant maturity baseline across our three core pillars.
+                  NOVA will analyze your operational architecture across three core pillars to reveal your specific maturity baseline and identify hidden gaps.
                 </p>
                 <div className="space-y-8">
                   {[
@@ -318,8 +319,8 @@ export const ScorecardTool = () => {
                     <Database className="w-8 h-8 text-brand-secondary animate-pulse" />
                  </div>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-4">Processing Insights...</h3>
-              <p className="text-slate-400 font-light">Analyzing hardware, data integration, and workforce readiness constraints.</p>
+              <h3 className="text-3xl font-bold text-white mb-4">Reorganizing Entropy...</h3>
+              <p className="text-slate-400 font-light">NOVA is synthesizing your operational data points and mapping your transformation trajectory.</p>
             </motion.div>
           )}
 
@@ -447,30 +448,44 @@ export const ScorecardTool = () => {
                 </div>
 
                 <div className="space-y-4">
+                  <div className="flex items-center gap-3 mb-2 px-2">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden border border-brand-secondary/30 bg-slate-800">
+                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">NOVA Strategy Analysis Ready</span>
+                  </div>
                   <motion.button 
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                      detail: { prompt: `I scored a ${scores.total}% on the Readiness Assessment (${scores.hardware}% Hardware, ${scores.data}% Data, ${scores.workforce}% Workforce). Tell me exactly how The Transformation Room can help fix my specific gaps.` } 
+                      detail: { prompt: `I scored a ${scores.total}% on the Readiness Assessment (${scores.hardware}% Hardware, ${scores.data}% Data, ${scores.workforce}% Workforce). Tell me exactly how NOVA and The Transformation Room can fix my specific gaps.` } 
                     }))}
                     className="group relative w-full overflow-hidden bg-gradient-to-r from-brand-secondary via-emerald-400 to-brand-secondary bg-[length:200%_auto] hover:bg-[center_right_1rem] text-brand-dark font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-500 shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_40px_rgba(20,184,166,0.6)] cursor-pointer outline outline-2 outline-offset-2 outline-transparent hover:outline-brand-secondary/50 hover:animate-pulse z-10"
                   >
                     <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     <Bot className="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12" /> 
-                    <span className="relative z-10 transition-transform duration-300 group-hover:scale-105 inline-block">Discuss Results with our Guide</span>
+                    <span className="relative z-10 transition-transform duration-300 group-hover:scale-105 inline-block">Consult with NOVA</span>
                   </motion.button>
                   
-                  <motion.a 
+                  <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    href="https://calendar.app.google/V9y46Cj4VQfiizHq7" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="w-full group relative overflow-hidden bg-transparent border border-slate-600 hover:border-white/50 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:shadow-white/10"
+                    onClick={() => {
+                      navigate("/contact", {
+                        state: {
+                          assessmentResults: {
+                            source: "organization",
+                            archetype: scores.total > 70 ? "Transformation Ready" : scores.total > 40 ? "Steady Growth" : "Critical Gap Area",
+                            traits: `Total Score: ${scores.total}%, Hardware: ${scores.hardware}%, Data: ${scores.data}%, Workforce: ${scores.workforce}%`
+                          }
+                        }
+                      });
+                    }}
+                    className="w-full group relative overflow-hidden bg-white/10 hover:bg-white/20 border border-slate-600 hover:border-white/50 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
                   >
                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <span className="relative z-10 group-hover:tracking-wide transition-all">Book Discovery Call</span>
-                  </motion.a>
+                    <span className="relative z-10 group-hover:tracking-wide transition-all">Submit Inquiry</span>
+                  </motion.button>
 
                   <motion.button 
                     whileHover={{ scale: 1.02 }}

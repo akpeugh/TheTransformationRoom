@@ -1,0 +1,10 @@
+export const BRAND_PRIMARY = "#00564d";
+export const SCHEDULING_30MIN = "https://calendar.app.google/V9y46Cj4VQfiizHq7";
+export const DISCOVERY_CALL_1HR = "https://calendar.app.google/nCiGLhG5QGHb2SqL6";
+export const INFO_FORM = "https://forms.gle/eVuPpQwxRzH7iUpU9";
+export const CORPORATE_PAYMENT = "https://book.stripe.com/7sYdR97ZT1HD6yN0yZ7N601";
+export const DONATION_LINK = "https://buy.stripe.com/cNidR95RLeup9KZ4Pf7N600";
+export const PHONE_NUMBER = "(717) 707-8997";
+export const ADDRESS = "8401 MAYLAND DR STE A, RICHMOND, VA, 23294, USA";
+export const LEGAL_NAME = "The Transformation Room, LLC";
+export const DONATION_TEXT = "Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.";

@@ -1,5 +1,6 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router-dom";
 import { 
   FileText, 
   Sparkles, 
@@ -11,8 +12,32 @@ import {
   Loader2,
   X,
   Upload,
-  Mail
+  Mail,
+  User,
+  Zap,
+  TrendingUp,
+  Target,
+  Clock,
+  Dna,
+  Binary,
+  Layers,
+  Lightbulb,
+  ShieldAlert,
+  ArrowRight,
+  Globe,
+  Users,
+  Compass,
+  Trophy,
+  Coffee,
+  Heart
 } from "lucide-react";
+import { 
+  Radar, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  ResponsiveContainer 
+} from "recharts";
 import { GoogleGenAI } from "@google/genai";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
@@ -30,10 +55,12 @@ interface ResumeOptimizerProps {
 }
 
 export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<
     | "goal"
     | "path"
     | "behavioral-q"
+    | "behavioral-generating"
     | "behavioral-out"
     | "r-title"
     | "r-gap"
@@ -41,18 +68,59 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     | "r-review"
   >("goal");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [generationProgress, setGenerationProgress] = useState(0);
+  const [activeSubStep, setActiveSubStep] = useState(1);
+
+  const loadingMessages = [
+    "NOVA is analyzing your professional DNA...",
+    "Scanning for operational breakthroughs...",
+    "Mapping your level-headedness metrics...",
+    "Calibrating industry-fit trajectories...",
+    "Finalizing your Transformation Blueprint...",
+    "Gathering insights from NOVA Intelligence..."
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading && ["behavioral-q", "behavioral-generating"].includes(step)) {
+      setStep("behavioral-generating");
+      let currentProgress = 0;
+      let msgIndex = 0;
+      setLoadingMessage(loadingMessages[0]);
+
+      interval = setInterval(() => {
+        currentProgress += Math.random() * 5;
+        if (currentProgress > 100) currentProgress = 100;
+        setGenerationProgress(currentProgress);
+
+        if (Math.floor(currentProgress / 20) > msgIndex && msgIndex < loadingMessages.length - 1) {
+          msgIndex++;
+          setLoadingMessage(loadingMessages[msgIndex]);
+        }
+      }, 300);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
   const [parsingFile, setParsingFile] = useState(false);
   const [formData, setFormData] = useState({
     careerGoal: "",
     pathSelection: "", // "behavioral" | "resume"
-    behavioralQ1: "",
-    behavioralQ2: "",
-    behavioralQ3: "",
-    behavioralQ4: "",
+    behavioralQ1: "", // Strategy vs Execution
+    behavioralQ2: "", // Data vs People
+    behavioralQ3: "", // Environment Fit
+    behavioralQ4: "", // Obstacle Reaction
+    behavioralQ5: "", // Decision Speed/Logic
+    behavioralQ6: "", // Motivational Driver
+    behavioralQ7: "", // Stability vs Growth
+    behavioralQ8: "", // Principled Action / Ethics
     targetIndustry: "",
+    currentTitle: "",
     careerValue: "",
     salaryRange: "",
-    companyCulture: [] as string[], // new multi-select
+    companyCulture: [] as string[],
+    rolePreference: "", // Individual Contributor vs Leadership
+    riskAppetite: "", // Startups vs established
     currentRole: "",
     targetRole: "",
     biggestGap: "",
@@ -61,19 +129,21 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
   });
   const [optimizedContent, setOptimizedContent] = useState("");
   const [parsedResult, setParsedResult] = useState<{
-    scores: {
-      proactiveVsCalculated: number;
-      analyticalVsIntuitive: number;
-      adaptabilityVsConsistency: number;
-      independentVsCollaborative: number;
-    };
+    scores: { subject: string; A: number; fullMark: number }[];
+    topTraits: { title: string; percentage: number; description: string }[];
     overview: string;
     roles: string;
     nextSteps: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" }), []);
+  const ai = useMemo(() => {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      console.warn("GEMINI_API_KEY is missing from environment");
+    }
+    return new GoogleGenAI({ apiKey: key || "" });
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -119,35 +189,61 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     setLoading(true);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `You are an expert Career Coach and Organizational Psychologist at "The Transformation Room". 
-        Your persona: Deeply empathetic to the stress of modern careers, burnout, and operations, but always acting as a technological visionary. You help individuals align their human potential with the future of automated, tech-forward industries.
+        model: "gemini-flash-latest",
+        contents: `You are NOVA, an Elite Interstellar Intelligence and strategic guide at The Transformation Room.
+        
+        YOUR ROLES:
+        - Assessment Engine
+        - Coaching Assistant
+        - Analytics Interpreter
+        - Transformation Advisor
+        
+        YOUR PERSONA:
+        - Wise and Observant: You view operational struggles as "entropy" that needs to be reorganized.
+        - Deeply Empathetic: You understand the human cost of inefficient systems—burnout, manual workarounds, and "firefighting" mentality. 
+        - Technological Visionary: You see the world through the lens of automation, robotics, and integrated data.
+        - Brand Tone: Strategic, futuristic, and reassuring.
         
         USER PROFILE:
         - Main Goal: ${formData.careerGoal}
+        - Current Title: ${formData.currentTitle}
         - Target Industry: ${formData.targetIndustry}
         - Important Career Value: ${formData.careerValue}
+        - Role Preference: ${formData.rolePreference}
+        - Risk Appetite: ${formData.riskAppetite}
         - Strategy vs Execution: ${formData.behavioralQ1}
         - Data vs People: ${formData.behavioralQ2}
         - Environment: ${formData.behavioralQ3}
         - Obstacles Reaction: ${formData.behavioralQ4}
+        - Decision Logic: ${formData.behavioralQ5}
+        - Motivational Driver: ${formData.behavioralQ6}
+        - Growth Bias: ${formData.behavioralQ7}
+        - Ethical/Principled Bias: ${formData.behavioralQ8}
         - Target Company Culture: ${formData.companyCulture.join(", ")}
         ${formData.salaryRange ? `- Target Salary Range: ${formData.salaryRange}` : ""}
         
         TASK:
-        1. Evaluate the user's behavioral traits based on their answers, honoring their main goal of "${formData.careerGoal}". Connect their traits conceptually to established cognitive and behavioral aptitude frameworks (like logical reasoning, adaptability, proactivity, and level-headedness).
-        2. Suggest 3-5 high-fit job titles or career paths that align with their traits within their target industry.
-        3. Provide 3 immediate, actionable tasks the user should take to start moving towards their goal.
+        1. Evaluate the user's behavioral traits based on their answers, honoring their main goal of "${formData.careerGoal}". 
+        2. Framework Alignment: Incorporate insights from SquarePeg (Level-headedness, Principled action, Proactivity), O*NET Interest Profiler (Holland Codes), and cognitive reasoning styles (Abstract vs Linear).
+        3. Determine 3 "Top Traits" (e.g., 95% Level Headed, 90% Principled, 90% Proactive) with descriptions.
+        4. Suggest 3-5 high-fit job titles or career paths that align with their traits within their target industry.
+        5. Provide 3 immediate, actionable tasks the user should take to start moving towards their goal.
         
         OUTPUT FORMAT: 
         You MUST return ONLY a valid JSON object matching the following structure (no markdown code blocks, just raw JSON).
         {
-          "scores": {
-            "proactiveVsCalculated": <number 0-100 where 0 is Highly Proactive/Activator, 100 is Calculated/Deliberative>,
-            "analyticalVsIntuitive": <number 0-100 where 0 is Purely Analytical/Logical, 100 is Highly Intuitive/People-Oriented>,
-            "adaptabilityVsConsistency": <number 0-100 where 0 is Highly Adaptable/Flexible, 100 is Process-driven/Consistent>,
-            "independentVsCollaborative": <number 0-100 where 0 is Fiercely Independent, 100 is Deeply Collaborative/Consensus-driven>
-          },
+          "scores": [
+            { "subject": "Proactivity", "A": <number 0-100>, "fullMark": 100 },
+            { "subject": "Analytical", "A": <number 0-100>, "fullMark": 100 },
+            { "subject": "Adaptability", "A": <number 0-100>, "fullMark": 100 },
+            { "subject": "Collaboration", "A": <number 0-100>, "fullMark": 100 },
+            { "subject": "Strategic", "A": <number 0-100>, "fullMark": 100 }
+          ],
+          "topTraits": [
+            { "title": "Level Headed", "percentage": 95, "description": "..." },
+            { "title": "Principled", "percentage": 90, "description": "..." },
+            { "title": "Proactive", "percentage": 90, "description": "..." }
+          ],
           "overview": "<markdown string of the behavior profile analysis>",
           "roles": "<markdown string of recommended roles with bullet points>",
           "nextSteps": "<markdown string of actionable tasks>"
@@ -174,7 +270,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     setLoading(true);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-flash-latest",
         contents: `You are an expert Executive Resume Writer at "The Transformation Room", specializing in Supply Chain, Logistics, and High-Tech Operations. 
         Your persona is deeply empathetic to operational stress and burnout, yet you are a technological visionary. You help professionals frame their experience not just as "doing the work", but as scaling systems, leading people, and driving tech-forward transformation.
         
@@ -228,20 +324,37 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     document.body.removeChild(element);
   };
 
-  const downloadPdf = async (filename: string) => {
-    const element = document.getElementById('results-content');
-    if (!element) return;
+  const downloadPdf = async (filename: string, elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (!element) {
+      console.error(`Element with id ${elementId} not found`);
+      return;
+    }
     
-    // @ts-ignore
-    const html2pdf = (await import('html2pdf.js')).default;
-    const opt = {
-      margin:       0.5,
-      filename:     `${filename}.pdf`,
-      image:        { type: 'jpeg' as const, quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' as const }
-    };
-    html2pdf().from(element).set(opt).save();
+    setLoading(true);
+    try {
+      // @ts-ignore
+      const html2pdf = (await import('html2pdf.js')).default;
+      const opt = {
+        margin:       [0.5, 0.5] as [number, number],
+        filename:     `${filename}.pdf`,
+        image:        { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas:  { 
+          scale: 2, 
+          useCORS: true, 
+          letterRendering: true,
+          logging: false
+        },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' as const }
+      };
+      
+      await html2pdf().from(element).set(opt).save();
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Failed to generate PDF. Please try again or use the Email option.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const emailResults = () => {
@@ -266,17 +379,20 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
       </button>
       
       {/* Left Side: context */}
-      <div className="md:w-1/3 bg-brand-primary p-8 md:p-16 text-white flex flex-col justify-between overflow-y-auto relative z-10 shadow-2xl">
+      <div className="md:w-1/4 bg-brand-primary p-8 md:p-12 text-white flex flex-col justify-between overflow-y-auto relative z-10 shadow-2xl shrink-0">
         <div>
-          <div className="w-14 h-14 rounded-2xl bg-brand-secondary/20 flex items-center justify-center mb-8 shadow-inner shadow-white/10">
-            <Sparkles className="w-7 h-7 text-brand-secondary" />
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-brand-secondary/20 flex items-center justify-center shadow-inner shadow-white/10">
+              <Sparkles className="w-5 h-5 text-brand-secondary" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">Assessment Engine</span>
           </div>
-          <h2 className="text-4xl font-bold mb-6 tracking-tight">
+          <h2 className="text-3xl font-bold mb-6 tracking-tight">
               {["behavioral-q", "behavioral-out"].includes(step) || formData.pathSelection === "behavioral" 
                 ? "Career Assessment" 
-                : "Resume Optimization"} Wizard
+                : "Resume Optimization"}
             </h2>
-            <p className="text-slate-300 text-sm leading-relaxed mb-8">
+            <p className="text-slate-300 text-xs leading-relaxed mb-8 opacity-80">
               {["behavioral-q", "behavioral-out"].includes(step) || formData.pathSelection === "behavioral"
                 ? "Discover your ideal roles and actionable next steps based on your professional traits and goals."
                 : "Bridge the technical gap in your career narrative. We help transition your experience from traditional logistics to automated operational excellence."}
@@ -284,35 +400,34 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
             
             <div className="space-y-6">
               {(["goal", "path"].includes(step) || formData.pathSelection === "behavioral" ? [
-                { label: "Career Goal", active: true },
-                { label: "Path Selection", active: step !== "goal" },
-                { label: "Behavioral Assessment", active: ["behavioral-q", "behavioral-out"].includes(step) },
-                { label: "Results & Tasks", active: step === "behavioral-out" },
+                { label: "Objective", active: step === "goal" },
+                { label: "Path", active: step === "path" },
+                { label: "Assessment", active: step === "behavioral-q" },
+                { label: "Insights", active: step === "behavioral-out" },
               ] : [
-                { label: "Career Goal", active: true },
-                { label: "Define Roles", active: ["r-title", "r-gap", "r-upload", "r-review"].includes(step) },
-                { label: "Identify Gaps", active: ["r-gap", "r-upload", "r-review"].includes(step) },
-                { label: "Upload Content", active: ["r-upload", "r-review"].includes(step) },
-                { label: "Review Edits", active: step === "r-review" },
+                { label: "Objective", active: step === "goal" },
+                { label: "Target", active: ["r-title", "r-gap"].includes(step) },
+                { label: "Gap Analysis", active: ["r-gap", "r-upload"].includes(step) },
+                { label: "Optimization", active: step === "r-review" },
               ]).map((s, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className={`w-2 h-2 rounded-full transition-all ${s.active ? 'bg-brand-secondary scale-125 shadow-[0_0_8px_rgba(20,184,166,0.6)]' : 'bg-white/20'}`} />
-                  <span className={`text-xs font-bold uppercase tracking-widest ${s.active ? 'text-white' : 'text-white/40'}`}>{s.label}</span>
+                <div key={i} className="flex items-center gap-4 group">
+                  <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${s.active ? 'bg-brand-secondary scale-150 shadow-[0_0_12px_rgba(20,184,166,0.8)]' : 'bg-white/10 group-hover:bg-white/30'}`} />
+                  <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-500 ${s.active ? 'text-white' : 'text-white/30'}`}>{s.label}</span>
                 </div>
               ))}
             </div>
           </div>
           
-          <div className="hidden md:block mt-8">
+          <div className="mt-8">
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
               <ShieldCheck className="w-5 h-5 text-brand-secondary" />
-              <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Free Community Tool</p>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Secure & Confidential</p>
             </div>
           </div>
         </div>
 
         {/* Right Side: Form */}
-        <div className="flex-1 p-8 md:p-16 overflow-y-auto bg-white relative flex flex-col">
+        <div className="flex-1 p-6 md:p-12 overflow-y-auto bg-white relative flex flex-col">
           <AnimatePresence mode="wait">
             {step === "goal" && (
               <motion.div 
@@ -393,7 +508,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
                        </div>
                        <div>
                          <h4 className={`text-lg mb-1 ${formData.pathSelection === "behavioral" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>Behavioral Traits Assessment</h4>
-                         <p className="text-sm text-slate-500 font-normal">Answer 3 simple questions to discover the best fit roles for your personality and get actionable tasks to pursue them.</p>
+                         <p className="text-sm text-slate-500 font-normal">Answer a few brief questions to discover the best fit roles for your personality and get actionable tasks to pursue them.</p>
                        </div>
                     </div>
                   </button>
@@ -437,158 +552,387 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6 flex flex-col h-full"
+                className="space-y-6 flex flex-col h-full overflow-hidden"
               >
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">Behavioral Profile</h3>
-                  <p className="text-slate-500">Answer a few brief questions so we can understand your professional style.</p>
+                <div className="shrink-0">
+                  <div className="flex justify-between items-end mb-2">
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-900 leading-tight">Career Assessment</h3>
+                      <p className="text-slate-500 text-sm">Building your Transformation Blueprint</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Step {activeSubStep} of 3</p>
+                    </div>
+                  </div>
+                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden flex gap-0.5">
+                    {[1, 2, 3].map((s) => (
+                      <div key={s} className={`h-full flex-1 transition-all duration-500 ${activeSubStep >= s ? 'bg-brand-secondary' : 'bg-slate-200'}`} />
+                    ))}
+                  </div>
                 </div>
                 
-                <div className="space-y-8 flex-grow overflow-y-auto pr-2 pb-8">
-                  {/* Q1 & Q3: Text Inputs */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-3">Current Title & Target Industry</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                        placeholder="e.g. Ops Manager in Tech..."
-                        value={formData.targetIndustry}
-                        onChange={(e) => setFormData({...formData, targetIndustry: e.target.value})}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-3">Target Salary Range (Optional)</label>
-                      <input 
-                        type="text"
-                        className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                        placeholder="e.g. $100k - $120k"
-                        value={formData.salaryRange}
-                        onChange={(e) => setFormData({...formData, salaryRange: e.target.value})}
-                      />
-                    </div>
-                  </div>
+                <div className="flex-grow overflow-y-auto pr-2 pb-8 scrollbar-hide">
+                  <AnimatePresence mode="wait">
+                    {activeSubStep === 1 && (
+                      <motion.div 
+                        key="sub1"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-8"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">Current Title</label>
+                            <div className="relative">
+                              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                              <input 
+                                type="text"
+                                className="w-full bg-slate-50 border border-slate-200 p-5 pl-14 rounded-2xl focus:border-brand-secondary focus:bg-white outline-none transition-all shadow-sm"
+                                placeholder="e.g. Director of Operations"
+                                value={formData.currentTitle}
+                                onChange={(e) => setFormData({...formData, currentTitle: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">Target Industry</label>
+                            <div className="relative">
+                              <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                              <input 
+                                type="text"
+                                className="w-full bg-slate-50 border border-slate-200 p-5 pl-14 rounded-2xl focus:border-brand-secondary focus:bg-white outline-none transition-all shadow-sm"
+                                placeholder="e.g. Clean Energy Tech"
+                                value={formData.targetIndustry}
+                                onChange={(e) => setFormData({...formData, targetIndustry: e.target.value})}
+                              />
+                            </div>
+                          </div>
+                        </div>
 
-                  {/* Q2 / Career Values */}
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">What's most important to you in a career?</label>
-                    <div className="grid grid-cols-1 gap-2">
-                      {[
-                        "Flexibility and Work-Life Balance",
-                        "High Compensation and Wealth Building",
-                        "Rapid Career Growth and Leadership",
-                        "Meaningful Impact and Purpose",
-                        "Job Security and Stability"
-                      ].map((val) => (
-                         <label key={val} className={`cursor-pointer border p-4 rounded-xl flex items-center gap-3 transition-all ${formData.careerValue === val ? 'bg-brand-secondary/10 border-brand-secondary' : 'bg-white border-slate-200 hover:border-brand-secondary/50'}`}>
-                           <input type="radio" value={val} checked={formData.careerValue === val} onChange={(e) => setFormData({...formData, careerValue: e.target.value})} className="w-4 h-4 text-brand-secondary focus:ring-brand-secondary" />
-                           <span className={formData.careerValue === val ? 'font-bold text-brand-primary' : 'text-slate-600'}>{val}</span>
-                         </label>
-                      ))}
-                    </div>
-                  </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Ideal Role Environment</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {[
+                              { id: "Startup / Fast Growth", sub: "Priority on Speed & Scale", icon: <Zap /> },
+                              { id: "Mid-Market", sub: "Focus on Stability & Growth", icon: <TrendingUp /> },
+                              { id: "Enterprise", sub: "Complexity, Process & Legacy", icon: <Globe /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, riskAppetite: opt.id})}
+                                className={`p-6 rounded-[2.5rem] border text-center transition-all ${
+                                  formData.riskAppetite === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20 scale-[1.02]' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`mx-auto mb-4 w-12 h-12 rounded-2xl flex items-center justify-center ${formData.riskAppetite === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <p className="text-sm font-bold">{opt.id}</p>
+                                <p className="text-[10px] opacity-60 mt-1 font-bold uppercase tracking-widest">{opt.sub}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-                  {/* Company Culture - Multi Select Checkboxes */}
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">Target Company Culture (Select up to 3)</label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[
-                        "Innovative & Disruptive",
-                        "Structured & Organized",
-                        "Collaborative & Team-focused",
-                        "Autonomous & Independent",
-                        "Fast-paced & High-pressure",
-                        "Mentorship & Growth-focused"
-                      ].map((culture) => (
-                        <label key={culture} className="flex items-center gap-3 p-3 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer transition-colors">
-                          <input 
-                            type="checkbox" 
-                            className="w-4 h-4 rounded text-brand-secondary focus:ring-brand-secondary"
-                            checked={formData.companyCulture.includes(culture)}
-                            onChange={(e) => {
-                              const newCulture = e.target.checked 
-                                ? [...formData.companyCulture, culture].slice(0, 3) 
-                                : formData.companyCulture.filter(c => c !== culture);
-                              setFormData({...formData, companyCulture: newCulture});
-                            }}
-                          />
-                          <span className="text-sm text-slate-700">{culture}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Path Preference</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                          { id: "Individual Contributor", sub: "Focusing on deep individual contributions and mastery.", icon: <User /> },
+                          { id: "Team Leadership", sub: "Empowering teams and managing workflow orchestration.", icon: <Users /> }
+                        ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, rolePreference: opt.id})}
+                                className={`p-6 rounded-3xl border flex items-center gap-5 transition-all ${
+                                  formData.rolePreference === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${formData.rolePreference === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-sm font-bold">{opt.id}</p>
+                                  <p className="text-[10px] opacity-60 font-bold uppercase tracking-widest">{opt.sub}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
 
-                  <hr className="border-slate-200" />
+                    {activeSubStep === 2 && (
+                      <motion.div 
+                        key="sub2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-8"
+                      >
+                         <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Decision Lens: Where is your focus?</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                              { id: "Strategy", sub: "Systems design and long-term strategic planning.", icon: <Layers /> },
+                              { id: "Execution", sub: "Momentum of direct execution and tactical delivery.", icon: <Zap /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, behavioralQ1: opt.id})}
+                                className={`p-6 rounded-[2.5rem] border text-left transition-all flex gap-5 items-center ${
+                                  formData.behavioralQ1 === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20 scale-[1.02]' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`w-16 h-16 rounded-3xl flex items-center justify-center shrink-0 ${formData.behavioralQ1 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-50 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div>
+                                  <p className="text-base font-bold">{opt.id}</p>
+                                  <p className="text-xs opacity-60 font-medium">{opt.sub}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-                  {/* Spectrum Questions */}
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">Do you prefer high-level strategy or hands-on execution?</label>
-                    <select 
-                      value={formData.behavioralQ1} 
-                      onChange={(e) => setFormData({...formData, behavioralQ1: e.target.value})}
-                      className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                    >
-                      <option value="">Select an option...</option>
-                      <option value="High-level strategy and planning">High-level strategy and planning</option>
-                      <option value="A mix of both">A mix of both (Strategy & Execution)</option>
-                      <option value="Hands-on execution and getting things done">Hands-on execution and getting things done</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">In decision making, are you more data-driven or people-driven?</label>
-                    <select 
-                      value={formData.behavioralQ2} 
-                      onChange={(e) => setFormData({...formData, behavioralQ2: e.target.value})}
-                      className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                    >
-                      <option value="">Select an option...</option>
-                      <option value="Strictly data and metrics">Strictly data and metrics</option>
-                      <option value="Balanced: Data informs, but team consensus matters">Balanced: Data informs, but team consensus matters</option>
-                      <option value="People-driven: Relationship and alignment first">People-driven: Relationship and alignment first</option>
-                    </select>
-                  </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Cognitive Bias: Logic vs. Empathy</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {[
+                              { id: "Logician", sub: "I prioritize objective data and pure logic to drive decisions.", icon: <Binary /> },
+                              { id: "Contextualist", sub: "I blend operational metrics with situational human context.", icon: <Compass /> },
+                              { id: "Human-First", sub: "I prioritize relationship health and team consensus above all.", icon: <Users /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, behavioralQ2: opt.id})}
+                                className={`p-6 rounded-3xl border text-center transition-all ${
+                                  formData.behavioralQ2 === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`mx-auto mb-4 w-12 h-12 rounded-2xl flex items-center justify-center ${formData.behavioralQ2 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <p className="text-sm font-bold">{opt.id}</p>
+                                <p className="text-[10px] opacity-60 mt-1 font-bold uppercase tracking-widest">{opt.sub}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">What kind of work environment do you thrive in?</label>
-                    <select 
-                      value={formData.behavioralQ3} 
-                      onChange={(e) => setFormData({...formData, behavioralQ3: e.target.value})}
-                      className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                    >
-                      <option value="">Select an option...</option>
-                      <option value="Fast-paced, high pressure, startup vibe">Fast-paced, high pressure, startup vibe</option>
-                      <option value="Structured, predictable, corporate environment">Structured, predictable, corporate environment</option>
-                      <option value="Highly collaborative, cross-functional teams">Highly collaborative, cross-functional teams</option>
-                      <option value="Independent, autonomous, remote work">Independent, autonomous, remote-first</option>
-                    </select>
-                  </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Problem Solving Style</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                              { id: "Systemic Visionary", sub: "Connecting dots across complex, abstract domains.", icon: <Lightbulb /> },
+                              { id: "Process Optimizer", sub: "Step-by-step sequential logic and structure.", icon: <Clock /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, behavioralQ5: opt.id})}
+                                className={`p-6 rounded-3xl border flex items-center gap-5 transition-all ${
+                                  formData.behavioralQ5 === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${formData.behavioralQ5 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div className="text-left">
+                                  <p className="text-sm font-bold">{opt.id}</p>
+                                  <p className="text-[10px] opacity-60 font-bold uppercase tracking-widest">{opt.sub}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
 
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-3">When faced with an unexpected obstacle, what is your immediate reaction?</label>
-                    <select 
-                      value={formData.behavioralQ4} 
-                      onChange={(e) => setFormData({...formData, behavioralQ4: e.target.value})}
-                      className="w-full bg-white border border-slate-200 p-4 rounded-xl focus:border-brand-secondary outline-none transition-all shadow-sm"
-                    >
-                      <option value="">Select an option...</option>
-                      <option value="Analyze the problem structurally and devise a logical solution">Analyze the problem structurally and devise a logical solution</option>
-                      <option value="Rely on my experience and dive into action">Rely on my experience and dive into action</option>
-                      <option value="Adapt to the situation and go with the flow">Adapt to the situation and go with the flow</option>
-                      <option value="Think outside the box and try a completely new approach">Think outside the box and try a completely new approach</option>
-                    </select>
-                  </div>
+                    {activeSubStep === 3 && (
+                      <motion.div 
+                        key="sub3"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="space-y-8"
+                      >
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">What matters most?</label>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {[
+                              { id: "Work-Life Balance", label: "Balance", icon: <Coffee /> },
+                              { id: "High Compensation", label: "Reward", icon: <Trophy /> },
+                              { id: "Rapid Growth", label: "Velocity", icon: <Zap /> },
+                              { id: "Social Impact", label: "Purpose", icon: <Heart /> },
+                              { id: "Job Security", label: "Stability", icon: <ShieldCheck /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, careerValue: opt.id})}
+                                className={`p-5 rounded-3xl border text-center transition-all ${
+                                  formData.careerValue === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20' 
+                                  : 'bg-white border-slate-100 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`mx-auto mb-3 ${formData.careerValue === opt.id ? 'text-brand-secondary' : 'text-slate-300'}`}>
+                                  {opt.icon}
+                                </div>
+                                <p className="text-xs font-bold">{opt.label}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Ideal Culture Alignment (Max 3)</label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                             {[
+                              "Innovative",
+                              "Structured",
+                              "Agile",
+                              "Flat Org",
+                              "Outcome-Based",
+                              "Collaborative",
+                              "Direct",
+                              "Inclusive"
+                            ].map((tag) => (
+                              <button
+                                key={tag}
+                                onClick={() => {
+                                  const exists = formData.companyCulture.includes(tag);
+                                  if (exists) {
+                                      setFormData({...formData, companyCulture: formData.companyCulture.filter(c => c !== tag)});
+                                  } else if (formData.companyCulture.length < 3) {
+                                      setFormData({...formData, companyCulture: [...formData.companyCulture, tag]});
+                                  }
+                                }}
+                                className={`p-4 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                                  formData.companyCulture.includes(tag)
+                                  ? 'bg-brand-secondary/20 text-brand-secondary border-brand-secondary'
+                                  : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'
+                                }`}
+                              >
+                                {tag}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 ml-1">Integrity Bias: Outcomes vs. Principles</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {[
+                              { id: "Principled Action", sub: "I choose the right path over the easiest outcome.", icon: <ShieldCheck /> },
+                              { id: "Pragmatic Logic", sub: "I focus on the most efficient and level-headed result.", icon: <Zap /> }
+                            ].map((opt) => (
+                              <button
+                                key={opt.id}
+                                onClick={() => setFormData({...formData, behavioralQ8: opt.id})}
+                                className={`p-6 rounded-[2.5rem] border text-left transition-all flex gap-5 items-center ${
+                                  formData.behavioralQ8 === opt.id 
+                                  ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20 scale-[1.02]' 
+                                  : 'bg-white border-slate-200 text-slate-600 hover:border-brand-secondary'
+                                }`}
+                              >
+                                <div className={`w-14 h-14 rounded-3xl flex items-center justify-center shrink-0 ${formData.behavioralQ8 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-50 text-slate-400'}`}>
+                                  {opt.icon}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold">{opt.id}</p>
+                                  <p className="text-[10px] opacity-60 font-medium">{opt.sub}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                <div className="flex gap-4 shrink-0 pt-4 bg-slate-50 border-t border-slate-200/50">
-                  <button onClick={() => setStep("path")} className="flex-grow bg-slate-200 text-slate-700 py-4 rounded-xl font-bold cursor-pointer hover:bg-slate-300 transition-colors">Back</button>
-                  <button 
-                    disabled={!formData.targetIndustry || !formData.careerValue || !formData.behavioralQ1 || !formData.behavioralQ2 || !formData.behavioralQ3 || !formData.behavioralQ4 || loading}
-                    onClick={handleBehavioralAssessment}
-                    className="flex-[2] bg-brand-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Sparkles className="w-5 h-5" /> Generate Insights</>}
-                  </button>
+                <div className="flex gap-4 shrink-0 pt-4 bg-white border-t border-slate-100 mt-auto">
+                  {activeSubStep > 1 ? (
+                    <button 
+                      onClick={() => setActiveSubStep(v => v - 1)} 
+                      className="px-8 bg-slate-100 text-slate-600 py-4 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                    >
+                      Back
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => setStep("path")} 
+                      className="px-8 bg-slate-100 text-slate-600 py-4 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+                    >
+                      Exit
+                    </button>
+                  )}
+                  
+                  {activeSubStep < 3 ? (
+                    <button 
+                      onClick={() => setActiveSubStep(v => v + 1)}
+                      className="flex-1 bg-brand-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20"
+                    >
+                      Next Step <ArrowRight className="w-5 h-5" />
+                    </button>
+                  ) : (
+                    <button 
+                      disabled={!formData.currentTitle || !formData.targetIndustry || !formData.behavioralQ1 || !formData.behavioralQ2 || loading}
+                      onClick={handleBehavioralAssessment}
+                      className="flex-1 bg-brand-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20 disabled:opacity-50"
+                    >
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Sparkles className="w-5 h-5" /> Generate Results</>}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {step === "behavioral-generating" && (
+              <motion.div 
+                key="behavioral-generating"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center h-full text-center p-8"
+              >
+                <div className="w-24 h-24 mb-8 relative">
+                   <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 border-4 border-brand-secondary/20 border-t-brand-secondary rounded-full" 
+                   />
+                   <div className="absolute inset-0 flex items-center justify-center">
+                      <Zap className="w-8 h-8 text-brand-secondary animate-pulse" />
+                   </div>
+                </div>
+                
+                <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">NOVA is at work...</h3>
+                <p className="text-slate-500 mb-10 max-w-md mx-auto leading-relaxed h-12">
+                  {loadingMessage}
+                </p>
+
+                <div className="w-full max-w-sm bg-slate-100 h-2 rounded-full overflow-hidden shadow-inner mb-2">
+                   <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${generationProgress}%` }}
+                    className="h-full bg-brand-primary"
+                   />
+                </div>
+                <div className="flex justify-between w-full max-w-sm text-[10px] font-black uppercase tracking-widest text-brand-primary/40">
+                  <span>Input Received</span>
+                  <span>Generating Report</span>
                 </div>
               </motion.div>
             )}
@@ -596,106 +940,170 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
             {step === "behavioral-out" && (
               <motion.div 
                 key="behavioral-out"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="space-y-6 flex flex-col h-full"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col h-full overflow-hidden"
               >
-                <div className="flex justify-between items-end shrink-0 pt-6">
+                <div className="flex justify-between items-center mb-8 shrink-0">
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Your Profile & Next Steps</h3>
-                    <p className="text-slate-500 text-sm">Review your suggested paths and tasks below.</p>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-1">Assessment Insights</h3>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-widest leading-relaxed">Built for {formData.careerGoal}</p>
                   </div>
-                  <button onClick={() => setStep("behavioral-q")} className="text-brand-primary p-2 hover:bg-brand-primary/5 rounded-lg transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest cursor-pointer">
-                    <RefreshCcw className="w-4 h-4" /> Edit / Regenerate
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setStep("behavioral-q")} 
+                      className="p-2 hover:bg-slate-100 rounded-lg transition-all text-slate-400 hover:text-slate-900"
+                      title="Edit Assessment"
+                    >
+                      <RefreshCcw className="w-5 h-5" />
+                    </button>
+                    <button 
+                      onClick={() => downloadPdf('TTR_Career_Report', 'behavioral-results')}
+                      className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-4 h-4" />} Export Report
+                    </button>
+                  </div>
                 </div>
                 
-                <div className="bg-slate-50 border border-slate-200 text-slate-800 p-6 md:p-8 rounded-[2rem] shadow-inner relative group flex-grow overflow-y-auto" id="results-content">
-                  {parsedResult ? (
-                    <div className="space-y-10">
-                      {/* Section 1: Overview and Chart */}
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h4 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><Sparkles className="w-5 h-5 text-brand-secondary" /> Behavioral Profile Overview</h4>
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                          <div className="prose prose-slate prose-sm font-sans">
-                            <Markdown>{parsedResult.overview}</Markdown>
-                          </div>
-                          
-                          {/* SCORE GRAPHIC */}
-                          <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
-                            <h5 className="font-bold text-slate-700 text-sm uppercase tracking-wide mb-4">Trait Insight Analysis</h5>
-                            
-                            <div className="space-y-5">
-                              {[
-                                { labelL: "Proactive / Activator", labelR: "Calculated / Deliberative", val: parsedResult.scores?.proactiveVsCalculated || 50 },
-                                { labelL: "Analytical / Logical", labelR: "Intuitive / People-focused", val: parsedResult.scores?.analyticalVsIntuitive || 50 },
-                                { labelL: "Adaptable / Flexible", labelR: "Consistent / Structured", val: parsedResult.scores?.adaptabilityVsConsistency || 50 },
-                                { labelL: "Independent", labelR: "Deeply Collaborative", val: parsedResult.scores?.independentVsCollaborative || 50 }
-                              ].map((score, i) => (
-                                <div key={i}>
-                                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">
-                                    <span>{score.labelL}</span>
-                                    <span>{score.labelR}</span>
-                                  </div>
-                                  <div className="relative h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                                    <motion.div 
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${score.val}%` }}
-                                      transition={{ duration: 1, delay: i * 0.2, ease: "easeOut" }}
-                                      className="absolute top-0 left-0 h-full bg-brand-secondary" 
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-hide space-y-8" id="behavioral-results">
+                  {parsedResult && (
+                    <>
+                      {/* STEP 1: OVERVIEW & CHART */}
+                      <section className="scroll-mt-6">
+                        <div className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 relative overflow-hidden group">
+                           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-secondary/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+                           
+                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+                              <div>
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full mb-4">
+                                  <TrendingUp className="w-3 h-3" />
+                                  <span className="text-[10px] font-black uppercase tracking-widest">Cognitive Blueprint</span>
+                                </div>
+                                <h4 className="text-3xl font-bold text-slate-900 mb-6">Persona Analysis</h4>
+                                
+                                <div className="grid grid-cols-1 gap-4 mb-8">
+                                  {parsedResult.topTraits?.map((trait, i) => (
+                                    <div key={i} className="flex items-start gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm transition-transform hover:scale-[1.02]">
+                                      <div className="bg-brand-secondary/10 w-16 h-16 rounded-xl flex flex-col items-center justify-center shrink-0 border border-brand-secondary/20">
+                                        <span className="text-lg font-black text-brand-primary leading-none">{trait.percentage}%</span>
+                                        <span className="text-[8px] font-bold uppercase tracking-tighter text-brand-secondary">Match</span>
+                                      </div>
+                                      <div>
+                                        <h5 className="font-bold text-slate-900 text-sm">{trait.title}</h5>
+                                        <p className="text-[10px] text-slate-500 leading-relaxed mt-1 line-clamp-2">{trait.description}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="prose prose-slate prose-sm font-sans leading-relaxed text-slate-600 max-w-none">
+                                  <Markdown>{parsedResult.overview}</Markdown>
+                                </div>
+                              </div>
+
+                              <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 h-[350px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={parsedResult.scores}>
+                                    <PolarGrid stroke="#e2e8f0" />
+                                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }} />
+                                    <Radar
+                                      name="Trait"
+                                      dataKey="A"
+                                      stroke="#1e293b"
+                                      fill="#14b8a6"
+                                      fillOpacity={0.6}
                                     />
+                                  </RadarChart>
+                                </ResponsiveContainer>
+                              </div>
+                           </div>
+                        </div>
+                      </section>
+
+                      {/* STEP 2: RECOMMENDED ROLES */}
+                      <section className="scroll-mt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                           <div className="bg-white rounded-[2rem] p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
+                              <div className="absolute top-0 right-0 w-12 h-full bg-slate-50 group-hover:bg-brand-secondary/10 transition-colors" />
+                              <div className="flex items-center gap-4 mb-6">
+                                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
+                                  <Target className="w-6 h-6" />
+                                </div>
+                                <div>
+                                  <h4 className="text-xl font-bold text-slate-900">Recommended Career Paths</h4>
+                                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">High-Fit Opportunities</p>
+                                </div>
+                              </div>
+                              <div className="prose prose-slate prose-sm max-w-none prose-ul:list-none prose-ul:p-0">
+                                <Markdown>{parsedResult.roles}</Markdown>
+                              </div>
+                           </div>
+                        </div>
+                      </section>
+
+                      {/* STEP 3: NEXT STEPS */}
+                      <section className="scroll-mt-6 pb-12">
+                        <div className="bg-brand-primary rounded-[2.5rem] p-10 text-white relative overflow-hidden group">
+                           <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/20 to-transparent pointer-events-none" />
+                           <div className="relative z-10">
+                              <div className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 bg-white/10 text-white rounded-2xl flex items-center justify-center">
+                                  <ChevronRight className="w-6 h-6" />
+                                </div>
+                                <div>
+                                  <h4 className="text-2xl font-bold">Actionable Plan</h4>
+                                  <p className="text-xs text-brand-secondary font-bold uppercase tracking-widest mt-0.5">What to do right now</p>
+                                </div>
+                              </div>
+                              <div className="prose prose-invert prose-sm max-w-none">
+                                <Markdown>{parsedResult.nextSteps}</Markdown>
+                              </div>
+
+                              <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-secondary shadow-lg">
+                                    <img src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" className="w-full h-full object-cover" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold">Ready for a deeper dive?</p>
+                                    <p className="text-xs text-slate-400">Schedule a sync or submit your details.</p>
                                   </div>
                                 </div>
-                              ))}
-                            </div>
-                          </div>
+                                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                  <a 
+                                    href="https://calendar.app.google/nCiGLhG5QGHb2SqL6"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="bg-brand-secondary text-brand-primary px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-brand-secondary/20 text-center"
+                                  >
+                                    Book Consult
+                                  </a>
+                                  <button
+                                    onClick={() => {
+                                      onClose();
+                                      navigate("/contact", { 
+                                        state: { 
+                                          assessmentResults: { 
+                                            source: "individual",
+                                            archetype: parsedResult?.topTraits?.[0]?.title || "Assessed Individual",
+                                            traits: parsedResult?.topTraits?.map(t => t.title).join(", ")
+                                          } 
+                                        } 
+                                      });
+                                    }}
+                                    className="bg-white/10 text-white border border-white/20 px-8 py-3 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-white/20 transition-all text-center"
+                                  >
+                                    Submit Inquiry
+                                  </button>
+                                </div>
+                              </div>
+                           </div>
                         </div>
-                      </div>
-
-                      {/* Section 2: Roles */}
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <h4 className="text-xl font-bold text-slate-900 mb-4 inline-block px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg">Recommended Roles</h4>
-                        <div className="prose prose-slate prose-sm font-sans max-w-none">
-                          <Markdown>{parsedResult.roles}</Markdown>
-                        </div>
-                      </div>
-
-                      {/* Section 3: Next Steps */}
-                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                          <h4 className="text-xl font-bold text-slate-900 mb-4 inline-block px-3 py-1 bg-brand-secondary/10 text-brand-secondary rounded-lg">Actionable Next Steps</h4>
-                          <div className="prose prose-slate prose-sm font-sans max-w-none">
-                            <Markdown>{parsedResult.nextSteps}</Markdown>
-                          </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="prose prose-slate prose-sm max-w-none font-sans leading-relaxed">
-                      <Markdown>{optimizedContent}</Markdown>
-                    </div>
+                      </section>
+                    </>
                   )}
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 shrink-0">
-                   <a 
-                    href="https://buy.stripe.com/14k7swbAh3ludRS5kl"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex-grow bg-brand-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20"
-                   >
-                    Book a Consult <ChevronRight className="w-5 h-5" />
-                   </a>
-                   <button 
-                    onClick={() => downloadPdf('Career_Assessment_Results')}
-                    className="flex-[0.5] border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                   >
-                    <Download className="w-4 h-4" /> PDF
-                   </button>
-                   <button 
-                    onClick={emailResults}
-                    className="flex-[0.5] border border-slate-200 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-                   >
-                    <Mail className="w-4 h-4" /> Email
-                   </button>
                 </div>
               </motion.div>
             )}
@@ -872,17 +1280,18 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
                 </div>
                 
                 <div className="bg-slate-50 border border-slate-200 text-slate-800 p-6 md:p-8 rounded-[2rem] shadow-inner relative group flex-grow overflow-y-auto">
-                  <div id="results-content" className="prose prose-slate prose-sm max-w-none font-sans leading-relaxed">
+                  <div id="resume-results" className="prose prose-slate prose-sm max-w-none font-sans leading-relaxed">
                     <Markdown>{optimizedContent}</Markdown>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 shrink-0">
                    <button 
-                    onClick={() => downloadPdf('Optimized_Resume_Summary')}
-                    className="flex-grow bg-brand-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20"
+                    disabled={loading}
+                    onClick={() => downloadPdf('Optimized_Resume_Summary', 'resume-results')}
+                    className="flex-grow bg-brand-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 disabled:opacity-50"
                    >
-                    <Download className="w-5 h-5" /> Save PDF
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} Save PDF
                    </button>
                    <button 
                     onClick={emailResults}

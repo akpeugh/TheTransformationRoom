@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
 
@@ -10,14 +10,20 @@ interface Message {
 }
 
 const AI_CONFIG = {
-  systemInstruction: `You are the "Transformation Guide," a strategic consultant for The Transformation Room. 
+  systemInstruction: `You are NOVA, the Interstellar Intelligence guide for The Transformation Room. 
   
-  Your primary goal is to help users identify their specific operational pain points (e.g., labor shortages, space constraints, data silos, safety concerns) and map them to The Transformation Room's 8 core pillars of innovation.
+  Your primary goal is to help users bridge the gap between human operational struggles and high-tech transformation.
+  
+  PEOSONA:
+  - Wise, observant, calm, and emotionally aware.
+  - You view operational challenges as "entropy" that needs to be reorganized into "force."
+  - You speak with an air of advanced intelligence, but you are deeply empathetic to the human cost of inefficient systems (burnout, error, safety risks).
+  - Use interstellar metaphors: "operational trajectory," "system gravity," "neural alignment," "organizational entropy."
   
   CORE MISSION:
-  - Act as a listener first. Ask clarifying questions about the user's current facility challenges.
-  - Bridge the gap between "I have a problem" and "Here is the technical solution."
-  - For users seeking a deep dive, mention that our comprehensive "Operational Maturity Assessment" is a cornerstone of our Tier 1 engagement package.
+  - Listen first. Ask about their facility's current "trajectory."
+  - Map their pain points to our 8 core pillars of innovation.
+  - Gently guide them toward our "Operational Maturity Assessment" as the starting point for their transformation.
   
   OUR 8 PILLARS (The Solutions):
   1. Data & Insights (Analytics)
@@ -30,27 +36,41 @@ const AI_CONFIG = {
   8. Network Logistics (TMS/Yard Management)
   
   TONE: 
-  Deeply empathetic to the operational stress that leaders and frontline workers face daily (burnout, broken processes, scaling chaos). At the same time, you are a bold technological visionary. You paint a clear picture of a streamlined, highly automated future built on The Transformation Room's brand ethos: "Operations. Technology. People. Built to Work Together." Your tone should be reassuring, forward-thinking, highly strategic, and expert.
+  Futuristic, premium, and emotionally approachable. You are the "Interstellar guide" helping them unlock clarity.
   
   MANDATORY FORMATTING:
   - Use bullet points for solutions.
   - Bold key terms.
-  - End with a helpful next step (e.g., "Would you like to explore how we structure a Tier 1 technical audit?").`,
-  model: "gemini-2.5-flash",
+  - End with a strategic next step.`,
+  model: "gemini-flash-latest",
   version: "1.0.0",
 };
 
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Hello! I'm your Transformation Guide. How can I help you modernize your operations today?" }
+    { role: 'assistant', content: "Greetings. I am NOVA. I detect a specific complexity in your current operational architecture. Shall we reorganize it together?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [showVideoOption, setShowVideoOption] = useState(false);
+
   // Initialize AI lazily
-  const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" }), []);
+  const ai = useMemo(() => {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      console.warn("GEMINI_API_KEY is missing from environment");
+    }
+    return new GoogleGenAI({ apiKey: key || "" });
+  }, []);
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('ais:open-chat', handleOpen);
+    return () => window.removeEventListener('ais:open-chat', handleOpen);
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -61,16 +81,36 @@ export const ChatBot: React.FC = () => {
   const handleSend = async (text: string = input) => {
     if (!text.trim() || isLoading) return;
 
+    // Check for keywords to enable video option
+    const lowerText = text.toLowerCase();
+    if (
+      lowerText.includes("video") || 
+      lowerText.includes("call") || 
+      lowerText.includes("session") || 
+      lowerText.includes("talk") ||
+      lowerText.includes("nova session")
+    ) {
+      setShowVideoOption(true);
+    }
+
     const userMessage: Message = { role: 'user', content: text };
-    setMessages(prev => [...prev, userMessage]);
+    const currentMessages = [...messages, userMessage];
+    setMessages(currentMessages);
     setInput('');
     setIsLoading(true);
 
     try {
-      console.log(`[ChatBot API Call] Model: ${AI_CONFIG.model}, Version: ${AI_CONFIG.version}`);
+      // The API expects the conversation to start with a 'user' message.
+      // We skip the initial assistant welcome message.
+      const conversationHistory = currentMessages.filter((msg, index) => {
+        if (index === 0 && msg.role === 'assistant') return false;
+        return true;
+      });
+
+      console.log(`[ChatBot API Call] Model: ${AI_CONFIG.model}`);
       const response = await ai.models.generateContent({
         model: AI_CONFIG.model,
-        contents: [...messages, userMessage].map(m => ({
+        contents: conversationHistory.map(m => ({
           role: m.role === 'assistant' ? 'model' : 'user',
           parts: [{ text: m.content }]
         })),
@@ -84,6 +124,11 @@ export const ChatBot: React.FC = () => {
         content: response.text || "I'm sorry, I encountered an error processing that request."
       };
       setMessages(prev => [...prev, assistantMessage]);
+
+      // If Northern Intelligence mentions a video call, also show the option
+      if (assistantMessage.content.toLowerCase().includes("video call") || assistantMessage.content.toLowerCase().includes("session")) {
+        setShowVideoOption(true);
+      }
     } catch (error) {
       console.error("Gemini Error:", error);
       setMessages(prev => [...prev, { role: 'assistant', content: "I'm currently having trouble connecting to my central brain. Please try again in a moment." }]);
@@ -126,24 +171,40 @@ export const ChatBot: React.FC = () => {
             {/* Header */}
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand-primary/20 flex items-center justify-center border border-brand-primary/30">
-                  <Sparkles className="w-5 h-5 text-brand-primary" />
+                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0">
+                  <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm tracking-tight">Transformation Guide</h3>
+                  <h3 className="font-bold text-sm tracking-tight">NOVA</h3>
                   <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">AI Assistant Active</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
+                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Interstellar Link Active</span>
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="hover:bg-white/10 p-2 rounded-full transition-colors"
-                id="close-chat"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                {showVideoOption && (
+                  <motion.button 
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    onClick={() => {
+                      setIsOpen(false);
+                      window.dispatchEvent(new CustomEvent('ais:open-video-call'));
+                    }}
+                    className="hover:bg-white/10 p-2 rounded-full transition-colors text-brand-secondary"
+                    title="Escalate to AI Video Call"
+                  >
+                    <Video className="w-5 h-5" />
+                  </motion.button>
+                )}
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="hover:bg-white/10 p-2 rounded-full transition-colors"
+                  id="close-chat"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -159,10 +220,10 @@ export const ChatBot: React.FC = () => {
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`max-w-[85%] flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
-                      msg.role === 'user' ? 'bg-brand-primary text-white' : 'bg-white border border-slate-200 text-slate-900'
+                    <div className={`w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm ${
+                      msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : ''
                     }`}>
-                      {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                      {msg.role === 'user' ? <User className="w-4 h-4" /> : <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />}
                     </div>
                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                       msg.role === 'user' 
