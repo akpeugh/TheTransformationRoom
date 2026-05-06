@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Sparkles, Bot, BarChart, FileText, Zap } from "lucide-react";
+import { ChevronDown, Sparkles, Bot, BarChart, FileText, Zap, Headphones } from "lucide-react";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +46,28 @@ export const Navbar = () => {
       icon: <FileText className="w-4 h-4" />,
       path: "/display?path=resume" 
     },
+    {
+      name: "Podcast",
+      desc: "Trap of Growth Without Structure",
+      icon: <Headphones className="w-4 h-4" />,
+      action: () => window.dispatchEvent(new CustomEvent('play-global-podcast', {
+        detail: {
+          title: "Trap of Growth Without Structure",
+          url: "https://storage.googleapis.com/thetransformationroomassets/Trap_of_Growth_Without_Structure.m4a"
+        }
+      }))
+    },
+    {
+      name: "Latest Podcast",
+      desc: "Why Robots Need AI Fluent Humans",
+      icon: <Headphones className="w-4 h-4" />,
+      action: () => window.dispatchEvent(new CustomEvent('play-global-podcast', {
+        detail: {
+          title: "Why Robots Need AI Fluent Humans",
+          url: "https://storage.googleapis.com/thetransformationroomassets/Why_Robots_Need_AI_Fluent_Humans.m4a"
+        }
+      }))
+    }
   ];
 
   return (

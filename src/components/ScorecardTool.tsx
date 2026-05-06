@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
-import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft, Brain } from "lucide-react";
+import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft, Brain, Mail } from "lucide-react";
 
 type Question = {
   id: string;
@@ -120,6 +120,23 @@ export const ScorecardTool = () => {
       setScores(finalScores);
       setStep("results");
     }, 2000); // Fake calculation delay for effect
+  };
+
+  const handleEmailResults = () => {
+    const subject = encodeURIComponent("My Operational Readiness Scorecard Results | The Transformation Room");
+    const body = encodeURIComponent(
+      "Here are my latest Operational Readiness Assessment results from The Transformation Room:\n\n" +
+      `Total Operational Readiness Score: ${scores.total}%\n\n` +
+      `[Pillars Analysis]\n` +
+      `- Hardware & Automation: ${scores.hardware}%\n` +
+      `- Data & AI Readiness: ${scores.data}%\n` +
+      `- Workforce Digital Experience: ${scores.workforce}%\n\n` +
+      "Personal Notes / Observations:\n" +
+      "[Add your personal message here]\n\n" +
+      "---\n" +
+      "Discover your own transformation roadmap at The Transformation Room."
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   const reset = () => {
@@ -493,25 +510,37 @@ export const ScorecardTool = () => {
                     <span className="relative z-10 transition-transform duration-300 group-hover:scale-105 inline-block">Consult with NOVA</span>
                   </motion.button>
                   
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      navigate("/contact", {
-                        state: {
-                          assessmentResults: {
-                            source: "organization",
-                            archetype: scores.total > 70 ? "Transformation Ready" : scores.total > 40 ? "Steady Growth" : "Critical Gap Area",
-                            traits: `Total Score: ${scores.total}%, Hardware: ${scores.hardware}%, Data: ${scores.data}%, Workforce: ${scores.workforce}%`
+                  <div className="flex gap-4">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        navigate("/contact", {
+                          state: {
+                            assessmentResults: {
+                              source: "organization",
+                              archetype: scores.total > 70 ? "Transformation Ready" : scores.total > 40 ? "Steady Growth" : "Critical Gap Area",
+                              traits: `Total Score: ${scores.total}%, Hardware: ${scores.hardware}%, Data: ${scores.data}%, Workforce: ${scores.workforce}%`
+                            }
                           }
-                        }
-                      });
-                    }}
-                    className="w-full group relative overflow-hidden bg-white/10 hover:bg-white/20 border border-slate-600 hover:border-white/50 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
-                  >
-                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <span className="relative z-10 group-hover:tracking-wide transition-all">Submit Inquiry</span>
-                  </motion.button>
+                        });
+                      }}
+                      className="flex-1 group relative overflow-hidden bg-white/10 hover:bg-white/20 border border-slate-600 hover:border-white/50 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                    >
+                      <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="relative z-10 group-hover:tracking-wide transition-all">Submit Inquiry</span>
+                    </motion.button>
+                    
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleEmailResults}
+                      className="flex-1 group relative overflow-hidden bg-brand-primary/10 hover:bg-brand-primary/20 border border-brand-primary/30 hover:border-brand-primary/50 text-brand-primary font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+                    >
+                      <Mail className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                      <span className="relative z-10">Email Results</span>
+                    </motion.button>
+                  </div>
 
                   <motion.button 
                     whileHover={{ scale: 1.02 }}

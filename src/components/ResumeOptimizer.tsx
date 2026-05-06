@@ -358,8 +358,15 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
   };
 
   const emailResults = () => {
-    const subject = encodeURIComponent("My Career Assessment Results from The Transformation Room");
-    const body = encodeURIComponent("Here are my results:\n\n" + optimizedContent);
+    const subject = encodeURIComponent("My Career Assessment Results | The Transformation Room");
+    const body = encodeURIComponent(
+      "Here are my results:\n\n" + 
+      optimizedContent + "\n\n" +
+      "Personal Notes / Reflections:\n" +
+      "[Add your personal message here]\n\n" +
+      "---\n" +
+      "Discover your own career transformation blueprint at The Transformation Room."
+    );
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 

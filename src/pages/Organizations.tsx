@@ -17,7 +17,8 @@ import {
   Factory, 
   Layers, 
   CheckCircle2,
-  Bot
+  Bot,
+  Play
 } from "lucide-react";
 import { ScorecardTool } from "../components/ScorecardTool";
 import { CORPORATE_PAYMENT, DISCOVERY_CALL_1HR } from "../constants";
@@ -299,15 +300,20 @@ const Organizations = () => {
                          ))}
                        </div>
                     </div>
-                    <audio 
-                      controls 
-                      className="w-full h-14" 
-                      src="https://storage.googleapis.com/thetransformationroomassets/Scaling_Beyond_Legacy_Heroics.m4a"
-                      preload="metadata"
-                      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}
+                    <button 
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('play-global-podcast', {
+                           detail: {
+                             title: "Scaling Beyond Legacy Heroics",
+                             url: "https://storage.googleapis.com/thetransformationroomassets/Scaling_Beyond_Legacy_Heroics.m4a"
+                           }
+                        }));
+                      }}
+                      className="w-full bg-brand-secondary text-brand-dark py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white transition-colors"
                     >
-                      Your browser does not support the audio element.
-                    </audio>
+                      <Play className="w-5 h-5 fill-current" />
+                      Listen to Podcast
+                    </button>
                   </div>
                 </div>
                 

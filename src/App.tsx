@@ -8,6 +8,8 @@ import { Footer } from "./components/Footer";
 import { ChatBot } from "./components/ChatBot";
 import { AIVideoCall } from "./components/AIVideoCall";
 
+import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
+
 // Pages
 import Home from "./pages/Home";
 import Organizations from "./pages/Organizations";
@@ -67,6 +69,7 @@ export default function App() {
             }} />
           )}
         </AnimatePresence>
+        <GlobalPodcastPlayer />
       </div>
     </Router>
   );

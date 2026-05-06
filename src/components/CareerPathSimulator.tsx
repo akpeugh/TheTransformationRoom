@@ -12,7 +12,8 @@ import {
   Sparkles,
   Search,
   Brain,
-  History
+  History,
+  Mail
 } from 'lucide-react';
 
 interface CareerPathSimulatorProps {
@@ -36,6 +37,24 @@ export const CareerPathSimulator: React.FC<CareerPathSimulatorProps> = ({ onClos
       setIsSimulating(false);
       setStep('result');
     }, 2500);
+  };
+
+  const handleEmailResults = () => {
+    const subject = encodeURIComponent("My Career Transformation Roadmap | The Transformation Room");
+    const body = encodeURIComponent(
+      "Here is my generated Career Transformation Roadmap from The Transformation Room:\n\n" +
+      `Current Role: ${formData.currentRole}\n` +
+      `Desired Role: ${formData.desiredRole}\n\n` +
+      `[Growth Steps]\n` +
+      `1. Narrative Shift: Reframe my current experience.\n` +
+      `2. Technical Layer: Master new relevant tools.\n` +
+      `3. Authority Play: Lead a pilot project with measurable ROI.\n\n` +
+      "Personal Notes / Reflections:\n" +
+      "[Add your personal message here]\n\n" +
+      "---\n" +
+      "Simulate your own career path jump at The Transformation Room."
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
   };
 
   return (
@@ -212,23 +231,32 @@ export const CareerPathSimulator: React.FC<CareerPathSimulatorProps> = ({ onClos
                  </div>
 
                  {/* CTA */}
-                 <div className="flex flex-col sm:flex-row gap-4 pt-8">
-                    <button 
-                      onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                        detail: { prompt: `I want to transition from ${formData.currentRole} to ${formData.desiredRole}. NOVA just generated a roadmap for me. Let's discuss step 1: Narrative Shift.` } 
-                      }))}
-                      className="flex-1 py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary transition-all group shadow-xl"
-                    >
-                       <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
-                       Deconstruct Step 1 with NOVA
-                    </button>
-                    <button 
-                       onClick={() => window.location.href = '/contact'}
-                       className="flex-1 py-5 bg-brand-secondary text-brand-dark rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white border border-transparent hover:border-brand-secondary transition-all shadow-xl shadow-brand-secondary/10"
-                    >
-                       <ShieldCheck className="w-5 h-5" />
-                       Apply for Coaching Support
-                    </button>
+                 <div className="flex flex-col gap-4 pt-8">
+                   <div className="flex flex-col sm:flex-row gap-4">
+                      <button 
+                        onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
+                          detail: { prompt: `I want to transition from ${formData.currentRole} to ${formData.desiredRole}. NOVA just generated a roadmap for me. Let's discuss step 1: Narrative Shift.` } 
+                        }))}
+                        className="flex-1 py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary transition-all group shadow-xl"
+                      >
+                         <Bot className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                         Deconstruct Step 1 with NOVA
+                      </button>
+                      <button 
+                         onClick={() => window.location.href = '/contact'}
+                         className="flex-1 py-5 bg-brand-secondary text-brand-dark rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white border border-transparent hover:border-brand-secondary transition-all shadow-xl shadow-brand-secondary/10"
+                      >
+                         <ShieldCheck className="w-5 h-5" />
+                         Apply for Coaching Support
+                      </button>
+                   </div>
+                   <button 
+                     onClick={handleEmailResults}
+                     className="w-full py-4 bg-brand-primary/10 text-brand-primary border border-brand-primary/30 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-primary hover:text-white transition-all shadow-sm group"
+                   >
+                     <Mail className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+                     Email Career Roadmap Results
+                   </button>
                  </div>
               </motion.div>
             )}

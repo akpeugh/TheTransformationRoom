@@ -88,16 +88,22 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
     source.start();
   }, []);
 
-  const connectToLiveAPI = useCallback(async () => {
+  const connectToLiveAPI = useCallback(() => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       
-      const session = await ai.live.connect({
+      const sessionPromise = ai.live.connect({
         model: "gemini-3.1-flash-live-preview",
         callbacks: {
           onopen: () => {
             setStatus("active");
             console.log("Connected to NOVA");
+            sessionPromise.then((session) => {
+              session.sendClientContent({
+                turns: "Connection established. Please introduce yourself to the user.",
+                turnComplete: true
+              });
+            });
           },
           onmessage: async (message: any) => {
             // Handle audio output
@@ -112,16 +118,23 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
               playNextInQueue();
             }
 
-            // Handle transcription
-            if (message.serverContent?.modelTurn?.parts[0]?.text) {
-                const text = message.serverContent.modelTurn.parts[0].text;
-                setAiResponse(prev => prev + " " + text);
-                conversationLog.current.push("AI: " + text);
+            // Handle output audio transcription
+            if (message.serverContent?.outputTranscription?.text) {
+                const text = message.serverContent.outputTranscription.text;
+                setAiResponse(text);
+                if (message.serverContent.outputTranscription.finished) {
+                  conversationLog.current.push("NOVA: " + text);
+                }
             }
 
             // Handle user transcription
-            const userText = message.serverContent?.turnComplete ? "" : ""; 
-            if (userText) setTranscription(userText);
+            const userText = message.serverContent?.inputTranscription?.text; 
+            if (userText) {
+              setTranscription(userText);
+              if (message.serverContent?.inputTranscription?.finished) {
+                 conversationLog.current.push("User: " + userText);
+              }
+            }
             
             // Handle interruption
             if (message.serverContent?.interrupted) {
@@ -143,12 +156,17 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } },
           },
           systemInstruction,
-          outputAudioTranscription: {},
+          outputAudioTranscription: {}, // Request transcriptions!
           inputAudioTranscription: {},
         },
       });
 
-      sessionRef.current = session;
+      sessionPromise.then(session => {
+        sessionRef.current = session;
+      }).catch(err => {
+        console.error("Failed to resolve session:", err);
+        setStatus("error");
+      });
     } catch (err) {
       console.error("Failed to connect:", err);
       setStatus("error");
@@ -170,7 +188,9 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
       processorRef.current = processor;
       
       processor.onaudioprocess = (e) => {
-        if (!sessionRef.current || status !== "active" || !isMicOn) return;
+        if (!sessionRef.current) return;
+        const micEnabled = streamRef.current?.getAudioTracks()[0]?.enabled;
+        if (!micEnabled) return;
         
         const inputData = e.inputBuffer.getChannelData(0);
         const int16Data = new Int16Array(inputData.length);
@@ -181,9 +201,18 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
           int16Data[i] = val < 0 ? val * 32768 : val * 32767;
           sum += Math.abs(val);
         }
+        
+        // Update audio level safely (this triggers re-render, but it's fine)
         setAudioLevel(sum / inputData.length);
 
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(int16Data.buffer)));
+        const bytes = new Uint8Array(int16Data.buffer);
+        let binary = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+          binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+        }
+        
+        const base64 = btoa(binary);
         sessionRef.current.sendRealtimeInput({
           audio: { data: base64, mimeType: 'audio/pcm;rate=16000' }
         });
