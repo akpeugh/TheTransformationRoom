@@ -45,17 +45,31 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
     }
   }, [assessmentData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    // Usually non-JS form submission handles this, but we can set state for UI
-    // For actual submit we let the browser do its thing if action is set, 
-    // or we use fetch. The original had action="https://formsubmit.co/..."
-    // so we should probably not preventDefault unless we use AJAX.
-    // However, the original code had: const handleSubmit = (e: React.FormEvent) => { setIsSubmitted(true); };
-    // This implies it was intended for demo or AJAX. 
-    // I'll keep the logic but change to a controlled submit if needed.
-    // For now, let's stick to the original logic which just shows the success message.
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    
+    // Extract form data
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      // Send the data using FormSubmit's AJAX endpoint
+      await fetch("https://formsubmit.co/ajax/katie@thetransformationroom.com", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      // Show success screen whether it succeeded perfectly or not
+      // (The very first submission will trigger an activation email from FormSubmit)
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Still show success to not confuse user, but log it
+      setIsSubmitted(true); 
+    }
   };
 
   if (isSubmitted) {

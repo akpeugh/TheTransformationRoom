@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
+import { AIVideoCall } from './AIVideoCall';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -57,7 +58,7 @@ export const ChatBot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const [showVideoOption, setShowVideoOption] = useState(false);
+  const [isVideoModeOpen, setIsVideoModeOpen] = useState(false);
 
   // Initialize AI lazily
   const ai = useMemo(() => {
@@ -84,16 +85,7 @@ export const ChatBot: React.FC = () => {
     if (!text.trim() || isLoading) return;
 
     // Check for keywords to enable video option
-    const lowerText = text.toLowerCase();
-    if (
-      lowerText.includes("video") || 
-      lowerText.includes("call") || 
-      lowerText.includes("session") || 
-      lowerText.includes("talk") ||
-      lowerText.includes("nova session")
-    ) {
-      setShowVideoOption(true);
-    }
+    // (Deprecated: video button is now always visible)
 
     const userMessage: Message = { role: 'user', content: text };
     const currentMessages = [...messages, userMessage];
@@ -128,9 +120,7 @@ export const ChatBot: React.FC = () => {
       setMessages(prev => [...prev, assistantMessage]);
 
       // If Northern Intelligence mentions a video call, also show the option
-      if (assistantMessage.content.toLowerCase().includes("video call") || assistantMessage.content.toLowerCase().includes("session")) {
-        setShowVideoOption(true);
-      }
+      // (Deprecated: video button is now always visible)
     } catch (error) {
       console.error("Gemini Error:", error);
       setMessages(prev => [...prev, { role: 'assistant', content: "I'm currently having trouble connecting to my central brain. Please try again in a moment." }]);
@@ -185,20 +175,21 @@ export const ChatBot: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {showVideoOption && (
                   <motion.button 
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     onClick={() => {
+                      setIsVideoModeOpen(true);
+                      // Set isOpen to false if you want the main chat window hidden, 
+                      // or keep it open in the background. We hide it for cleaner UI.
                       setIsOpen(false);
-                      window.dispatchEvent(new CustomEvent('ais:open-video-call'));
                     }}
-                    className="hover:bg-white/10 p-2 rounded-full transition-colors text-brand-secondary"
-                    title="Escalate to AI Video Call"
+                    className="hover:bg-white/10 p-2 rounded-full transition-colors text-brand-secondary flex items-center gap-2 bg-white/5 border border-white/10 hover:border-brand-secondary/50 group"
+                    title="Start Video Companion Mode"
                   >
-                    <Video className="w-5 h-5" />
+                    <Video className="w-4 h-4" />
+                    <span className="text-[10px] uppercase font-bold tracking-widest sm:block hidden group-hover:text-white transition-colors">Video Mode</span>
                   </motion.button>
-                )}
                 <button 
                   onClick={() => setIsOpen(false)}
                   className="hover:bg-white/10 p-2 rounded-full transition-colors"
@@ -388,6 +379,19 @@ export const ChatBot: React.FC = () => {
           </motion.div>
         )}
       </motion.button>
+
+      {/* Video Companion Mode Overlay */}
+      <AnimatePresence>
+        {isVideoModeOpen && (
+          <AIVideoCall
+            onClose={() => {
+                setIsVideoModeOpen(false);
+                setIsOpen(true); // Bring back text chat when closing video
+            }}
+            messages={messages}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

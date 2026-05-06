@@ -202,6 +202,121 @@ const Organizations = () => {
         </div>
       </header>
 
+      {/* Audio Overview Section */}
+      <section className="py-24 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="bg-slate-50 border border-slate-200 rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-secondary/15 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 border border-slate-200 rounded-full mb-8 shadow-sm">
+                  <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-800">Featured Audio Insight</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 leading-[1.1] tracking-tight">
+                  Escape the Trap of <br className="hidden md:block"/>
+                  <span className="text-brand-primary">Manual Heroics.</span>
+                </h2>
+                <div className="w-20 h-1.5 bg-brand-primary mb-8 rounded-full" />
+                <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                  Listen to a dynamic discussion between two industry experts on how The Transformation Room builds scalable, automated operational ecosystems. We explore moving past daily firefighting into a state of structural resilience.
+                </p>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+                  Discover how we integrate <span className="font-bold text-slate-900">AI strategy, industrial hardware, and workforce experience</span> into a single, high-output engine powered by our Four Pillars of Transformation:
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                  {[
+                    "Optimized Process",
+                    "Tech Strategy",
+                    "Real-Time Insights",
+                    "Workforce Alignment"
+                  ].map((pillar, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-4 h-4 text-brand-primary" />
+                      </div>
+                      <span className="text-slate-800 font-bold text-sm tracking-wide">{pillar}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Link to="/contact" className="inline-flex items-center gap-3 bg-brand-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-dark transition-all shadow-xl hover:shadow-brand-primary/30 active:scale-95 group">
+                  Book a Discovery Call
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, rotateY: 10 }}
+                whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative border border-slate-800"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                {/* Audio Player UI */}
+                <div className="absolute -top-5 -right-5 md:-top-8 md:-right-8 bg-brand-secondary text-brand-dark px-6 py-3 rounded-2xl font-bold text-sm shadow-2xl transform rotate-3 flex items-center gap-2 border border-white/20">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Audio Overview</span>
+                </div>
+                
+                <div className="mb-10 text-center">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">The Transformation Room</h3>
+                  <p className="text-brand-secondary font-bold text-xs uppercase tracking-[0.2em]">Scaling Beyond Legacy Heroics</p>
+                </div>
+
+                <div className="bg-slate-800 p-6 md:p-8 rounded-3xl border border-white/5 shadow-inner">
+                  <div className="flex flex-col gap-6">
+                    <div className="w-full flex items-center justify-center py-4 opacity-50 relative h-16">
+                       {/* Mock waveform */}
+                       <div className="absolute inset-x-0 flex items-end justify-center h-full gap-2 px-4">
+                         {[...Array(24)].map((_, i) => (
+                           <motion.div 
+                             key={i}
+                             animate={{ height: ['30%', `${Math.random() * 70 + 30}%`, '30%'] }}
+                             transition={{ duration: 1.5, repeat: Infinity, delay: Math.random() }}
+                             className="w-1.5 bg-brand-secondary rounded-t-sm"
+                           />
+                         ))}
+                       </div>
+                    </div>
+                    <audio 
+                      controls 
+                      className="w-full h-14" 
+                      src="https://storage.googleapis.com/thetransformationroomassets/Scaling_Beyond_Legacy_Heroics.m4a"
+                      preload="metadata"
+                      style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.5))" }}
+                    >
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                </div>
+                
+                <div className="mt-10 grid grid-cols-2 gap-4 text-center">
+                   <div className="bg-slate-800/50 rounded-2xl p-5 border border-white/5 hover:bg-slate-800 transition-colors">
+                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">Expert</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Discussion</span>
+                   </div>
+                   <div className="bg-slate-800/50 rounded-2xl p-5 border border-white/5 hover:bg-slate-800 transition-colors">
+                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">Systems</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Focus</span>
+                   </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Tiered Offerings Section */}
       <section className="py-32 relative bg-slate-900 overflow-hidden">
         {/* Deep graphical background */}

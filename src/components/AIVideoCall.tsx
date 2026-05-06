@@ -12,13 +12,14 @@ import {
   Activity,
   Zap
 } from "lucide-react";
-import { GoogleGenAI, Modality, LiveServerMessage } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
 interface AIVideoCallProps {
   onClose: (data?: { summary: string; insights: string }) => void;
+  messages?: { role: string; content: string }[];
 }
 
-export const AIVideoCall = ({ onClose }: AIVideoCallProps) => {
+export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
   const [status, setStatus] = useState<"connecting" | "active" | "error">("connecting");
   const [isMicOn, setIsMicOn] = useState(false);
   const [isVideoOn, setIsVideoOn] = useState(false);
@@ -57,6 +58,8 @@ export const AIVideoCall = ({ onClose }: AIVideoCallProps) => {
     
     IDENTITY:
     - You are NOVA. When asked who you are, explain that you are "The Interstellar Guide assigned to their specific transformation sector."
+
+    ${messages && messages.length > 0 ? "You previously had a text conversation with this user. Here is the transcript to continue from:\\n" + messages.map(m => m.role.toUpperCase() + ": " + m.content).join('\\n') : ""}
   `;
 
   // Audio Playback logic
@@ -96,7 +99,7 @@ export const AIVideoCall = ({ onClose }: AIVideoCallProps) => {
             setStatus("active");
             console.log("Connected to NOVA");
           },
-          onmessage: async (message: LiveServerMessage) => {
+          onmessage: async (message: any) => {
             // Handle audio output
             const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
             if (base64Audio) {
@@ -135,7 +138,7 @@ export const AIVideoCall = ({ onClose }: AIVideoCallProps) => {
           }
         },
         config: {
-          responseModalities: [Modality.AUDIO],
+          responseModalities: ["AUDIO" as any],
           speechConfig: {
             voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } },
           },

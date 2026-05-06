@@ -81,7 +81,7 @@ const About = () => {
               <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline decoration-brand-primary underline-offset-4">OUR PHILOSOPHY</span>
               <h1 className="text-5xl font-bold mb-8 leading-tight text-slate-900">Inside Operations, <br /><span className="text-brand-primary">Not Outside.</span></h1>
               <p className="text-xl text-slate-600 mb-10 leading-relaxed">
-                The Transformation Room was built from years of working inside high-volume operations, helping teams bridge the gap between complex strategy and practical execution. We aren't traditional consultants—we're <span className="text-slate-900 font-bold">practitioners</span> who have lived through the transformations we lead.
+                The Transformation Room was built from years of working inside high-volume operations, helping teams bridge the gap between complex strategy and practical execution. We aren't traditional consultants. We're <span className="text-slate-900 font-bold">operators</span> who have lived through the transformations we lead.
               </p>
               
               <div className="grid grid-cols-3 gap-6 mb-10">

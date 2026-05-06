@@ -22,6 +22,14 @@ export default defineConfig(({mode}) => {
     },
     build: {
       outDir: 'dist',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            pdf: ['html2pdf.js', 'jspdf', 'html2canvas'],
+            vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'motion']
+          }
+        }
+      }
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

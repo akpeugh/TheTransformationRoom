@@ -12,7 +12,6 @@ import {
   Plus, 
   ArrowRight, 
   Sparkles, 
-  ChevronsDown, 
   ShoppingBag, 
   Network, 
   TrendingDown, 
@@ -72,7 +71,6 @@ const Home = () => {
 
   const { scrollY, scrollYProgress } = useScroll();
   const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
-  const opacity1 = useTransform(scrollY, [0, 500], [1, 0]);
   
   const yBg1 = useTransform(scrollYProgress, [0, 1], [0, 500]);
   const yBg2 = useTransform(scrollYProgress, [0, 1], [0, -500]);
@@ -584,22 +582,27 @@ const Home = () => {
             <div className="w-20 h-1.5 bg-brand-secondary mx-auto" />
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { 
                 title: "Optimized Process", 
                 icon: <Settings className="w-8 h-8" />, 
-                desc: "We identify inefficiencies and build practical ways to improve how work actually gets done."
+                desc: "Identifying operational inefficiencies and building practical solutions to improve how work actually gets done."
               },
               { 
                 title: "Tech Strategy", 
                 icon: <Cpu className="w-8 h-8" />, 
-                desc: "Evaluate, integrate, and optimize systems across warehouse, workforce, and business functions."
+                desc: "Evaluating, integrating, and optimizing technology systems across your warehouse operations, workforce, and business functions."
               },
               {
-                title: "Operational Acumen",
-                icon: <Bot className="w-8 h-8" />,
-                desc: "Equipping your team with the skills and mindset to master high-velocity technical environments."
+                title: "Real-Time Insights",
+                icon: <Activity className="w-8 h-8" />,
+                desc: "Designing frameworks and dashboards that provide leaders with the necessary visibility to make faster decisions."
+              },
+              {
+                title: "Workforce Alignment",
+                icon: <Users className="w-8 h-8" />,
+                desc: "Connecting change management, labor planning, and scheduling to ensure that high-level strategy successfully translates into action."
               }
             ].map((pillar, i) => (
               <motion.div 
