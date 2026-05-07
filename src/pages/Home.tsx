@@ -392,7 +392,7 @@ const Home = () => {
                       loop 
                       playsInline 
                       preload="metadata"
-                      className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
+                      className="w-full h-auto object-cover transform scale-[2.2] object-center group-hover:scale-[2.4] transition-transform duration-1000"
                       onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 via-brand-secondary/5 to-transparent pointer-events-none mix-blend-overlay" />

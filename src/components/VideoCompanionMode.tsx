@@ -285,7 +285,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                      loop
                      muted
                      playsInline
-                     className="w-full h-full object-contain bg-slate-900"
+                     className="w-full h-full object-cover scale-[2.5] bg-slate-900"
                      onError={() => setIsPlayingWelcome(false)}
                    />
                  ) : (

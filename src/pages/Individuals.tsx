@@ -42,7 +42,7 @@ const Individuals = () => {
     }
   }, [location.search, navigate]);
 
-  const stages = [
+const stageData = [
     {
       title: "Resume & Positioning",
       focus: "Narrative Architecture",
@@ -62,6 +62,19 @@ const Individuals = () => {
       icon: <Briefcase className="w-6 h-6" />
     }
   ];
+
+  const specializedServices = [
+    { title: "Career Transitions", desc: "Industry or role changes with zero friction.", icon: <RefreshCcw className="w-5 h-5" /> },
+    { title: "Exec Promotions", desc: "Positioning for senior leadership & board roles.", icon: <ShieldCheck className="w-5 h-5" /> },
+    { title: "Breaking In", desc: "Entering high-tech industries for the first time.", icon: <Sparkles className="w-5 h-5" /> },
+    { title: "Re-entry", desc: "Re-entering the workforce after a gap with authority.", icon: <ShieldCheck className="w-5 h-5" /> },
+    { title: "Visibility", desc: "Personal branding for LinkedIn and industry forums.", icon: <User className="w-5 h-5" /> },
+    { title: "Negotiation", desc: "Offer evaluation and total compensation strategy.", icon: <ArrowRight className="w-5 h-5" /> },
+    { title: "Communication", desc: "Strengthening confidence and interview presence.", icon: <Layers className="w-5 h-5" /> },
+    { title: "Non-Linear Paths", desc: "Narratives for professionals with diverse backgrounds.", icon: <Bot className="w-5 h-5" /> }
+  ];
+
+  const [isServicesExpanded, setIsServicesExpanded] = useState(false);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
@@ -129,7 +142,7 @@ const Individuals = () => {
             <div className="relative hidden lg:block">
                <div className="absolute inset-0 bg-brand-secondary/10 blur-[100px] rounded-full" />
                <div className="relative grid grid-cols-1 gap-6">
-                 {stages.map((stage, i) => (
+                 {stageData.map((stage, i) => (
                     <motion.div
                       key={i}
                       onMouseEnter={() => setActiveStage(i)}
@@ -170,8 +183,8 @@ const Individuals = () => {
         </div>
         {/* Seamless transition curve/gradient */}
         {/* Transition Gradient to smooth boundary - adjusted to prevent black line artifact */}
-        <div className="absolute -bottom-1 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pointer-events-none z-40" />
-        <div className="absolute inset-x-0 -bottom-1 h-2 bg-slate-50 z-50" />
+        <div className="absolute -bottom-2 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pointer-events-none z-40" />
+        <div className="absolute inset-x-0 -bottom-2 h-4 bg-slate-50 z-50 shadow-[0_-5px_15px_rgba(248,250,252,1)]" />
       </header>
 
       {/* Package Section */}
@@ -291,6 +304,83 @@ const Individuals = () => {
         </div>
       </section>
 
+      {/* Specialized Support Section - Moved & Redesigned for Compactness */}
+      <section className="py-24 bg-slate-50 relative overflow-hidden">
+        {/* Subtle Background Graphic */}
+        <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03] pointer-events-none z-0">
+          <svg viewBox="0 0 400 400" className="w-full h-full text-slate-900 fill-current">
+            <path d="M100,100 L300,100 L300,300 L100,300 Z M200,50 L200,350 M50,200 L350,200" stroke="currentColor" strokeWidth="1" fill="none" />
+            <circle cx="200" cy="200" r="150" stroke="currentColor" strokeWidth="0.5" fill="none" />
+            <circle cx="200" cy="200" r="100" stroke="currentColor" strokeWidth="0.5" fill="none" />
+            <path d="M150,150 L250,250 M250,150 L150,250" stroke="currentColor" strokeWidth="0.5" />
+          </svg>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 relative z-20">
+           <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
+              <div className="max-w-xl">
+                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+                   <Activity className="w-3 h-3" /> Specialized Expertise
+                 </div>
+                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tighter">Navigating Complexity.</h2>
+                 <p className="text-slate-500 font-light leading-relaxed">Where we thrive: engineered narratives for non-linear careers and high-velocity transitions.</p>
+              </div>
+              <button 
+                onClick={() => setIsServicesExpanded(!isServicesExpanded)}
+                className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-brand-primary transition-all shadow-xl active:scale-95"
+              >
+                {isServicesExpanded ? 'Collapse Solutions' : 'View Specialized Solutions'}
+                <motion.div
+                  animate={{ rotate: isServicesExpanded ? 180 : 0 }}
+                >
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </motion.div>
+              </button>
+           </div>
+
+           <motion.div 
+             initial={false}
+             animate={{ height: isServicesExpanded ? 'auto' : '120px' }}
+             className="overflow-hidden relative"
+           >
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+                 {specializedServices.map((item, i) => (
+                   <motion.div 
+                     key={i}
+                     initial={{ opacity: 0 }}
+                     animate={{ opacity: 1 }}
+                     transition={{ delay: i * 0.05 }}
+                     className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-brand-secondary/50 hover:shadow-lg transition-all group flex items-start gap-4"
+                   >
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-secondary group-hover:bg-brand-secondary/10 transition-all shrink-0">
+                         {item.icon}
+                      </div>
+                      <div>
+                         <h4 className="text-slate-900 font-bold text-sm mb-1">{item.title}</h4>
+                         <AnimatePresence>
+                           {isServicesExpanded && (
+                             <motion.p 
+                               initial={{ opacity: 0, height: 0 }}
+                               animate={{ opacity: 1, height: 'auto' }}
+                               exit={{ opacity: 0, height: 0 }}
+                               className="text-[11px] text-slate-400 leading-tight font-light"
+                             >
+                                {item.desc}
+                             </motion.p>
+                           )}
+                         </AnimatePresence>
+                      </div>
+                   </motion.div>
+                 ))}
+              </div>
+              
+              {!isServicesExpanded && (
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none" />
+              )}
+           </motion.div>
+        </div>
+      </section>
+
       {/* Career Transformation Hub */}
       <section className="py-32 max-w-7xl mx-auto px-4" id="transformation-hub-section">
         <div className="relative">
@@ -390,42 +480,6 @@ const Individuals = () => {
           </div>
         </div>
       </section>
-
-      {/* Specialized Support Section */}
-      <section className="py-32 bg-slate-900 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-slate-50 to-transparent z-10" />
-        <div className="max-w-7xl mx-auto px-4 relative z-20">
-           <div className="text-center mb-20 text-white">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">Specialized Support</h2>
-              <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-8 rounded-full" />
-              <p className="text-slate-400 max-w-2xl mx-auto">Where we thrive: Navigating complex and non-linear paths.</p>
-           </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { title: "Career Transitions", desc: "Industry or role changes with zero friction.", icon: <RefreshCcw className="w-5 h-5" /> },
-                { title: "Exec Promotions", desc: "Positioning for senior leadership & board roles.", icon: <ShieldCheck className="w-5 h-5" /> },
-                { title: "Breaking In", desc: "Entering high-tech industries for the first time.", icon: <Sparkles className="w-5 h-5" /> },
-                { title: "Re-entry", desc: "Re-entering the workforce after a gap with authority.", icon: <ShieldCheck className="w-5 h-5" /> },
-                { title: "Visibility", desc: "Personal branding for LinkedIn and industry forums.", icon: <User className="w-5 h-5" /> },
-                { title: "Negotiation", desc: "Offer evaluation and total compensation strategy.", icon: <ArrowRight className="w-5 h-5" /> },
-                { title: "Communication", desc: "Strengthening confidence and interview presence.", icon: <Layers className="w-5 h-5" /> },
-                { title: "Non-Linear Paths", desc: "Narratives for professionals with diverse backgrounds.", icon: <Bot className="w-5 h-5" /> }
-              ].map((item, i) => (
-                <div key={i} className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
-                   <div className="w-10 h-10 rounded-xl bg-brand-secondary/10 flex items-center justify-center text-brand-secondary mb-6 group-hover:scale-110 transition-transform">
-                      {item.icon}
-                   </div>
-                   <h4 className="text-white font-bold mb-2">{item.title}</h4>
-                   <p className="text-xs text-slate-400 leading-relaxed font-light">{item.desc}</p>
-                </div>
-              ))}
-           </div>
-        </div>
-        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent z-10" />
-      </section>
-
-
 
       <AnimatePresence>
         {showOptimizer && (
