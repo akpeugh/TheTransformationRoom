@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
-import { AIVideoCall } from './AIVideoCall';
+import { VideoCompanionMode as AIVideoCall } from './VideoCompanionMode';
 
 interface Message {
   role: 'user' | 'assistant';
