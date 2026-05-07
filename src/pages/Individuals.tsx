@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { ResumeOptimizer } from "../components/ResumeOptimizer";
 import { CareerPathSimulator } from "../components/CareerPathSimulator";
-import { ScorecardTool } from "../components/ScorecardTool";
+
 import { DISCOVERY_CALL_1HR } from "../constants";
 
 const Individuals = () => {
@@ -122,12 +122,7 @@ const Individuals = () => {
                  <Link to="/contact" className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:scale-105 transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 cursor-pointer">
                     Start Transformation <ArrowRight className="w-5 h-5" />
                  </Link>
-                 <button 
-                  onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="px-10 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer"
-                 >
-                    Take Starting Assessment <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
-                 </button>
+
               </div>
             </motion.div>
 
@@ -428,15 +423,7 @@ const Individuals = () => {
         <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-slate-50 to-transparent z-10" />
       </section>
 
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-           <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-slate-900 mb-4">Start Your Transformation</h2>
-              <p className="text-slate-500 max-w-2xl mx-auto">Establish your operational maturity baseline with our brief assessment.</p>
-           </div>
-           <ScorecardTool />
-        </div>
-      </section>
+
 
       <AnimatePresence>
         {showOptimizer && (

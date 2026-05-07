@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Sparkles, Bot, BarChart, FileText, Zap, Headphones } from "lucide-react";
+import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones } from "lucide-react";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,12 +27,6 @@ export const Navbar = () => {
       desc: "Instant operational guidance", 
       icon: <Bot className="w-4 h-4" />,
       action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
-    },
-    { 
-      name: "Operational Assessment", 
-      desc: "Measure your strategic velocity", 
-      icon: <BarChart className="w-4 h-4" />,
-      path: "/organizations#strategic-scorecard-section" 
     },
     { 
       name: "Career Transformation", 

@@ -280,12 +280,16 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    />
                  ) : isPlayingWelcome ? (
                    <video
-                     src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4"
+                     src="https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4"
                      autoPlay
                      loop
                      muted
                      playsInline
                      className="w-full h-full object-cover"
+                     onError={(e) => {
+                       console.error("Video failed to load, switching to fallback image", e);
+                       setIsPlayingWelcome(false);
+                     }}
                    />
                  ) : (
                    <img 

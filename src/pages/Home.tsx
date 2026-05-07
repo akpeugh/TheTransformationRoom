@@ -27,7 +27,7 @@ import {
   Activity,
   Brain
 } from "lucide-react";
-import { ScorecardTool } from "../components/ScorecardTool";
+
 import { DISCOVERY_CALL_1HR } from "../constants";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
@@ -84,14 +84,7 @@ const Home = () => {
   const { scrollYProgress: scrollYProgress2 } = useScroll({ target: solutionRef2, offset: ["start end", "end start"] });
   const yImage2 = useTransform(scrollYProgress2, [0, 1], [150, -150]);
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('tool') === 'scorecard') {
-      setTimeout(() => {
-        document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' });
-      }, 500);
-    }
-  }, [location.search]);
+
 
   const categories = [
     {
@@ -223,12 +216,6 @@ const Home = () => {
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
                   Start Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <button 
-                  onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 hover:border-white/40 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
-                >
-                  Take Strategic Assessment <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 group-hover:scale-110 transition-transform" />
-                </button>
               </div>
             </motion.div>
           </div>
@@ -667,15 +654,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-24 bg-slate-900 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4">
-           <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4">Operational Readiness Assessment</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Take our brief assessment to reveal your operational maturity and get a clear starting point for your transformation.</p>
-           </div>
-           <ScorecardTool />
-        </div>
-      </section>
+
     </div>
   );
 };

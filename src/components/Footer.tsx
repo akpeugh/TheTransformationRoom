@@ -44,12 +44,7 @@ export const Footer = () => (
                 Consult NOVA AI
               </button>
             </li>
-            <li>
-              <Link to="/organizations#strategic-scorecard-section" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
-                <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
-                Operational Assessment
-              </Link>
-            </li>
+
             <li>
               <Link to="/display" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
                 <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
