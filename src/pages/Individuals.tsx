@@ -182,9 +182,8 @@ const stageData = [
           </div>
         </div>
         {/* Seamless transition curve/gradient */}
-        {/* Transition Gradient to smooth boundary - adjusted to prevent black line artifact */}
-        <div className="absolute -bottom-2 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pointer-events-none z-40" />
-        <div className="absolute inset-x-0 -bottom-2 h-4 bg-slate-50 z-50 shadow-[0_-5px_15px_rgba(248,250,252,1)]" />
+        <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-40" />
+        <div className="absolute -bottom-1 left-0 w-full h-2 bg-slate-50 z-50" />
       </header>
 
       {/* Package Section */}

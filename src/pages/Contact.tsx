@@ -127,7 +127,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
             <div className="p-8 bg-white/5 border border-white/10 rounded-3xl group transition-all hover:border-brand-secondary/30 relative overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="https://storage.googleapis.com/thetransformationroomassets/Nova%20full%20body" 
+                  src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                   alt="NOVA Background" 
                   className="w-full h-full object-cover opacity-10 group-hover:opacity-20 blur-[10px] group-hover:blur-[5px] transition-all duration-700 pointer-events-none" 
                   referrerPolicy="no-referrer" 

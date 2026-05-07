@@ -223,14 +223,7 @@ export const ChatBot: React.FC = () => {
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative">
-                  <video 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4" 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline
-                    className="w-full h-full object-cover scale-[2.5]" 
-                  />
+                  <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div>
                   <h3 className="font-bold text-sm tracking-tight">NOVA</h3>
@@ -283,14 +276,7 @@ export const ChatBot: React.FC = () => {
                       msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : ''
                     }`}>
                       {msg.role === 'user' ? <User className="w-4 h-4" /> : (
-                        <video 
-                          src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4" 
-                          autoPlay 
-                          muted 
-                          loop 
-                          playsInline
-                          className="w-full h-full object-cover scale-[2.5]" 
-                        />
+                        <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       )}
                     </div>
                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
@@ -423,13 +409,11 @@ export const ChatBot: React.FC = () => {
 
               {/* The Intelligence Pattern (Center) */}
               <div className="relative z-10 w-full h-full rounded-full overflow-hidden flex items-center justify-center">
-                 <video 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4" 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[2.8] scale-[2.5]" 
+                 <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
+                    alt="NOVA" 
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
                  />
                  <div className="absolute inset-0 bg-brand-secondary/10 group-hover:bg-transparent transition-colors" />
                  

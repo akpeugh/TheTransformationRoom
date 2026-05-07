@@ -53,7 +53,7 @@ const NovaInsight = ({ text, className = "" }: { text: string; className?: strin
 
 const videoMap: Record<string, string> = {
   "Hero/Header": "https://storage.googleapis.com/thetransformationroomassets/Hands%20Touching.mp4",
-  "Connecting People & AI": "https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4",
+  "Connecting People & AI": "https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4",
   "Modernizing Manufacturing / Warehousing": "https://storage.googleapis.com/thetransformationroomassets/Automated%20Warehouse.mp4",
   "Analytics": "https://storage.googleapis.com/thetransformationroomassets/Analytics.mp4",
   "Robots / Cobots": "https://storage.googleapis.com/thetransformationroomassets/Dancing%20Bot.mp4",
@@ -392,7 +392,7 @@ const Home = () => {
                       loop 
                       playsInline 
                       preload="metadata"
-                      className="w-full h-auto object-cover transform scale-[2.2] object-center group-hover:scale-[2.4] transition-transform duration-1000"
+                      className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
                       onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 via-brand-secondary/5 to-transparent pointer-events-none mix-blend-overlay" />

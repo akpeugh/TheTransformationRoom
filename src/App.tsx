@@ -20,8 +20,6 @@ import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
 import PodcastLibrary from "./pages/PodcastLibrary";
 
-import { IntroLoader } from "./components/IntroLoader";
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -35,7 +33,6 @@ const ScrollToTop = () => {
 export default function App() {
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [aiConsultationData, setAiConsultationData] = useState<{ summary: string; insights: string } | null>(null);
-  const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
     const handleOpenVideoCall = () => setIsVideoCallOpen(true);
@@ -46,9 +43,6 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <AnimatePresence>
-        {showIntro && <IntroLoader onComplete={() => setShowIntro(false)} />}
-      </AnimatePresence>
 
       <div className="flex flex-col min-h-screen">
         <Navbar />
