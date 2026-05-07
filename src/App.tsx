@@ -7,6 +7,7 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { ChatBot } from "./components/ChatBot";
 import { VideoCompanionMode as AIVideoCall } from "./components/VideoCompanionMode";
+import { NavigationTracker } from "./components/NavigationTracker";
 
 import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
 
@@ -43,6 +44,7 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
+      <NavigationTracker />
 
       <div className="flex flex-col min-h-screen">
         <Navbar />

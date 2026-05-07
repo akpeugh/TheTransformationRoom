@@ -56,7 +56,6 @@ export const GlobalPodcastPlayer = () => {
                     src={podcastUrl}
                     className="w-full h-10"
                     controls
-                    autoPlay
                 />
             </div>
         </div>

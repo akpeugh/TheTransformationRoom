@@ -154,10 +154,18 @@ const PodcastLibrary = () => {
                       Listen Now
                     </button>
                     <button 
+                      onClick={() => handleShare(podcast)}
+                      className="bg-white/5 border border-white/10 text-white px-6 py-4 rounded-xl font-bold hover:bg-white/10 transition-all flex items-center gap-2"
+                      title="Share Episode"
+                    >
+                      <Share2 className="w-5 h-5" />
+                      Share
+                    </button>
+                    <button 
                       onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: 'organization', prompt: `Could you provide a detailed summary or transcript for the podcast episode "${podcast.title}"?` } }))}
                       className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all"
                     >
-                      Episode Transcript
+                      Transcript
                     </button>
                   </div>
                 </div>
@@ -173,12 +181,12 @@ const PodcastLibrary = () => {
           <h3 className="text-3xl font-bold text-white tracking-tight">Full Library</h3>
           <div className="w-1/2 h-px bg-slate-800 hidden md:block" />
           <div className="text-slate-400 text-sm font-bold uppercase tracking-widest">
-            {PODCASTS.filter(p => !p.featured).length} Episodes
+            {PODCASTS.length} Episodes
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PODCASTS.filter(p => !p.featured).map((podcast, i) => (
+          {PODCASTS.map((podcast, i) => (
             <motion.div 
               key={podcast.id}
               id={`podcast-${podcast.id}`}
