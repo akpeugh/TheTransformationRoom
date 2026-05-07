@@ -169,7 +169,8 @@ const Individuals = () => {
           </div>
         </div>
         {/* Seamless transition curve/gradient */}
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-40" />
+        {/* Transition Gradient to smooth boundary - adjusted to prevent black line artifact */}
+        <div className="absolute -bottom-[1px] left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-40" />
       </header>
 
       {/* Package Section */}

@@ -244,7 +244,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
         />
 
         {/* Outer Tech Ring */}
-        <div className="relative w-72 h-72 rounded-full overflow-hidden border border-white/10 bg-slate-900/40 backdrop-blur-3xl shadow-[0_0_100px_rgba(20,184,166,0.15)] flex items-center justify-center">
+        <div className="relative w-56 h-56 sm:w-72 sm:h-72 rounded-full overflow-hidden border border-white/10 bg-slate-900/40 backdrop-blur-3xl shadow-[0_0_100px_rgba(20,184,166,0.15)] flex items-center justify-center">
            {/* Animated Grid Overlay */}
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none mix-blend-overlay" />
            
@@ -269,7 +269,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                       ? "0 0 40px rgba(6,182,212,0.3)" 
                       : "0 0 30px rgba(45,212,191,0.2)"
                  }}
-                 className="w-48 h-48 rounded-full bg-slate-800/80 border-2 border-brand-secondary/30 relative overflow-hidden group/avatar"
+                 className="w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-slate-800/80 border-2 border-brand-secondary/30 relative overflow-hidden group/avatar"
               >
                  {heygenStream ? (
                    <video
@@ -280,16 +280,13 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    />
                  ) : isPlayingWelcome ? (
                    <video
-                     src="https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4"
+                     src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4"
                      autoPlay
                      loop
                      muted
                      playsInline
-                     className="w-full h-full object-cover"
-                     onError={(e) => {
-                       console.error("Video failed to load, switching to fallback image", e);
-                       setIsPlayingWelcome(false);
-                     }}
+                     className="w-full h-full object-contain bg-slate-900"
+                     onError={() => setIsPlayingWelcome(false)}
                    />
                  ) : (
                    <img 
@@ -351,10 +348,10 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/98 backdrop-blur-3xl p-4 sm:p-8 selection:bg-brand-secondary selection:text-brand-dark"
     >
-      <div className="relative w-full max-w-7xl aspect-video bg-black rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5 flex flex-col md:flex-row">
+      <div className="relative w-full max-w-7xl h-full md:h-auto md:aspect-video bg-black rounded-2xl md:rounded-[3rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/5 flex flex-col md:flex-row">
         
         {/* 1. MAIN DISPLAY AREA */}
-        <div className="relative flex-1 bg-slate-900 flex flex-col items-center justify-center overflow-hidden">
+        <div className="relative flex-1 bg-slate-900 flex flex-col items-center justify-center overflow-hidden min-h-[400px] md:min-h-0">
           
           {/* Kinetic Background */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -516,7 +513,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
         </div>
 
         {/* 2. SIDE PANEL: PERSISTENT CONTROLS & LOCAL VIEW */}
-        <div className="w-full md:w-96 bg-slate-950 border-l border-white/5 flex flex-col p-8 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div className="w-full md:w-96 bg-slate-950 border-t md:border-t-0 md:border-l border-white/5 flex flex-col p-6 sm:p-8 bg-gradient-to-b from-slate-950 to-slate-900 overflow-y-auto">
           
           {/* LOCAL USER VIEW */}
           <div className="relative aspect-video bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border border-white/5 mb-8">

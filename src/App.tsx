@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 
 // Components
@@ -48,6 +48,7 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/organizations" element={<Organizations />} />
             <Route path="/individuals" element={<Individuals />} />
             <Route path="/display" element={<CareerTool />} />
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
             <Route path="/podcasts" element={<PodcastLibrary />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
         <Footer />
