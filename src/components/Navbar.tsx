@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones } from "lucide-react";
+import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones, Video } from "lucide-react";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +27,12 @@ export const Navbar = () => {
       desc: "Instant operational guidance", 
       icon: <Bot className="w-4 h-4" />,
       action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
+    },
+    {
+      name: "NOVA Video Sync",
+      desc: "Interactive video conduit",
+      icon: <Video className="w-4 h-4" />,
+      action: () => window.dispatchEvent(new CustomEvent('ais:open-video-call'))
     },
     { 
       name: "Career Transformation", 
@@ -63,8 +69,6 @@ export const Navbar = () => {
               { name: 'Organizations', path: '/organizations' },
               { name: 'Individuals', path: '/individuals' },
               { name: 'About', path: '/about' },
-              { name: 'Testimonials', path: '/testimonials' },
-              { name: 'Podcast Library', path: '/podcasts' },
               { name: 'Contact', path: '/contact' }
             ].map((item) => (
               <Link 
@@ -171,8 +175,6 @@ export const Navbar = () => {
               { name: 'Organizations', path: '/organizations' },
               { name: 'Individuals', path: '/individuals' },
               { name: 'About', path: '/about' },
-              { name: 'Testimonials', path: '/testimonials' },
-              { name: 'Podcast Library', path: '/podcasts' },
               { name: 'Contact', path: '/contact' }
             ].map((item) => (
               <Link

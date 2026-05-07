@@ -181,9 +181,12 @@ const stageData = [
             </div>
           </div>
         </div>
-        {/* Seamless transition curve/gradient */}
-        <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-40" />
-        <div className="absolute -bottom-1 left-0 w-full h-2 bg-slate-50 z-50" />
+        {/* Seamless transition curve */}
+        <div className="absolute bottom-0 inset-x-0 overflow-hidden w-full z-40" style={{ transform: "translateY(1px)", lineHeight: 0 }}>
+          <svg viewBox="0 0 1440 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto text-slate-50">
+            <path d="M0 100V40C0 40 360 0 720 0C1080 0 1440 40 1440 40V100H0Z" fill="currentColor" />
+          </svg>
+        </div>
       </header>
 
       {/* Package Section */}

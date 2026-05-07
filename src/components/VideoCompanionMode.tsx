@@ -276,23 +276,13 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                      ref={heygenVideoRef}
                      autoPlay
                      playsInline
-                     className={`w-full h-full object-cover transition-all duration-1000 ${isSpeaking ? 'scale-110 grayscale-0' : 'scale-100 grayscale-[0.2]'}`}
-                   />
-                 ) : isPlayingWelcome ? (
-                   <video
-                     src="https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4"
-                     autoPlay
-                     loop
-                     muted
-                     playsInline
-                     className="w-full h-full object-cover scale-[2.5] bg-slate-900"
-                     onError={() => setIsPlayingWelcome(false)}
+                     className={`w-full h-full object-cover object-top transition-all duration-1000 ${isSpeaking ? 'scale-105' : 'scale-100 grayscale-[0.2]'}`}
                    />
                  ) : (
                    <img 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                     alt="NOVA" 
-                    className={`w-full h-full object-cover transition-all duration-1000 ${isSpeaking ? 'scale-110 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
+                    className={`w-full h-full object-cover object-top transition-all duration-1000 scale-100 ${isSpeaking ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
                     referrerPolicy="no-referrer"
                    />
                  )}
@@ -630,10 +620,18 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
           </div>
         </div>
 
+        {/* BACK NAVIGATION */}
+        <button 
+          onClick={terminateSession}
+          className="absolute top-6 left-6 hidden md:flex h-12 px-6 bg-black/60 backdrop-blur-xl rounded-full items-center gap-3 text-white text-xs tracking-widest uppercase font-bold border border-white/10 z-[110] hover:bg-white/10 transition-colors"
+        >
+          <span>&larr; Back to Site</span>
+        </button>
+
         {/* MOBILE CLOSE */}
         <button 
           onClick={terminateSession}
-          className="absolute top-6 right-6 md:hidden w-12 h-12 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 z-[110]"
+          className="absolute top-6 right-6 w-12 h-12 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 z-[110] md:hidden"
         >
           <X className="w-6 h-6" />
         </button>

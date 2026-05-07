@@ -173,12 +173,12 @@ const PodcastLibrary = () => {
           <h3 className="text-3xl font-bold text-white tracking-tight">Full Library</h3>
           <div className="w-1/2 h-px bg-slate-800 hidden md:block" />
           <div className="text-slate-400 text-sm font-bold uppercase tracking-widest">
-            {PODCASTS.length} Episodes
+            {PODCASTS.filter(p => !p.featured).length} Episodes
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {PODCASTS.map((podcast, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {PODCASTS.filter(p => !p.featured).map((podcast, i) => (
             <motion.div 
               key={podcast.id}
               id={`podcast-${podcast.id}`}
