@@ -59,13 +59,20 @@ export const Navbar = () => {
           </Link>
           
           <div className="hidden md:flex space-x-8 items-center">
-            {['Organizations', 'Individuals', 'About', 'Contact'].map((item) => (
+            {[
+              { name: 'Organizations', path: '/organizations' },
+              { name: 'Individuals', path: '/individuals' },
+              { name: 'About', path: '/about' },
+              { name: 'Testimonials', path: '/testimonials' },
+              { name: 'Podcast Library', path: '/podcasts' },
+              { name: 'Contact', path: '/contact' }
+            ].map((item) => (
               <Link 
-                key={item}
-                to={`/${item.toLowerCase()}`} 
-                className={`text-sm font-bold uppercase tracking-widest hover:text-brand-secondary transition-colors ${pathname === `/${item.toLowerCase()}` ? 'text-brand-secondary' : 'text-slate-900'}`}
+                key={item.name}
+                to={item.path} 
+                className={`text-sm font-bold uppercase tracking-widest hover:text-brand-secondary transition-colors ${pathname === item.path ? 'text-brand-secondary' : 'text-slate-900'}`}
               >
-                {item}
+                {item.name}
               </Link>
             ))}
 
@@ -159,14 +166,22 @@ export const Navbar = () => {
                 ))}
               </div>
             </div>
-            {['Home', 'Organizations', 'Individuals', 'About', 'Contact'].map((item) => (
+            {[
+              { name: 'Home', path: '/' },
+              { name: 'Organizations', path: '/organizations' },
+              { name: 'Individuals', path: '/individuals' },
+              { name: 'About', path: '/about' },
+              { name: 'Testimonials', path: '/testimonials' },
+              { name: 'Podcast Library', path: '/podcasts' },
+              { name: 'Contact', path: '/contact' }
+            ].map((item) => (
               <Link
-                key={item}
-                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                key={item.name}
+                to={item.path}
                 className="block text-lg font-bold text-slate-900 hover:text-brand-secondary"
                 onClick={() => setIsOpen(false)}
               >
-                {item}
+                {item.name}
               </Link>
             ))}
           </div>
