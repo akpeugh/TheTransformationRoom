@@ -93,7 +93,7 @@ const Individuals = () => {
                 Explore your next transformation
               </div>
               <motion.h1 
-                className="text-6xl md:text-8xl font-bold mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
+                className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
                 whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
               >
                 Engineer Your <br />
@@ -170,7 +170,8 @@ const Individuals = () => {
         </div>
         {/* Seamless transition curve/gradient */}
         {/* Transition Gradient to smooth boundary - adjusted to prevent black line artifact */}
-        <div className="absolute -bottom-[1px] left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent pointer-events-none z-40" />
+        <div className="absolute -bottom-1 left-0 w-full h-32 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent pointer-events-none z-40" />
+        <div className="absolute inset-x-0 -bottom-1 h-2 bg-slate-50 z-50" />
       </header>
 
       {/* Package Section */}

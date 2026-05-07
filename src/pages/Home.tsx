@@ -53,7 +53,7 @@ const NovaInsight = ({ text, className = "" }: { text: string; className?: strin
 
 const videoMap: Record<string, string> = {
   "Hero/Header": "https://storage.googleapis.com/thetransformationroomassets/Hands%20Touching.mp4",
-  "Connecting People & AI": "https://storage.googleapis.com/thetransformationroomassets/People%20%20Data.mp4",
+  "Connecting People & AI": "https://storage.googleapis.com/thetransformationroomassets/Avatar_Video.mp4",
   "Modernizing Manufacturing / Warehousing": "https://storage.googleapis.com/thetransformationroomassets/Automated%20Warehouse.mp4",
   "Analytics": "https://storage.googleapis.com/thetransformationroomassets/Analytics.mp4",
   "Robots / Cobots": "https://storage.googleapis.com/thetransformationroomassets/Dancing%20Bot.mp4",
@@ -196,12 +196,12 @@ const Home = () => {
             style={{ y: y1 }}
             className="max-w-4xl"
           >
-              <motion.h1 
-                className="text-5xl md:text-8xl lg:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter cursor-default drop-shadow-2xl z-20 relative"
-                whileHover={{ scale: 1.02, rotateX: -5, rotateY: 2, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
-              >
-                The Transformation Room
-              </motion.h1>
+            <motion.h1 
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter cursor-default drop-shadow-2xl z-20 relative break-words"
+              whileHover={{ scale: 1.01, rotateX: -2, rotateY: 1, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
+            >
+              The Transformation Room
+            </motion.h1>
               <motion.span 
                 whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
                 className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300 drop-shadow-md"
