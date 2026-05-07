@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
 import { AIVideoCall } from './AIVideoCall';
@@ -53,9 +53,48 @@ export const ChatBot: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [isVideoModeOpen, setIsVideoModeOpen] = useState(false);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition();
+        recognitionRef.current.continuous = false;
+        recognitionRef.current.interimResults = false;
+        recognitionRef.current.lang = 'en-US';
+
+        recognitionRef.current.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(prev => prev + (prev.length ? ' ' : '') + transcript);
+          setIsListening(false);
+        };
+
+        recognitionRef.current.onerror = (event: any) => {
+          console.error('Speech recognition error', event.error);
+          setIsListening(false);
+        };
+
+        recognitionRef.current.onend = () => {
+          setIsListening(false);
+        };
+      } else {
+        alert("Speech recognition is not supported in your browser.");
+        return;
+      }
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
 
   // Initialize AI lazily
   const ai = useMemo(() => {
@@ -290,14 +329,28 @@ export const ChatBot: React.FC = () => {
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
                   id="chat-input"
                 />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="absolute right-2 top-2 bottom-2 w-10 bg-brand-primary text-white rounded-xl flex items-center justify-center hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:hover:bg-brand-primary"
-                  id="send-message"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
+                <div className="absolute right-2 top-2 bottom-2 flex gap-1">
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`w-10 rounded-xl flex items-center justify-center transition-all ${
+                      isListening 
+                        ? 'bg-red-500 text-white animate-pulse' 
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                    title={isListening ? "Stop Listening" : "Start Voice Input"}
+                  >
+                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="w-10 bg-brand-primary text-white rounded-xl flex items-center justify-center hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:hover:bg-brand-primary"
+                    id="send-message"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
               </form>
             </div>
           </motion.div>

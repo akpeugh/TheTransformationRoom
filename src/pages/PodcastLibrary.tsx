@@ -1,9 +1,30 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import { Headphones, Play, ArrowRight, Sparkles, Clock, Share2, Download } from "lucide-react";
 import { PODCASTS, Podcast } from "../data/podcasts";
 import { ScorecardTool } from "../components/ScorecardTool";
 
 const PodcastLibrary = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    if (id) {
+      const element = document.getElementById(`podcast-${id}`);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('ring-2', 'ring-brand-secondary', 'ring-offset-8', 'ring-offset-slate-950');
+          setTimeout(() => {
+            element.classList.remove('ring-2', 'ring-brand-secondary', 'ring-offset-8', 'ring-offset-slate-950');
+          }, 3000);
+        }, 500);
+      }
+    }
+  }, [location]);
+
   const playPodcast = (podcast: Podcast) => {
     window.dispatchEvent(new CustomEvent('play-global-podcast', {
       detail: {
@@ -11,6 +32,39 @@ const PodcastLibrary = () => {
         url: podcast.url
       }
     }));
+  };
+
+  const handleShare = async (podcast: Podcast) => {
+    // We use the direct public domain to ensure shared links work for everyone without side-effects
+    const baseUrl = "https://thetransformationroom.com/podcasts";
+    const shareUrl = `${baseUrl}?id=${podcast.id}`;
+    const shareData = {
+      title: podcast.title,
+      text: podcast.description,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      // Fallback: Copy link to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert("Link copied to clipboard!");
+      } catch (err) {
+        console.error("Error copying link:", err);
+      }
+    }
+  };
+
+  const handleDownload = (podcast: Podcast) => {
+    // In a real app, this would use an actual download link.
+    // For now, we open the audio URL in a new tab which often triggers a download or direct playback.
+    window.open(podcast.url, '_blank');
   };
 
   return (
@@ -52,6 +106,7 @@ const PodcastLibrary = () => {
           {PODCASTS.filter(p => p.featured).map((podcast) => (
             <motion.div 
               key={podcast.id}
+              id={`podcast-${podcast.id}`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="bg-slate-900/80 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 md:p-12 shadow-2xl overflow-hidden relative group"
@@ -126,6 +181,7 @@ const PodcastLibrary = () => {
           {PODCASTS.map((podcast, i) => (
             <motion.div 
               key={podcast.id}
+              id={`podcast-${podcast.id}`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -137,10 +193,18 @@ const PodcastLibrary = () => {
                   <Headphones className="w-6 h-6" />
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                  <button 
+                    onClick={() => handleShare(podcast)}
+                    className="p-2 text-slate-500 hover:text-white transition-colors"
+                    title="Share Episode"
+                  >
                     <Share2 className="w-4 h-4" />
                   </button>
-                  <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                  <button 
+                    onClick={() => handleDownload(podcast)}
+                    className="p-2 text-slate-500 hover:text-white transition-colors"
+                    title="Download Episode"
+                  >
                     <Download className="w-4 h-4" />
                   </button>
                 </div>

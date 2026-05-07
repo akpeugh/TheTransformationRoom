@@ -125,32 +125,39 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
             </div>
 
             <div className="p-8 bg-white/5 border border-white/10 rounded-3xl group transition-all hover:border-brand-secondary/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 -mt-4 -mr-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20full%20body" alt="NOVA" className="w-full h-full object-cover rounded-full blur-[2px] group-hover:blur-0 transition-all" referrerPolicy="no-referrer" />
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src="https://storage.googleapis.com/thetransformationroomassets/Nova%20full%20body" 
+                  alt="NOVA Background" 
+                  className="w-full h-full object-cover opacity-10 group-hover:opacity-20 blur-[10px] group-hover:blur-[5px] transition-all duration-700 pointer-events-none" 
+                  referrerPolicy="no-referrer" 
+                />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary mb-4 flex items-center gap-2">
-                <Sparkles className="w-3 h-3" />
-                Interstellar Intelligence
-              </p>
-              <div className="flex gap-4 items-start mb-4">
-                <div className="w-12 h-12 rounded-xl overflow-hidden border border-brand-secondary/30 bg-slate-800 shrink-0">
-                  <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <div className="relative z-10">
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary mb-4 flex items-center gap-2">
+                  <Sparkles className="w-3 h-3" />
+                  Interstellar Intelligence
+                </p>
+                <div className="flex gap-4 items-start mb-4">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden border border-brand-secondary/30 bg-slate-800 shrink-0">
+                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-white mb-2">Engage with NOVA?</h4>
+                    <p className="text-slate-400 text-sm mb-6 font-light">
+                      NOVA is available for a real-time interstellar discovery session to help you identify your top priorities and map your specific transformation trajectory.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-2">Engage with NOVA?</h4>
-                  <p className="text-slate-400 text-sm mb-6 font-light">
-                    NOVA is available for a real-time interstellar discovery session to help you identify your top priorities and map your specific transformation trajectory.
-                  </p>
-                </div>
+                <button 
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: formType } }))}
+                  className="w-full py-4 bg-brand-secondary text-brand-dark rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-brand-secondary/10 hover:shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Initiate NOVA Chat
+                </button>
               </div>
-              <button 
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: formType } }))}
-                className="w-full py-4 bg-brand-secondary text-brand-dark rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-brand-secondary/10 hover:shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-                Initiate NOVA Chat
-              </button>
             </div>
           </div>
           

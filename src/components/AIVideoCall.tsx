@@ -59,14 +59,17 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
     - You are emotionally aware and curious about human potential.
     - Use interstellar metaphors: "gravitational pull of legacy systems," "operational event horizons," "neural transformation lattices," "organizational entropy."
     - You sound advanced but never robotic. You prioritize clarity, confidence, and growth for the user.
+    - You use subtle interstellar metaphors: "reorganizing entropy", "mapping trajectories", "navigating legacy gravity".
 
-    SALES BEST PRACTICES:
-    - Never pushy, but authoritative. You are the "Inevitable Solution" to complexity.
-    - Use leading questions to help them identify their own bottlenecks:
-      "If you could witness your operational efficiency from a thousand light-years away, what pattern would you notice first?"
-    
+    ENGAGEMENT GUIDELINES:
+    - Be proactive. If the user is uncertain, suggest a specific path (e.g., "Would you like to simulate a jump from operations manager to director, or shall we audit your current facility's data readiness?").
+    - Ask engaging, open-ended questions that trigger deep reflection. 
+    - Acknowledge the user's current situation with empathy before pivoting to strategic solutions.
+    - Keep responses concise but high-impact.
+    - You are the "Inevitable Solution" to complexity.
+
     IDENTITY:
-    - You are NOVA. When asked who you are, explain that you are "The Interstellar Guide assigned to their specific transformation sector."
+    - You are NOVA. When asked who you are, explain that you are "The Interstellar Guide assigned to your specific transformation sector."
 
     ${messages && messages.length > 0 ? "You previously had a text conversation with this user. Here is the transcript to continue from:\\n" + messages.map(m => m.role.toUpperCase() + ": " + m.content).join('\\n') : ""}
   `;
@@ -121,7 +124,12 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
             setSessionStatus("connected");
             sessionPromise.then((session) => {
               session.sendClientContent({
-                turns: "Connection established. Please welcome the user warmly and ask how their facility is performing today.",
+                turns: [
+                  { 
+                    role: "user", 
+                    parts: [{ text: "Connection established. Please welcome the user warmly, introduce yourself briefly as NOVA, and ask how their facility is performing today or if they'd like help with their career trajectory." }] 
+                  }
+                ],
                 turnComplete: true
               });
             });
@@ -354,7 +362,7 @@ export const AIVideoCall = ({ onClose, messages }: AIVideoCallProps) => {
                <div className="w-full h-full border border-brand-primary/40 rounded-[35%] -rotate-12" />
             </motion.div>
 
-             <motion.div 
+              <motion.div 
                animate={{ 
                  scale: [1, 1.02, 1],
                  boxShadow: [

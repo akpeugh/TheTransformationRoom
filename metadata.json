@@ -1,6 +1,6 @@
 {
   "name": "The Transformation Room, LLC",
   "description": "Professional operations and technology consulting specializing in warehouse automation, workforce strategy, and scalable systems.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["microphone", "camera"],
   "majorCapabilities": []
 }
