@@ -18,12 +18,16 @@ import {
   Layers, 
   CheckCircle2,
   Bot,
-  Play
+  Play,
+  Activity
 } from "lucide-react";
 import { ScorecardTool } from "../components/ScorecardTool";
 import { CORPORATE_PAYMENT, DISCOVERY_CALL_1HR } from "../constants";
 
+import { PODCASTS } from "../data/podcasts";
+
 const Organizations = () => {
+  const featuredPodcast = PODCASTS.find(p => p.featured) || PODCASTS[0];
   const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
   const location = useLocation();
 
@@ -125,10 +129,10 @@ const Organizations = () => {
                     Start Transformation <ArrowRight className="w-5 h-5" />
                  </Link>
                  <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
+                  onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="px-8 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer text-white"
                  >
-                    Consult NOVA <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                    Take Assessment <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                  </button>
               </div>
 
@@ -233,12 +237,12 @@ const Organizations = () => {
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-200">Featured Podcast Episode</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-                  Escape the Trap of <br className="hidden md:block"/>
-                  <span className="text-brand-secondary">Manual Heroics.</span>
+                  Escape IT Bureaucracy<br className="hidden md:block"/>
+                  <span className="text-brand-secondary">Reclaim Velocity.</span>
                 </h2>
                 <div className="w-20 h-1.5 bg-brand-secondary mb-8 rounded-full" />
                 <p className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
-                  Listen to the latest episode of The Transformation Room Podcast. A dynamic discussion between two industry experts on how we build scalable, automated operational ecosystems. We explore moving past daily firefighting into a state of structural resilience.
+                  Listen to our latest episode: <span className="text-white font-bold">"{featuredPodcast.title}"</span>. We break down the cognitive and structural bottlenecks that turn IT departments into "No" machines and how to transform them into engines of high-velocity innovation.
                 </p>
                 <p className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
                   Discover how we integrate <span className="font-bold text-white">AI strategy, industrial hardware, and workforce experience</span> into a single, high-output engine powered by our Four Pillars of Transformation:
@@ -282,13 +286,13 @@ const Organizations = () => {
                 
                 <div className="mb-10 text-center">
                   <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 tracking-tight">The Transformation Room</h3>
-                  <p className="text-brand-secondary font-bold text-xs uppercase tracking-[0.2em]">Scaling Beyond Legacy Heroics</p>
+                  <p className="text-brand-secondary font-bold text-sm uppercase tracking-[0.2em]">{featuredPodcast.title}</p>
                 </div>
 
                 <div className="bg-slate-800 p-6 md:p-8 rounded-3xl border border-white/5 shadow-inner">
                   <div className="flex flex-col gap-6">
                     <div className="w-full flex items-center justify-center py-4 opacity-50 relative h-16">
-                       {/* Mock waveform */}
+                       {/* Waveform visual */}
                        <div className="absolute inset-x-0 flex items-end justify-center h-full gap-2 px-4">
                          {[...Array(24)].map((_, i) => (
                            <motion.div 
@@ -304,15 +308,15 @@ const Organizations = () => {
                       onClick={() => {
                         window.dispatchEvent(new CustomEvent('play-global-podcast', {
                            detail: {
-                             title: "Scaling Beyond Legacy Heroics",
-                             url: "https://storage.googleapis.com/thetransformationroomassets/Scaling_Beyond_Legacy_Heroics.m4a"
+                             title: featuredPodcast.title,
+                             url: featuredPodcast.url
                            }
                         }));
                       }}
                       className="w-full bg-brand-secondary text-brand-dark py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white transition-colors"
                     >
                       <Play className="w-5 h-5 fill-current" />
-                      Listen to Podcast
+                      Listen Now
                     </button>
                   </div>
                 </div>

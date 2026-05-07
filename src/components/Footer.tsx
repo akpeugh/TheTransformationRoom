@@ -37,7 +37,7 @@ export const Footer = () => (
           <ul className="space-y-4">
             <li>
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
+                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat'))}
                 className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group text-left"
               >
                 <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />

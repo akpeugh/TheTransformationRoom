@@ -703,7 +703,7 @@ const CareerTool = () => {
 
                <div className="mt-20 flex flex-col sm:flex-row gap-6">
                   <button onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                    detail: { prompt: `I just simulated a career path with NOVA to ${formData.targetRole}. Let's discuss how to close Step 1: ${parsedResult.roadmap?.[0]?.step}` }
+                    detail: { type: 'individual', prompt: `I just simulated a career path with NOVA to ${formData.targetRole}. Let's discuss how to close Step 1: ${parsedResult.roadmap?.[0]?.step}` }
                   }))} className="flex-1 py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-primary transition-all">
                     <Bot className="w-5 h-5 text-brand-secondary" /> Deconstruct Roadmap with NOVA
                   </button>

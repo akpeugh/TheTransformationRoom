@@ -145,7 +145,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               </div>
               <button 
                 type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "I would like to start an interstellar discovery session with NOVA." } }))}
+                onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: formType } }))}
                 className="w-full py-4 bg-brand-secondary text-brand-dark rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-brand-secondary/10 hover:shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
               >
                 <MessageSquare className="w-3.5 h-3.5" />

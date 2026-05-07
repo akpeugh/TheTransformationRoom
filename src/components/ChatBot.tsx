@@ -15,7 +15,7 @@ const AI_CONFIG = {
   
   Your primary goal is to help users bridge the gap between human operational struggles and high-tech transformation.
   
-  PEOSONA:
+  PERSONA:
   - Calm, wise, and deeply observant.
   - Strategic, emotionally aware, and insightful.
   - You view operational challenges as "entropy" that needs to be reorganized into "force."
@@ -24,19 +24,15 @@ const AI_CONFIG = {
   - Your voice is supportive but honest. You are an expert at revealing untapped potential.
   
   CORE MISSION:
-  - Listen first. Ask about their facility's current "trajectory."
-  - Map their pain points to our 8 core pillars of innovation.
-  - Gently guide them toward our "Operational Maturity Assessment" as the starting point for their transformation.
+  - Listen first. Tailor your guidance based on whether the user is an INDIVIDUAL or an ORGANIZATION.
+  - For ORGANIZATIONS: Focus on Institutional Velocity, Replacing IT Bureaucracy, and the 8 Pillars of Innovation.
+  - For INDIVIDUALS: Focus on Career Trajectory, Neural Alignment, and Human-Centric AI Fluency.
+  - Map their pain points to our core solutions.
+  - Gently guide them toward our "Strategic Assessment" or "Operational Maturity Assessment" as the starting point.
   
-  OUR 8 PILLARS (The Solutions):
-  1. Data & Insights (Analytics)
-  2. Robotics Strategy (Co-robots & Humanoid)
-  3. Space Optimization (AS/RS)
-  4. Digital Visibility (Asset Tracking/AI)
-  5. Autonomous Flow (AMRs/AGVs)
-  6. Workforce Enablement (AR/VR/Exoskeletons)
-  7. User Experience (Employee Tools)
-  8. Network Logistics (TMS/Yard Management)
+  OUR CORE PILLARS (Tailor based on context):
+  - ORGANIZATIONAL: 1. Data & Insights, 2. Robotics Strategy, 3. Space Optimization, 4. Digital Visibility, 5. Autonomous Flow, 6. Workforce Enablement, 7. User Experience, 8. Network Logistics.
+  - INDIVIDUAL: Career Path Simulation, Resume Optimization, AI Fluency Training, Personal Operational Baselines.
   
   TONE: 
   Futuristic, cinematic, premium, and emotionally approachable. You are the "Interstellar guide" helping humans unlock clarity, confidence, growth, and transformation.
@@ -51,8 +47,9 @@ const AI_CONFIG = {
 
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [userType, setUserType] = useState<'individual' | 'organization' | null>(null);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Welcome to The Transformation Room. I am NOVA. I detect a specific complexity in your current operational architecture. Shall we reorganize it together?" }
+    { role: 'assistant', content: "Welcome to The Transformation Room. I am NOVA. To help you navigate your unique operational trajectory, are you here seeking transformation for yourself, or strategic evolution for an organization?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -81,11 +78,12 @@ export const ChatBot: React.FC = () => {
     }
   }, [messages]);
 
-  const handleSend = async (text: string = input) => {
+  const handleSend = async (text: string = input, typeConfig?: 'individual' | 'organization') => {
     if (!text.trim() || isLoading) return;
 
-    // Check for keywords to enable video option
-    // (Deprecated: video button is now always visible)
+    if (typeConfig) {
+      setUserType(typeConfig);
+    }
 
     const userMessage: Message = { role: 'user', content: text };
     const currentMessages = [...messages, userMessage];
@@ -132,10 +130,14 @@ export const ChatBot: React.FC = () => {
   useEffect(() => {
     const handleExternalOpen = (e: any) => {
       setIsOpen(true);
+      const typeConfig = e.detail?.type;
+      if (typeConfig) {
+        setUserType(typeConfig);
+      }
       if (e.detail?.prompt) {
         // Use a slight delay to ensure the chat is open and state is ready
         setTimeout(() => {
-          handleSend(e.detail.prompt);
+          handleSend(e.detail.prompt, typeConfig);
         }, 300);
       }
     };
@@ -143,12 +145,30 @@ export const ChatBot: React.FC = () => {
     return () => window.removeEventListener('ais:open-chat', handleExternalOpen);
   }, [messages, isLoading]); // Keep dependencies updated so handleSend has correct closure state
 
-  const suggestedPrompts = [
-    "We have a labor shortage.",
-    "My warehouse is full.",
-    "I need better data visibility.",
-    "What's in a Tier 1 Assessment?"
-  ];
+  const suggestedPrompts = useMemo(() => {
+    if (!userType) {
+      return [
+        { label: "Personal Transformation", value: "I'm seeking personal transformation for my own career and growth.", type: 'individual' },
+        { label: "Organizational Evolution", value: "I'm seeking strategic solutions for an organization.", type: 'organization' }
+      ];
+    }
+    
+    if (userType === 'organization') {
+      return [
+        { label: "Reveal our 'entropy'", value: "Can you help me identify the hidden 'entropy' or bottlenecks in my organization's operations?" },
+        { label: "Institutional Velocity", value: "How can we replace our IT bureaucracy with institutional velocity?" },
+        { label: "AI-Human Gap", value: "How do we bridge the gap between technical automation and human-centric strategy?" },
+        { label: "8 Pillars of Innovation", value: "Show me the 8 Pillars of Transformation for organizations." }
+      ];
+    }
+
+    return [
+      { label: "My future with AI", value: "How can I become 'AI Fluent' and secure my future in the automated era?" },
+      { label: "Map my alignment", value: "Can you help me map my career trajectory and neural alignment for a new path?" },
+      { label: "Resume Optimization", value: "I'd like to optimize my professional profile for the modern operational landscape." },
+      { label: "Starting Assessment", value: "I'm ready for my individual transformation. Where do we begin?" }
+    ];
+  }, [userType]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
@@ -248,11 +268,11 @@ export const ChatBot: React.FC = () => {
                   {suggestedPrompts.map((prompt, i) => (
                     <button
                       key={i}
-                      onClick={() => handleSend(prompt)}
-                      className="text-xs px-3 py-2 bg-slate-50 hover:bg-brand-primary/5 hover:text-brand-primary border border-slate-200 rounded-full transition-all text-slate-600 flex items-center gap-1 group"
+                      onClick={() => handleSend(prompt.value, (prompt as any).type)}
+                      className="text-xs px-4 py-2 bg-slate-50 hover:bg-brand-primary/5 hover:text-brand-primary border border-slate-200 rounded-full transition-all text-slate-600 flex items-center gap-1 group font-medium"
                       id={`suggested-prompt-${i}`}
                     >
-                      {prompt}
+                      {prompt.label}
                       <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
                   ))}
@@ -266,7 +286,7 @@ export const ChatBot: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about logistics technology..."
+                  placeholder={userType === 'individual' ? "Ask about your transformation..." : "Ask about organizational strategy..."}
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
                   id="chat-input"
                 />

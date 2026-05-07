@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Headphones, Play, ArrowRight, Sparkles, Clock, Share2, Download } from "lucide-react";
 import { PODCASTS, Podcast } from "../data/podcasts";
+import { ScorecardTool } from "../components/ScorecardTool";
 
 const PodcastLibrary = () => {
   const playPodcast = (podcast: Podcast) => {
@@ -91,14 +92,16 @@ const PodcastLibrary = () => {
                     {podcast.description}
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    <button 
+                    <button className="bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-white transition-all shadow-xl shadow-brand-secondary/20"
                       onClick={() => playPodcast(podcast)}
-                      className="bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-white transition-all shadow-xl shadow-brand-secondary/20"
                     >
                       <Play className="w-5 h-5 fill-current" />
                       Listen Now
                     </button>
-                    <button className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all">
+                    <button 
+                      onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: 'organization', prompt: `Could you provide a detailed summary or transcript for the podcast episode "${podcast.title}"?` } }))}
+                      className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all"
+                    >
                       Episode Transcript
                     </button>
                   </div>
@@ -110,7 +113,7 @@ const PodcastLibrary = () => {
       </section>
 
       {/* Library Grid */}
-      <section className="max-w-7xl mx-auto px-4">
+      <section className="max-w-7xl mx-auto px-4 pb-24">
         <div className="flex items-center justify-between mb-12">
           <h3 className="text-3xl font-bold text-white tracking-tight">Full Library</h3>
           <div className="w-1/2 h-px bg-slate-800 hidden md:block" />
@@ -166,24 +169,37 @@ const PodcastLibrary = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-4 mt-32 text-center">
-        <div className="bg-brand-primary/20 border border-brand-primary/30 rounded-[3rem] p-12 backdrop-blur-xl">
-          <h3 className="text-3xl font-bold text-white mb-6">Don't Scaling Alone.</h3>
-          <p className="text-slate-300 mb-10 text-lg font-light">
-            Ready to apply these concepts to your organization? Our strategy sessions dive deep into your unique operational bottlenecks.
+      <section className="max-w-7xl mx-auto px-4 mt-32 text-center pb-24">
+        <div className="bg-brand-primary/20 border border-brand-primary/30 rounded-[3rem] p-12 backdrop-blur-xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none" />
+          <h3 className="text-3xl font-bold text-white mb-6 relative z-10">Reclaim Your Institutional Velocity.</h3>
+          <p className="text-slate-300 mb-10 text-lg font-light relative z-10">
+            Don't let operational bureaucracy stifle your growth. Our strategy sessions dive deep into your unique bottlenecks to build high-output systems.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2">
-              Book Strategy Session <ArrowRight className="w-5 h-5" />
+          <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+            <button 
+              onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
+              className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 group"
+            >
+              Start Strategic Assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Tell me more about the transformation paths mentioned in the podcast." } }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: 'organization', prompt: "Tell me more about the transformation paths mentioned in the podcast." } }))}
               className="bg-white/5 border border-white/10 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-2"
             >
               Ask NOVA <Sparkles className="w-5 h-5 text-brand-secondary" />
             </button>
           </div>
         </div>
+      </section>
+
+      {/* Scorecard Tool */}
+      <section className="max-w-7xl mx-auto px-4 py-24">
+        <div className="text-center mb-16">
+          <h3 className="text-3xl font-bold text-white mb-4">Establish Your Baseline</h3>
+          <p className="text-slate-400 font-light max-w-xl mx-auto">Take 2 minutes to reveal your operational maturity and get a custom transformation roadmap.</p>
+        </div>
+        <ScorecardTool />
       </section>
     </div>
   );

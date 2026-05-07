@@ -230,7 +230,7 @@ export const ScorecardTool = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                      detail: { prompt: "I've reviewed the example Transformation Scorecard. Can you explain how to bridge the gaps in our hardware and AI readiness?" } 
+                      detail: { type: 'organization', prompt: "I've reviewed the example Transformation Scorecard. Can you explain how to bridge the gaps in our hardware and AI readiness?" } 
                     }))}
                     className="w-full relative group bg-gradient-to-r from-slate-800 to-slate-700 border border-slate-600 text-white px-8 py-4 rounded-2xl font-bold text-md transition-all flex items-center justify-center gap-3 overflow-hidden shadow-lg hover:shadow-brand-secondary/20 hover:border-brand-secondary/50 cursor-pointer hover:scale-[1.02]"
                   >
@@ -501,7 +501,7 @@ export const ScorecardTool = () => {
                     whileHover={{ scale: 1.03, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                      detail: { prompt: `I scored a ${scores.total}% on the Readiness Assessment (${scores.hardware}% Hardware, ${scores.data}% Data, ${scores.workforce}% Workforce). Tell me exactly how NOVA and The Transformation Room can fix my specific gaps.` } 
+                      detail: { type: 'organization', prompt: `I scored a ${scores.total}% on the Readiness Assessment (${scores.hardware}% Hardware, ${scores.data}% Data, ${scores.workforce}% Workforce). Tell me exactly how NOVA and The Transformation Room can fix my specific gaps.` } 
                     }))}
                     className="group relative w-full overflow-hidden bg-gradient-to-r from-brand-secondary via-emerald-400 to-brand-secondary bg-[length:200%_auto] hover:bg-[center_right_1rem] text-brand-dark font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-500 shadow-[0_0_20px_rgba(20,184,166,0.3)] hover:shadow-[0_0_40px_rgba(20,184,166,0.6)] cursor-pointer outline outline-2 outline-offset-2 outline-transparent hover:outline-brand-secondary/50 hover:animate-pulse z-10"
                   >

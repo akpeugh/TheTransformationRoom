@@ -26,7 +26,7 @@ export const Navbar = () => {
       name: "NOVA AI Chat", 
       desc: "Instant operational guidance", 
       icon: <Bot className="w-4 h-4" />,
-      action: () => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))
+      action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
     },
     { 
       name: "Operational Assessment", 

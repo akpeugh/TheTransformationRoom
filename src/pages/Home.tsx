@@ -27,6 +27,7 @@ import {
   Activity,
   Brain
 } from "lucide-react";
+import { ScorecardTool } from "../components/ScorecardTool";
 import { DISCOVERY_CALL_1HR } from "../constants";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
@@ -223,10 +224,10 @@ const Home = () => {
                   Start Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: "Are you looking to explore personal transformation services for yourself, or are you seeking strategic solutions for an organization? I can help you find the right path relative to your unique goals." } }))}
+                  onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
                   className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 hover:border-white/40 shadow-lg shadow-black/20 hover:shadow-black/40 transition-all flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-95 cursor-pointer text-center"
                 >
-                  Consult NOVA <Sparkles className="w-5 h-5 text-brand-secondary group-hover:rotate-12 group-hover:scale-110 transition-transform" />
+                  Take Strategic Assessment <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 group-hover:scale-110 transition-transform" />
                 </button>
               </div>
             </motion.div>
@@ -663,6 +664,16 @@ const Home = () => {
               </span>
             </p>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-slate-900 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4">
+           <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-white mb-4">Operational Readiness Assessment</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">Take our brief assessment to reveal your operational maturity and get a clear starting point for your transformation.</p>
+           </div>
+           <ScorecardTool />
         </div>
       </section>
     </div>
