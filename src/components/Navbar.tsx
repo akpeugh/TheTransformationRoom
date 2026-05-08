@@ -143,7 +143,7 @@ export const Navbar = () => {
                           <div className="h-px bg-slate-100 flex-1" />
                         </h4>
                         <div className="grid grid-cols-1 gap-1">
-                          {group.items.map((tool) => {
+                          {group.items.map((tool: any) => {
                             const content = (
                               <div className={`flex items-center gap-4 p-3 rounded-2xl transition-all group/item ${
                                 tool.highlight 
@@ -211,7 +211,7 @@ export const Navbar = () => {
             <div className="border-b border-slate-100 pb-4 mb-4">
               <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Systems & Tools</p>
               <div className="space-y-3">
-                {toolGroups.flatMap(g => g.items).map((tool) => (
+                {(toolGroups as any).flatMap((g: any) => g.items).map((tool: any) => (
                   <button 
                     key={tool.name}
                     onClick={() => {

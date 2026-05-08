@@ -42,6 +42,7 @@ import {
   AreaChart,
   Area
 } from "recharts";
+import SEO from "../components/SEO";
 
 // Types
 interface Inputs {
@@ -417,6 +418,10 @@ export default function ImpactSimulator() {
 
   return (
     <div className="min-h-screen bg-[#05070a] text-white pt-24 pb-20 selection:bg-brand-secondary/30">
+      <SEO 
+        title="Impact Simulator"
+        description="Calculate your estimated 5-year value potential and net ROI with our high-fidelity operational foresight engine."
+      />
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-primary/10 blur-[120px] rounded-full animate-pulse" />
@@ -855,7 +860,7 @@ export default function ImpactSimulator() {
                       <span className="text-sm font-black uppercase tracking-widest text-brand-secondary">Performance Insight</span>
                     </div>
                     <p className="text-lg text-slate-400 leading-relaxed italic font-light">
-                      "By recapturing {inputs.uptimeOpp}% in operational uptime, your volume gain alone supports a {results.payback.toFixed(0)}-month ROI, effectively rendering your modernization self-funding."
+                      "By recapturing operational uptime, your volume gain alone supports a {results.payback.toFixed(0)}-month ROI, effectively rendering your modernization self-funding."
                     </p>
                   </div>
                 </div>

@@ -1,7 +1,12 @@
 import { Briefcase, Quote } from "lucide-react";
+import SEO from "../components/SEO";
 
 const Testimonials = () => (
   <div className="pt-32 pb-24 bg-slate-50">
+    <SEO 
+      title="Testimonials"
+      description="Read real results and testimonials from the front lines of operations and technology integration at The Transformation Room."
+    />
     <div className="max-w-7xl mx-auto px-4">
       <div className="text-center mb-20">
         <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline">IMPACT & EVIDENCE</span>

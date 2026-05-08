@@ -25,6 +25,7 @@ import { ScorecardTool } from "../components/ScorecardTool";
 import { CORPORATE_PAYMENT, DISCOVERY_CALL_1HR } from "../constants";
 
 import { PODCASTS } from "../data/podcasts";
+import SEO from "../components/SEO";
 
 const Organizations = () => {
   const featuredPodcast = PODCASTS.find(p => p.featured) || PODCASTS[0];
@@ -67,6 +68,10 @@ const Organizations = () => {
 
   return (
     <div className="bg-slate-900 min-h-screen pb-24 font-sans selection:bg-brand-secondary selection:text-brand-dark">
+      <SEO 
+        title="Organizations"
+        description="Strategic operational audits, system design, and technology implementation for high-performing organizations outgrowing operational complexity."
+      />
       <header className="relative py-40 bg-brand-primary overflow-hidden perspective-1000">
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/40 z-10" />
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 z-0">

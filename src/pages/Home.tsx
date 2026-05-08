@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 
 import { DISCOVERY_CALL_1HR } from "../constants";
+import SEO from "../components/SEO";
+import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from "../constants/schema";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -171,6 +173,14 @@ const Home = () => {
 
   return (
     <div className="bg-slate-900">
+      <SEO 
+        title="Home"
+        description="Professional operations and technology consulting specializing in warehouse automation, workforce strategy, and scalable systems."
+        schema={{
+          "@context": "https://schema.org",
+          "@graph": [ORGANIZATION_SCHEMA, WEBSITE_SCHEMA]
+        }}
+      />
       {/* Hero Content */}
       <section className="relative min-h-screen flex items-center perspective-1000 pb-20">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

@@ -10,6 +10,7 @@ import {
   BarChart3 
 } from "lucide-react";
 import { DONATION_LINK } from "../constants";
+import SEO from "../components/SEO";
 
 const About = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -41,6 +42,10 @@ const About = () => {
 
   return (
     <div>
+      <SEO 
+        title="About Us"
+        description="Meet the operators behind The Transformation Room. We specialize in industrial systems, cognitive strategy, and workforce transformation."
+      />
       <section className="bg-slate-50 pt-40 pb-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />
         <div className="max-w-7xl mx-auto px-4 relative z-10">

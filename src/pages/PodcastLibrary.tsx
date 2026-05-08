@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import { Headphones, Play, ArrowRight, Sparkles, Clock, Share2, Download } from "lucide-react";
 import { PODCASTS, Podcast } from "../data/podcasts";
-
+import SEO from "../components/SEO";
+import { ORGANIZATION_SCHEMA } from "../constants/schema";
 
 const PodcastLibrary = () => {
   const location = useLocation();
@@ -67,8 +68,27 @@ const PodcastLibrary = () => {
     window.open(podcast.url, '_blank');
   };
 
+  const podcastSchema = {
+    "@context": "https://schema.org",
+    "@type": "PodcastSeries",
+    "name": "The Transformation Room Podcast",
+    "description": "Strategic insights at the intersection of industrial systems, cognitive strategy, and workforce transformation.",
+    "url": "https://thetransformationroom.com/podcasts",
+    "author": {
+      "@type": "Organization",
+      "name": "The Transformation Room"
+    },
+    "publisher": ORGANIZATION_SCHEMA
+  };
+
   return (
     <div className="bg-slate-950 min-h-screen pb-24 font-sans selection:bg-brand-secondary selection:text-brand-dark">
+      <SEO 
+        title="Podcast Library"
+        description="Listen to strategic insights at the intersection of industrial systems, cognitive strategy, and workforce transformation from The Transformation Room."
+        url="https://thetransformationroom.com/podcasts"
+        schema={podcastSchema}
+      />
       {/* Hero Section */}
       <header className="relative py-32 bg-brand-primary overflow-hidden">
         <div className="absolute inset-0 bg-brand-dark/60 z-10" />
@@ -77,6 +97,8 @@ const PodcastLibrary = () => {
             src="https://images.unsplash.com/photo-1589903308904-1010c2294adc?auto=format&fit=crop&q=80&w=2000" 
             alt="Podcast Studio" 
             className="w-full h-full object-cover opacity-40 scale-105 blur-sm"
+            loading="eager"
+            fetchPriority="high"
           />
         </div>
         
@@ -119,6 +141,7 @@ const PodcastLibrary = () => {
                     src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=800" 
                     alt="Latest Episode" 
                     className="w-full h-full object-cover rounded-3xl shadow-2xl border border-white/5"
+                    loading="lazy"
                   />
                   <button 
                     onClick={() => playPodcast(podcast)}

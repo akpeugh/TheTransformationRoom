@@ -47,6 +47,7 @@ import { GoogleGenAI } from "@google/genai";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
 import Markdown from "react-markdown";
+import SEO from "../components/SEO";
 
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 // @ts-ignore
@@ -323,6 +324,10 @@ const CareerTool = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col md:flex-row overflow-hidden pt-16">
+      <SEO 
+        title="Career Hub"
+        description="Explore your professional DNA with NOVA Intelligence. Use our Career Path Simulator, Resume Optimizer, and Behavioral Traits Assessment."
+      />
       {/* Left Sidebar */}
       <div className="md:w-1/4 bg-slate-900 p-8 md:p-12 text-white flex flex-col justify-between overflow-y-auto relative z-10 shadow-2xl shrink-0">
         <div>

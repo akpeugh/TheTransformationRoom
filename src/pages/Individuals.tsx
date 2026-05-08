@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { ResumeOptimizer } from "../components/ResumeOptimizer";
 import { CareerPathSimulator } from "../components/CareerPathSimulator";
+import SEO from "../components/SEO";
 
 import { DISCOVERY_CALL_1HR } from "../constants";
 
@@ -78,6 +79,10 @@ const stageData = [
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
+      <SEO 
+        title="Individuals"
+        description="Career transformation tools, resume optimization, and personal growth paths for the modern workforce using NOVA AI Intelligence."
+      />
       <header className="relative py-40 bg-slate-900 overflow-hidden perspective-1000">
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/50 mix-blend-overlay z-10" />
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 opacity-40 scale-105">
