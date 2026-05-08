@@ -52,7 +52,7 @@ interface Inputs {
   absenteeism: number;
   turnover: number;
   adminHours: number;
-  uptimeOpp: number; // Renamed from productivityOpp
+  currentUptime: number; // Renamed from uptimeOpp
   errorRate: number;
   investment: number;
   avgVolume: number; // Units per week
@@ -70,13 +70,62 @@ interface Solutions {
 }
 
 const SOLUTION_SPECS = {
-  aiVideoAnalytics: { label: "AI Video Analytics", icon: Bot, baseCost: 35000, perFacilityCost: 5000 },
-  autonomousDrones: { label: "Autonomous Drones", icon: Sparkles, baseCost: 75000, perFacilityCost: 10000 },
-  flexScheduling: { label: "Flex Scheduling", icon: Clock, baseCost: 15000, perFacilityCost: 2000 },
-  realTimeDashboards: { label: "Live Dashboards", icon: BarChart3, baseCost: 25000, perFacilityCost: 1500 },
-  intelligentPicking: { label: "Intelligent Picking", icon: Target, baseCost: 120000, perFacilityCost: 15000 },
-  leadershipAdoption: { label: "Leadership Model", icon: ShieldCheck, baseCost: 10000, perFacilityCost: 8000 },
-  amrCobots: { label: "AMR / Cobots", icon: Bot, baseCost: 250000, perFacilityCost: 45000 },
+  aiVideoAnalytics: { 
+    label: "AI Video Analytics", 
+    icon: Bot, 
+    baseCost: 35000, 
+    perFacilityCost: 5000,
+    annualOpExRate: 0.15,
+    description: "Automated inventory tracking & productivity heatmaps."
+  },
+  autonomousDrones: { 
+    label: "Autonomous Drones", 
+    icon: Sparkles, 
+    baseCost: 75000, 
+    perFacilityCost: 10000,
+    annualOpExRate: 0.20,
+    description: "High-speed cycle counting & warehouse mapping."
+  },
+  flexScheduling: { 
+    label: "Flex Scheduling", 
+    icon: Clock, 
+    baseCost: 15000, 
+    perFacilityCost: 2000,
+    annualOpExRate: 0.10,
+    description: "Dynamic labor allocation & shift optimization."
+  },
+  realTimeDashboards: { 
+    label: "Live Dashboards", 
+    icon: BarChart3, 
+    baseCost: 25000, 
+    perFacilityCost: 1500,
+    annualOpExRate: 0.12,
+    description: "Real-time KPI visibility & command center."
+  },
+  intelligentPicking: { 
+    label: "Intelligent Picking", 
+    icon: Target, 
+    baseCost: 120000, 
+    perFacilityCost: 15000,
+    annualOpExRate: 0.15,
+    description: "AI-driven route optimization & batch logic."
+  },
+  leadershipAdoption: { 
+    label: "Leadership Model", 
+    icon: ShieldCheck, 
+    baseCost: 10000, 
+    perFacilityCost: 8000,
+    annualOpExRate: 0.05,
+    description: "Standardized management tech & coaching."
+  },
+  amrCobots: { 
+    label: "AMR / Cobots", 
+    icon: Bot, 
+    baseCost: 250000, 
+    perFacilityCost: 45000,
+    annualOpExRate: 0.18,
+    description: "Autonomous cart retrieval & collaborative picking."
+  },
 };
 
 type Scenario = "conservative" | "realistic" | "aggressive";
@@ -129,7 +178,7 @@ export default function ImpactSimulator() {
     absenteeism: 6,
     turnover: 45,
     adminHours: 20,
-    uptimeOpp: 15,
+    currentUptime: 75,
     errorRate: 4,
     investment: 250000,
     avgVolume: 125000,
@@ -203,12 +252,15 @@ export default function ImpactSimulator() {
     // Unit Margin Value
     const unitMargin = inputs.unitMargin;
 
-    // Calculate Dynamic CAPEX based on selected solutions
+    // Calculate Dynamic CAPEX and OpEx based on selected solutions
     let baseInvestment = 0;
+    let annualOpEx = 0;
     Object.keys(solutions).forEach((key) => {
       if (solutions[key as keyof Solutions]) {
         const spec = SOLUTION_SPECS[key as keyof Solutions];
-        baseInvestment += spec.baseCost + (spec.perFacilityCost * inputs.facilities);
+        const solutionCapex = spec.baseCost + (spec.perFacilityCost * inputs.facilities);
+        baseInvestment += solutionCapex;
+        annualOpEx += solutionCapex * spec.annualOpExRate;
       }
     });
 
@@ -221,8 +273,9 @@ export default function ImpactSimulator() {
     // Admin Savings
     const adminSavings = inputs.adminHours * inputs.avgWage * 52 * inputs.facilities * factors.admin;
 
-    // Uptime/Productivity Savings (Capped at Opp %)
-    const uptimeSavings = totalHeadcount * inputs.avgWage * 2080 * (inputs.uptimeOpp / 100) * factors.uptime;
+    // Uptime/Productivity Savings (Calculated from Opportunity Gap to 95% ceiling)
+    const uptimeOpportunityGap = Math.max(0, 95 - inputs.currentUptime);
+    const uptimeSavings = totalHeadcount * inputs.avgWage * 2080 * (uptimeOpportunityGap / 100) * factors.uptime;
 
     // Rework/Error Savings
     const errorSavings = annualWageBill * (inputs.errorRate / 100) * factors.error;
@@ -234,17 +287,28 @@ export default function ImpactSimulator() {
     const absenteeismSavings = totalHeadcount * (inputs.absenteeism / 100) * 40 * 52 * inputs.avgWage * factors.absenteeism;
 
     // Volume Gain Value
-    const weeklyVolumeGain = inputs.avgVolume * (inputs.uptimeOpp / 100) * factors.volume;
+    const weeklyVolumeGain = inputs.avgVolume * (uptimeOpportunityGap / 100) * factors.volume;
     const annualVolumeValue = weeklyVolumeGain * unitMargin * 52 * inputs.facilities;
 
-    // Total ROI Calculation (Total Annual Recaptured Value)
+    // Total ROI Calculation (Total Annual Recaptured Value at Maturity)
     const totalAnnualValue = otSavings + adminSavings + uptimeSavings + errorSavings + turnoverSavings + absenteeismSavings + (annualVolumeValue * 0.35); // 0.35 conservative recapture buffer
-    const monthlySavings = totalAnnualValue / 12;
+    
+    // 5-Year Financial Model
+    const year1Value = totalAnnualValue * 0.40;
+    const year2Value = totalAnnualValue * 0.75;
+    const year3Value = totalAnnualValue;
+    const year4Value = totalAnnualValue * 1.05; // Elasticity tailwind
+    const year5Value = totalAnnualValue * 1.10; // Elasticity tailwind
+    
+    const fiveYearTotalValue = year1Value + year2Value + year3Value + year4Value + year5Value;
+    const fiveYearTotalOpEx = annualOpEx * 5;
     
     // Use inputs.investment as an "Additional Manual CAPEX" or Override if greater than 0
     const finalInvestment = calculatedInvestment + (inputs.investment || 0);
     
-    const roi = (totalAnnualValue / (finalInvestment || 1)) * 100;
+    const fiveYearNetValue = fiveYearTotalValue - fiveYearTotalOpEx - finalInvestment;
+    const fiveYearRoi = (fiveYearNetValue / (finalInvestment || 1)) * 100;
+    const monthlySavings = totalAnnualValue / 12;
     const payback = (finalInvestment || 1) / (monthlySavings || 1);
 
     // Maturity Score (0-100)
@@ -261,8 +325,8 @@ export default function ImpactSimulator() {
 
     // Recommended Package
     let recommendation = "Clarity";
-    if (roi > 250 || totalAnnualValue > 1500000) recommendation = "Execution";
-    else if (roi > 120) recommendation = "Direction";
+    if (fiveYearRoi > 400 || totalAnnualValue > 1500000) recommendation = "Execution";
+    else if (fiveYearRoi > 200) recommendation = "Direction";
 
     return {
       otSavings,
@@ -274,14 +338,16 @@ export default function ImpactSimulator() {
       annualVolumeValue,
       weeklyVolumeGain,
       totalAnnualValue,
+      fiveYearTotalValue,
+      fiveYearRoi,
       monthlySavings,
-      roi,
       payback,
       maturityScore,
       opportunities,
       recommendation,
       totalHeadcount,
-      calculatedInvestment: finalInvestment
+      calculatedInvestment: finalInvestment,
+      annualOpEx
     };
   }, [inputs, factors, solutions, scenario]);
 
@@ -315,24 +381,39 @@ export default function ImpactSimulator() {
 
   const cumulativeData = useMemo(() => {
     const months = [];
-    for (let i = 1; i <= 36; i++) {
+    for (let i = 1; i <= 60; i++) {
       months.push(i % 12 === 0 ? `Y${i/12}` : `M${i}`);
     }
     
     let accumulated = 0;
     return months.map((month, i) => {
-      // Linear ramp up over 6 months then steady
-      const rampFactor = Math.min(1, (i + 1) / 6);
-      const monthlyGain = (results.totalAnnualValue / 12) * rampFactor;
-      accumulated += monthlyGain;
+      // Determine yearly phase
+      const year = Math.floor(i / 12) + 1;
+      let yearlyCapture = 1.0;
+      if (year === 1) yearlyCapture = 0.40;
+      else if (year === 2) yearlyCapture = 0.75;
+      else if (year === 3) yearlyCapture = 1.0;
+      else if (year === 4) yearlyCapture = 1.05;
+      else yearlyCapture = 1.10;
+
+      // Linear ramp up within Year 1 (6 months)
+      const internalRamp = year === 1 ? Math.min(1, (i + 1) / 6) : 1;
+      
+      const monthlyPotential = (results.totalAnnualValue / 12);
+      const monthlyGain = monthlyPotential * yearlyCapture * internalRamp;
+      const monthlyOpEx = (results.annualOpEx / 12);
+      
+      accumulated += (monthlyGain - monthlyOpEx);
+      
       return {
         name: month,
         cumulative: Math.round(accumulated),
         monthly: Math.round(monthlyGain),
-        displayMonth: i + 1
+        displayMonth: i + 1,
+        year
       };
     });
-  }, [results.totalAnnualValue]);
+  }, [results.totalAnnualValue, results.annualOpEx]);
 
   return (
     <div className="min-h-screen bg-[#05070a] text-white pt-24 pb-20 selection:bg-brand-secondary/30">
@@ -407,7 +488,7 @@ export default function ImpactSimulator() {
                 { label: "Unit Margin", key: "unitMargin", min: 0.01, max: 5, step: 0.01, unit: "$", icon: TrendingUp },
                 { label: "Annual Turnover", key: "turnover", min: 0, max: 200, step: 1, unit: "%", icon: RefreshCcw },
                 { label: "Weekly Admin/Reporting", key: "adminHours", min: 0, max: 160, step: 1, unit: "h", icon: MousePointer2 },
-                { label: "Uptime", key: "uptimeOpp", min: 0, max: 60, step: 1, unit: "%", icon: Zap },
+                { label: "Current Uptime %", key: "currentUptime", min: 50, max: 95, step: 1, unit: "%", icon: Zap },
                 { label: "Admin Surcharge / Extra CAPEX", key: "investment", min: 0, max: 2000000, step: 10000, unit: "$", icon: Target },
               ].map((input) => (
                 <div key={input.key} className="space-y-4 group">
@@ -482,51 +563,70 @@ export default function ImpactSimulator() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
             {[
-              { key: "aiVideoAnalytics", label: "AI Video Analytics", icon: Bot },
-              { key: "autonomousDrones", label: "Autonomous Drones", icon: Sparkles },
-              { key: "flexScheduling", label: "Flex Scheduling", icon: Clock },
-              { key: "realTimeDashboards", label: "Live Dashboards", icon: BarChart3 },
-              { key: "intelligentPicking", label: "Intelligent Picking", icon: Target },
-              { key: "leadershipAdoption", label: "Leadership Model", icon: ShieldCheck },
-              { key: "amrCobots", label: "AMR / Cobots", icon: Bot },
+              { key: "aiVideoAnalytics", icon: Bot },
+              { key: "autonomousDrones", icon: Sparkles },
+              { key: "flexScheduling", icon: Clock },
+              { key: "realTimeDashboards", icon: BarChart3 },
+              { key: "intelligentPicking", icon: Target },
+              { key: "leadershipAdoption", icon: ShieldCheck },
+              { key: "amrCobots", icon: Bot },
             ].map((sol) => {
               const spec = SOLUTION_SPECS[sol.key as keyof Solutions];
+              const isSelected = solutions[sol.key as keyof Solutions];
+              
               return (
-                <button
+                <motion.button
                   key={sol.key}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => toggleSolution(sol.key as keyof Solutions)}
-                  className={`group flex flex-col items-center justify-center p-6 rounded-3xl border transition-all text-center gap-4 relative min-h-[160px] ${
-                    solutions[sol.key as keyof Solutions]
-                      ? "bg-brand-secondary/10 border-brand-secondary/40 text-white shadow-[inset_0_0_20px_rgba(0,242,255,0.05)]"
+                  className={`group flex flex-col p-8 rounded-[2.5rem] border transition-all text-left gap-6 relative min-h-[220px] ${
+                    isSelected
+                      ? "bg-brand-secondary/10 border-brand-secondary/40 text-white shadow-[0_20px_40px_rgba(0,242,255,0.05)]"
                       : "bg-slate-900/40 border-white/5 text-slate-500 hover:border-white/10 hover:bg-slate-900/60"
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all ${
-                    solutions[sol.key as keyof Solutions]
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all ${
+                    isSelected
                       ? "bg-brand-secondary/20 border-brand-secondary/30 text-brand-secondary"
                       : "bg-white/5 border-white/5 text-slate-600 group-hover:text-slate-400"
                   }`}>
-                    <sol.icon className="w-6 h-6" />
+                    <sol.icon className="w-7 h-7" />
                   </div>
-                  <div className="space-y-1">
-                    <span className="text-[9px] font-black uppercase tracking-widest leading-tight block">{sol.label}</span>
-                    <span className="text-[8px] font-mono text-slate-600 group-hover:text-slate-500 block">
+                  
+                  <div className="space-y-2">
+                    <span className="text-xs font-black uppercase tracking-[0.15em] leading-tight block text-white/90">{spec.label}</span>
+                    <p className={`text-[11px] leading-relaxed transition-colors ${isSelected ? "text-slate-300" : "text-slate-600 group-hover:text-slate-500"}`}>
+                      {spec.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/5">
+                    <span className={`text-[10px] font-mono font-bold ${isSelected ? "text-brand-secondary" : "text-slate-700"}`}>
                       Est. ${((spec.baseCost + (spec.perFacilityCost * inputs.facilities)) / 1000).toFixed(0)}k
                     </span>
+                    <div className={`w-5 h-5 rounded-full border transition-all flex items-center justify-center ${
+                      isSelected 
+                        ? "bg-brand-secondary border-brand-secondary text-brand-dark" 
+                        : "border-white/10"
+                    }`}>
+                      {isSelected && <ArrowRight className="w-3 h-3 rotate-[-45deg]" />}
+                    </div>
                   </div>
+
                   <AnimatePresence>
-                    {solutions[sol.key as keyof Solutions] && (
+                    {isSelected && (
                       <motion.div 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-secondary shadow-[0_0_10px_#00f2ff]"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        className="absolute inset-0 rounded-[2.5rem] border-2 border-brand-secondary/20 pointer-events-none"
                       />
                     )}
                   </AnimatePresence>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -563,13 +663,13 @@ export default function ImpactSimulator() {
                     <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:scale-125 transition-transform duration-1000">
                       <TrendingUp className="w-48 h-48" />
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-primary mb-4">Total Recaptured Value (Annual)</div>
+                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-primary mb-4">5-Year Value Potential</div>
                     <div className="text-5xl font-black tracking-tighter text-white mb-6">
-                      <CountingNumber value={results.totalAnnualValue} prefix="$" />
+                      <CountingNumber value={results.fiveYearTotalValue} prefix="$" />
                     </div>
                     <div className="flex items-center gap-3 text-sm text-brand-primary font-bold">
                       <div className="w-8 h-px bg-brand-primary/30" />
-                      <span><CountingNumber value={Math.round(results.totalAnnualValue / (inputs.headcount * inputs.facilities * inputs.avgWage * 20.8))} suffix="%" /> Value Velocity</span>
+                      <span><CountingNumber value={results.fiveYearRoi} suffix="%" /> 5-Year Net ROI</span>
                     </div>
                   </motion.div>
 
@@ -589,7 +689,7 @@ export default function ImpactSimulator() {
                     </div>
                     <div className="flex items-center gap-3 text-sm text-brand-secondary font-bold">
                       <div className="w-8 h-px bg-brand-secondary/30" />
-                      <span>Value: <CountingNumber value={results.annualVolumeValue * 0.35} prefix="$" /> (Annual)</span>
+                      <span>Value: <CountingNumber value={results.fiveYearTotalValue} prefix="$" /> (5-Year)</span>
                     </div>
                   </motion.div>
 
@@ -703,11 +803,11 @@ export default function ImpactSimulator() {
                         axisLine={false} 
                         tickLine={false} 
                         dx={-10} 
-                        tickFormatter={(val) => `$${(val / 1000).toFixed(0)}k`} 
+                        tickFormatter={(val) => `$${(val / 1000000).toFixed(1)}M`} 
                       />
                       <Tooltip 
                         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
-                        formatter={(value: number) => [formatCurrency(value), 'Value Recaptured']}
+                        formatter={(value: number) => [formatCurrency(value), 'Net Cumulative Value']}
                       />
                       <Area 
                         type="monotone" 
@@ -797,7 +897,7 @@ export default function ImpactSimulator() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
             </button>
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: `I just used the impact simulator. My estimated annual value is ${formatCurrency(results.totalAnnualValue)} with an ROI of ${results.roi.toFixed(0)}%. I want to discuss the ${results.recommendation} package.` } }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: `I just used the impact simulator. My estimated 5-year value potential is ${formatCurrency(results.fiveYearTotalValue)} with a net ROI of ${results.fiveYearRoi.toFixed(0)}%. I want to discuss the ${results.recommendation} package.` } }))}
               className="bg-white/5 text-white border border-white/10 px-10 py-6 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-3"
             >
               Discuss Outcomes with NOVA

@@ -93,8 +93,8 @@ export class NovaVideoProvider {
         const token = responseData.token;
         this.avatar = new StreamingAvatar({ token });
         
-        const avatarId = responseData.config?.avatarId || "92ef99d925184626bdd01572101baf81";
-        const voiceId = responseData.config?.voiceId || "42d00d4aac5441279d8536cd6b52c53c";
+        const avatarId = responseData.avatarId || "92ef99d925184626bdd01572101baf81";
+        const voiceId = responseData.voiceId || "42d00d4aac5441279d8536cd6b52c53c";
 
         console.log("[NovaProvider] Starting HeyGen Session with:", { avatarId, voiceId });
 

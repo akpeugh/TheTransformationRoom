@@ -494,6 +494,31 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                            {transcript}
                          </p>
                       </motion.div>
+                    ) : novaState === 'thinking' ? (
+                      <motion.div 
+                        key="thinking-speech"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="bg-brand-secondary/10 backdrop-blur-xl border border-brand-secondary/20 rounded-2xl p-6 text-center"
+                      >
+                         <div className="flex items-center justify-center gap-3 mb-2 text-brand-secondary">
+                           <Brain className="w-5 h-5 animate-pulse" />
+                           <span className="text-[10px] font-black uppercase tracking-widest">NOVA is processing trajectory...</span>
+                         </div>
+                         <div className="flex justify-center gap-1.5 h-1">
+                           {[...Array(3)].map((_, i) => (
+                             <motion.div
+                               key={i}
+                               animate={{ 
+                                 scale: [1, 1.5, 1],
+                                 opacity: [0.3, 1, 0.3]
+                               }}
+                               transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+                               className="w-1.5 h-1.5 bg-brand-secondary rounded-full"
+                             />
+                           ))}
+                         </div>
+                      </motion.div>
                     ) : (
                       <div className="flex flex-col items-center gap-4 opacity-30">
                         <Waves className="w-8 h-8 text-brand-secondary animate-pulse" />

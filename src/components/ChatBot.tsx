@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff, RefreshCw, AlertCircle } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
 import { VideoCompanionMode as AIVideoCall } from './VideoCompanionMode';
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'error';
   content: string;
 }
 
@@ -131,10 +131,19 @@ export const ChatBot: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Clear any previous error message if retrying
+      setMessages(prev => {
+        if (prev.length > 0 && prev[prev.length - 1].role === 'error') {
+          return prev.slice(0, -1);
+        }
+        return prev;
+      });
+
       // The API expects the conversation to start with a 'user' message.
-      // We skip the initial assistant welcome message.
+      // We skip the initial assistant welcome message and any error messages.
       const conversationHistory = currentMessages.filter((msg, index) => {
         if (index === 0 && msg.role === 'assistant') return false;
+        if (msg.role === 'error') return false;
         return true;
       });
 
@@ -155,14 +164,30 @@ export const ChatBot: React.FC = () => {
         content: response.text || "I'm sorry, I encountered an error processing that request."
       };
       setMessages(prev => [...prev, assistantMessage]);
-
-      // If Northern Intelligence mentions a video call, also show the option
-      // (Deprecated: video button is now always visible)
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini Error:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm currently having trouble connecting to my central brain. Please try again in a moment." }]);
+      let errorMessage = "I'm currently having trouble connecting to my central brain. Operational entropy is high. Please check your connection and try again.";
+      
+      if (error?.message?.includes("API_KEY")) {
+        errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. The trajectory cannot be calculated without proper authorization.";
+      } else if (error?.message?.includes("quota") || error?.message?.includes("429")) {
+        errorMessage = "Service Saturation: NOVA is handling maximum capacity across the neural network. Please allow a brief moment for bandwidth to reset.";
+      } else if (error?.message?.includes("safety") || error?.message?.includes("blocked")) {
+        errorMessage = "Neural Shield Activated: This line of inquiry has been diverted. My protocols prevent me from exploring trajectories that conflict with safety directives.";
+      } else if (!navigator.onLine) {
+        errorMessage = "Signal Loss: Your connection to the primary sector has been interrupted. Please check your link to the network.";
+      }
+
+      setMessages(prev => [...prev, { role: 'error', content: errorMessage }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+    if (lastUserMessage) {
+      handleSend(lastUserMessage.content);
     }
   };
 
@@ -273,32 +298,61 @@ export const ChatBot: React.FC = () => {
                 >
                   <div className={`max-w-[85%] flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     <div className={`w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative ${
-                      msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : ''
+                      msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : 
+                      msg.role === 'error' ? 'bg-red-100 text-red-600 flex items-center justify-center' : ''
                     }`}>
-                      {msg.role === 'user' ? <User className="w-4 h-4" /> : (
+                      {msg.role === 'user' ? <User className="w-4 h-4" /> : 
+                       msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
                         <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
                       )}
                     </div>
                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                       msg.role === 'user' 
                         ? 'bg-brand-primary text-white rounded-tr-none' 
-                        : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                        : msg.role === 'error'
+                          ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-none'
+                          : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
                     }`}>
                       <div className="markdown-body prose prose-sm max-w-none">
                         <Markdown>{msg.content}</Markdown>
                       </div>
+                      {msg.role === 'error' && (
+                        <button 
+                          onClick={handleRetry}
+                          className="mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-800 transition-colors group/retry"
+                        >
+                          <RefreshCw className="w-3 h-3 group-hover/retry:rotate-180 transition-transform duration-500" />
+                          Reconnect to Trajectory
+                        </button>
+                      )}
                     </div>
                   </div>
                 </motion.div>
               ))}
               {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex gap-2">
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                    <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
+                >
+                  <div className="max-w-[85%] flex gap-3 flex-row">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative bg-slate-900 flex items-center justify-center border border-brand-primary/20">
+                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer" />
+                      <div className="absolute inset-0 bg-brand-secondary/20 animate-pulse" />
+                    </div>
+                    <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex flex-col gap-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Activity className="w-3 h-3 text-brand-secondary animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">NOVA is analyzing...</span>
+                      </div>
+                      <div className="flex gap-1.5 ml-0.5">
+                        <span className="w-1.5 h-1.5 bg-brand-secondary/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 bg-brand-secondary/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                        <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-bounce" />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               )}
             </div>
 

@@ -21,44 +21,68 @@ export const Navbar = () => {
     ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3" 
     : "bg-white/0 border-b border-transparent py-5";
 
-  const tools = [
-    { 
-      name: "NOVA AI Chat", 
-      desc: "Instant operational guidance", 
-      icon: <Bot className="w-4 h-4" />,
-      action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
+  const toolGroups = [
+    {
+      label: "Knowledge",
+      items: [
+        {
+          name: "Podcast Library",
+          desc: "Studio sessions & strategy",
+          icon: <Headphones className="w-4 h-4" />,
+          path: "/podcasts",
+          highlight: true
+        }
+      ]
     },
     {
-      name: "NOVA Video Sync",
-      desc: "Interactive video conduit",
-      icon: <Video className="w-4 h-4" />,
-      action: () => window.dispatchEvent(new CustomEvent('ais:open-video-call'))
-    },
-    { 
-      name: "Career Transformation", 
-      desc: "Simulate your growth path", 
-      icon: <Zap className="w-4 h-4" />,
-      path: "/display" 
-    },
-    { 
-      name: "Resume Optimizer", 
-      desc: "Reframing legacy experience", 
-      icon: <FileText className="w-4 h-4" />,
-      path: "/display?path=resume" 
-    },
-    {
-      name: "Podcast Library",
-      desc: "Studio sessions & strategy",
-      icon: <Headphones className="w-4 h-4" />,
-      path: "/podcasts"
+      label: "Organizations",
+      items: [
+        {
+          name: "Readiness Assessment",
+          desc: "Strategic operational audit",
+          icon: <Sparkles className="w-4 h-4" />,
+          path: "/organizations?tool=scorecard"
+        },
+        {
+          name: "Impact Simulator",
+          desc: "Interactive ROI command center",
+          icon: <BarChart3 className="w-4 h-4" />,
+          path: "/impact-simulator"
+        }
+      ]
     },
     {
-      name: "Impact Simulator",
-      desc: "Interactive ROI command center",
-      icon: <BarChart3 className="w-4 h-4" />,
-      path: "/impact-simulator"
+      label: "Individuals",
+      items: [
+        { 
+          name: "Career Hub", 
+          desc: "Simulation & Resume Optimization", 
+          icon: <Zap className="w-4 h-4" />,
+          path: "/display" 
+        }
+      ]
+    },
+    {
+      label: "NOVA Strategic AI",
+      items: [
+        { 
+          name: "NOVA AI Chat", 
+          desc: "Expert operational guidance", 
+          icon: <Bot className="w-4 h-4" />,
+          action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
+        },
+        {
+          name: "NOVA Video Sync",
+          desc: "Interactive video conduit",
+          icon: <Video className="w-4 h-4" />,
+          action: () => window.dispatchEvent(new CustomEvent('ais:open-video-call'))
+        }
+      ]
     }
   ];
+
+  const textColor = scrolled ? "text-slate-900" : "text-white";
+  const activeColor = "text-brand-secondary";
 
   return (
     <nav className={`sticky top-0 z-[100] w-full transition-all duration-300 ${navBg}`}>
@@ -66,7 +90,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2 transition-transform group-hover:scale-105">
-                 <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className="h-8 md:h-10 w-auto" />
+                 <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className={`h-8 md:h-10 w-auto transition-all duration-300 ${!scrolled ? 'brightness-0 invert' : ''}`} />
             </div>
           </Link>
           
@@ -80,9 +104,14 @@ export const Navbar = () => {
               <Link 
                 key={item.name}
                 to={item.path} 
-                className={`text-sm font-bold uppercase tracking-widest hover:text-brand-secondary transition-colors ${pathname === item.path ? 'text-brand-secondary' : 'text-slate-900'}`}
+                className={`text-sm font-bold uppercase tracking-widest transition-all duration-300 relative group py-2 ${
+                  pathname === item.path 
+                    ? activeColor 
+                    : `${textColor} hover:text-brand-secondary`
+                }`}
               >
                 {item.name}
+                <span className={`absolute bottom-0 left-0 w-0 h-0.5 bg-brand-secondary transition-all duration-300 group-hover:w-full ${pathname === item.path ? 'w-full' : 'w-0'}`} />
               </Link>
             ))}
 
@@ -91,7 +120,7 @@ export const Navbar = () => {
               <button 
                 onMouseEnter={() => setToolsOpen(true)}
                 onMouseLeave={() => setToolsOpen(false)}
-                className={`flex items-center gap-1 text-sm font-bold uppercase tracking-widest transition-colors py-2 ${toolsOpen ? 'text-brand-secondary' : 'text-slate-900 group-hover/tools:text-brand-secondary'}`}
+                className={`flex items-center gap-1 text-sm font-bold uppercase tracking-widest transition-all duration-300 py-2 ${toolsOpen ? activeColor : `${textColor} group-hover/tools:text-brand-secondary`}`}
               >
                 Tools <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${toolsOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -99,37 +128,55 @@ export const Navbar = () => {
               <div 
                 onMouseEnter={() => setToolsOpen(true)}
                 onMouseLeave={() => setToolsOpen(false)}
-                className={`absolute top-full left-1/2 -translate-x-1/2 pt-4 w-72 transition-all duration-300 origin-top ${toolsOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                className={`absolute top-full right-0 pt-4 w-[500px] transition-all duration-300 origin-top-right ${toolsOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
               >
-                <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 overflow-hidden">
-                  <div className="grid grid-cols-1 gap-1">
-                    {tools.map((tool) => {
-                      const content = (
-                        <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                          <div className="w-10 h-10 rounded-lg bg-brand-secondary/10 flex items-center justify-center shrink-0 border border-brand-secondary/20">
-                            {tool.icon}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-900 leading-none mb-1">{tool.name}</p>
-                            <p className="text-[10px] text-slate-400 font-medium">{tool.desc}</p>
-                          </div>
+                <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 overflow-hidden">
+                  <div className="grid grid-cols-2 gap-8">
+                    {toolGroups.map((group) => (
+                      <div key={group.label} className={group.label === "Knowledge" || group.label === "NOVA Strategic AI" ? "col-span-2" : "col-span-1"}>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 px-3 flex items-center gap-2">
+                          {group.label}
+                          <div className="h-px bg-slate-100 flex-1" />
+                        </h4>
+                        <div className="grid grid-cols-1 gap-1">
+                          {group.items.map((tool) => {
+                            const content = (
+                              <div className={`flex items-center gap-4 p-3 rounded-2xl transition-all group/item ${
+                                tool.highlight 
+                                  ? "bg-brand-secondary/5 hover:bg-brand-secondary/10 border border-brand-secondary/10 shadow-sm" 
+                                  : "hover:bg-slate-50 border border-transparent"
+                              }`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
+                                  tool.highlight
+                                    ? "bg-brand-secondary/20 border-brand-secondary/30 text-brand-secondary shadow-lg shadow-brand-secondary/10"
+                                    : "bg-slate-100 border-slate-200 text-slate-500 group-hover/item:border-brand-secondary/30 group-hover/item:text-brand-secondary group-hover/item:bg-white"
+                                }`}>
+                                  {tool.icon}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-slate-900 leading-none mb-1 group-hover/item:text-brand-secondary transition-colors">{tool.name}</p>
+                                  <p className="text-[10px] text-slate-400 font-medium">{tool.desc}</p>
+                                </div>
+                              </div>
+                            );
+
+                            if (tool.action) {
+                              return (
+                                <button key={tool.name} onClick={() => { tool.action?.(); setToolsOpen(false); }} className="text-left block w-full focus:outline-none">
+                                  {content}
+                                </button>
+                              );
+                            }
+
+                            return (
+                              <Link key={tool.name} to={tool.path!} onClick={() => setToolsOpen(false)} className="block focus:outline-none">
+                                {content}
+                              </Link>
+                            );
+                          })}
                         </div>
-                      );
-
-                      if (tool.action) {
-                        return (
-                          <button key={tool.name} onClick={() => { tool.action?.(); setToolsOpen(false); }} className="text-left block w-full">
-                            {content}
-                          </button>
-                        );
-                      }
-
-                      return (
-                        <Link key={tool.name} to={tool.path!} onClick={() => setToolsOpen(false)} className="block">
-                          {content}
-                        </Link>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -137,7 +184,7 @@ export const Navbar = () => {
 
             <Link 
               to="/contact" 
-              className="bg-brand-primary text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-brand-dark transition-all shadow-lg active:scale-95"
+              className="bg-brand-primary text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-brand-dark transition-all shadow-lg active:scale-95 hover:shadow-brand-primary/20"
             >
               Get Started
             </Link>
@@ -160,7 +207,7 @@ export const Navbar = () => {
             <div className="border-b border-slate-100 pb-4 mb-4">
               <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Systems & Tools</p>
               <div className="space-y-3">
-                {tools.map((tool) => (
+                {toolGroups.flatMap(g => g.items).map((tool) => (
                   <button 
                     key={tool.name}
                     onClick={() => {
@@ -168,10 +215,10 @@ export const Navbar = () => {
                       else navigate(tool.path!);
                       setIsOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full text-left"
+                    className="flex items-center gap-3 w-full text-left group/mtool"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-brand-secondary/5 flex items-center justify-center text-brand-secondary">{tool.icon}</div>
-                    <span className="text-sm font-bold text-slate-900">{tool.name}</span>
+                    <div className="w-8 h-8 rounded-lg bg-brand-secondary/5 flex items-center justify-center text-brand-secondary group-hover/mtool:bg-brand-secondary group-hover/mtool:text-white transition-all">{tool.icon}</div>
+                    <span className="text-sm font-bold text-slate-900 group-hover/mtool:text-brand-secondary transition-colors">{tool.name}</span>
                   </button>
                 ))}
               </div>
