@@ -14,13 +14,26 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
-  // API Route: HeyGen Token
+  // API Route: HeyGen Token and Config
   app.post("/api/heygen-token", async (req, res) => {
     try {
       const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
+      const HEYGEN_AVATAR_ID = process.env.HEYGEN_AVATAR_ID || process.env.VITE_HEYGEN_AVATAR_ID;
+      const HEYGEN_VOICE_ID = process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID;
+
+      console.log("[HeyGen] API Key defined:", !!HEYGEN_API_KEY);
+      console.log("[HeyGen] Avatar ID defined:", !!HEYGEN_AVATAR_ID);
+      console.log("[HeyGen] Voice ID defined:", !!HEYGEN_VOICE_ID);
 
       if (!HEYGEN_API_KEY) {
-        return res.status(500).json({ error: "HEYGEN_API_KEY is not configured on the server." });
+        return res.status(500).json({ 
+          error: "HEYGEN_API_KEY is not configured on the server.",
+          debug: {
+            apiKeyFound: false,
+            avatarIdFound: !!HEYGEN_AVATAR_ID,
+            voiceIdFound: !!HEYGEN_VOICE_ID
+          }
+        });
       }
 
       const response = await fetch("https://api.heygen.com/v1/streaming.create_token", {
@@ -33,13 +46,32 @@ async function startServer() {
       const data = await response.json();
 
       if (!response.ok) {
+        console.error("[HeyGen] Token Fetch Failed:", data);
         throw new Error(data.message || "Failed to fetch token from HeyGen");
       }
 
-      res.json({ token: data.data.token });
+      res.json({ 
+        token: data.data.token,
+        config: {
+          avatarId: HEYGEN_AVATAR_ID,
+          voiceId: HEYGEN_VOICE_ID
+        },
+        debug: {
+          apiKeyFound: true,
+          avatarIdFound: !!HEYGEN_AVATAR_ID,
+          voiceIdFound: !!HEYGEN_VOICE_ID
+        }
+      });
     } catch (error: any) {
       console.error("HeyGen Token Error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ 
+        error: error.message,
+        debug: {
+          apiKeyFound: !!process.env.HEYGEN_API_KEY,
+          avatarIdFound: !!(process.env.HEYGEN_AVATAR_ID || process.env.VITE_HEYGEN_AVATAR_ID),
+          voiceIdFound: !!(process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID)
+        }
+      });
     }
   });
 

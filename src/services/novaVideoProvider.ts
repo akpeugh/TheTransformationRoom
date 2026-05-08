@@ -16,6 +16,15 @@ export interface NovaUpdate {
   audioLevel?: number;
   error?: string;
   videoStream?: MediaStream;
+  debug?: {
+    apiKeyFound?: boolean;
+    avatarIdFound?: boolean;
+    voiceIdFound?: boolean;
+    sessionCreated?: boolean;
+    streamConnected?: boolean;
+    lastError?: string;
+    apiRouteReached?: boolean;
+  };
 }
 
 export class NovaVideoProvider {
@@ -73,11 +82,21 @@ export class NovaVideoProvider {
 
       // 2. Initialize HeyGen Video Avatar if requested
       if (config.provider === 'heygen') {
-        const token = await this.getHeyGenToken();
+        const responseData = await this.getHeyGenToken();
+        this.update({ 
+          debug: { 
+            apiRouteReached: true, 
+            ...responseData.debug 
+          } 
+        });
+
+        const token = responseData.token;
         this.avatar = new StreamingAvatar({ token });
         
-        const avatarId = import.meta.env.VITE_HEYGEN_AVATAR_ID || "92ef99d925184626bdd01572101baf81";
-        const voiceId = import.meta.env.VITE_HEYGEN_VOICE_ID || "42d00d4aac5441279d8536cd6b52c53c";
+        const avatarId = responseData.config?.avatarId || "92ef99d925184626bdd01572101baf81";
+        const voiceId = responseData.config?.voiceId || "42d00d4aac5441279d8536cd6b52c53c";
+
+        console.log("[NovaProvider] Starting HeyGen Session with:", { avatarId, voiceId });
 
         const sessionData = await this.avatar.createStartAvatar({
           quality: AvatarQuality.Medium,
@@ -90,10 +109,18 @@ export class NovaVideoProvider {
         });
 
         if (sessionData && this.avatar) {
+          console.log("[NovaProvider] HeyGen Session Created:", sessionData.session_id);
+          this.update({ debug: { sessionCreated: true } });
           // @ts-ignore - The SDK version might differ slightly in its implementation of stream events
           this.avatar.on('stream_ready', (event: any) => {
-            this.update({ videoStream: event.detail });
+            console.log("[NovaProvider] HeyGen Stream Ready");
+            this.update({ videoStream: event.detail, debug: { streamConnected: true } });
           });
+          
+          // Fallback if event doesn't fire but we have session
+          if ((sessionData as any).video_url) {
+             console.log("[NovaProvider] HeyGen Session Data has video_url");
+          }
         }
       }
 
@@ -105,11 +132,14 @@ export class NovaVideoProvider {
     }
   }
 
-  private async getHeyGenToken(): Promise<string> {
+  private async getHeyGenToken(): Promise<any> {
     const response = await fetch("/api/heygen-token", { method: "POST" });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Failed to fetch HeyGen token");
-    return data.token;
+    if (!response.ok) {
+      this.update({ debug: { lastError: data.error, apiRouteReached: true, ...data.debug } });
+      throw new Error(data.error || "Failed to fetch HeyGen token");
+    }
+    return data;
   }
 
   private async setupAudio() {

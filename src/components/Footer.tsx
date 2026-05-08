@@ -63,6 +63,12 @@ export const Footer = () => (
                 Podcast Library
               </Link>
             </li>
+            <li>
+              <Link to="/impact-simulator" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+                <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
+                Impact Simulator
+              </Link>
+            </li>
           </ul>
         </div>
 

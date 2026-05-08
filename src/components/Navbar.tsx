@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones, Video } from "lucide-react";
+import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones, Video, BarChart3 } from "lucide-react";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +51,12 @@ export const Navbar = () => {
       desc: "Studio sessions & strategy",
       icon: <Headphones className="w-4 h-4" />,
       path: "/podcasts"
+    },
+    {
+      name: "Impact Simulator",
+      desc: "Interactive ROI command center",
+      icon: <BarChart3 className="w-4 h-4" />,
+      path: "/impact-simulator"
     }
   ];
 

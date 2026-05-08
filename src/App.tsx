@@ -20,6 +20,7 @@ import About from "./pages/About";
 import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
 import PodcastLibrary from "./pages/PodcastLibrary";
+import ImpactSimulator from "./pages/ImpactSimulator";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
             <Route path="/podcasts" element={<PodcastLibrary />} />
+            <Route path="/impact-simulator" element={<ImpactSimulator />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

@@ -33,6 +33,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
   const [isVideoOn, setIsVideoOn] = useState(false);
   const [sessionStartTime] = useState(Date.now());
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [debugInfo, setDebugInfo] = useState<NovaUpdate['debug']>({});
   const hasConnected = useRef(false);
 
   // Calling / Loading Sound Logic
@@ -153,6 +154,10 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
     if (update.videoStream) {
       setHeygenStream(update.videoStream);
       setIsPlayingWelcome(false);
+    }
+    if (update.debug) {
+      setDebugInfo(prev => ({ ...prev, ...update.debug }));
+      console.log("[NovaDebug]", update.debug);
     }
 
     if (update.transcript) conversationLog.current.push(`User: ${update.transcript}`);
@@ -582,9 +587,34 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                   <Wifi className="w-3 h-3 text-emerald-500" />
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Encrypted Conduit</span>
                 </div>
-                <p className="text-[10px] text-slate-500 leading-relaxed font-light">
+                <p className="text-[10px] text-slate-500 mb-4 leading-relaxed font-light">
                    Your biometric and visual spectrum data is processed locally for maximum interstellar security.
                 </p>
+
+                {/* DEBUG STATUS */}
+                <div className="space-y-1.5 pt-2 border-t border-white/5">
+                  <div className="flex justify-between items-center text-[8px] font-mono">
+                    <span className="text-slate-500">API Route Reached:</span>
+                    <span className={debugInfo.apiRouteReached ? "text-emerald-500" : "text-slate-600"}>{debugInfo.apiRouteReached ? "YES" : "NO"}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[8px] font-mono">
+                    <span className="text-slate-500">Env Vars Found:</span>
+                    <span className={debugInfo.apiKeyFound ? "text-emerald-500" : "text-amber-500"}>{debugInfo.apiKeyFound ? "KEY-OK" : "NO-KEY"}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[8px] font-mono">
+                    <span className="text-slate-500">HeyGen Session:</span>
+                    <span className={debugInfo.sessionCreated ? "text-emerald-500" : "text-slate-600"}>{debugInfo.sessionCreated ? "STARTED" : "IDLE"}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[8px] font-mono">
+                    <span className="text-slate-500">Stream Status:</span>
+                    <span className={debugInfo.streamConnected ? "text-emerald-500" : "text-slate-600"}>{debugInfo.streamConnected ? "CONNECTED" : "WAITING"}</span>
+                  </div>
+                  {debugInfo.lastError && (
+                    <div className="mt-2 p-1.5 bg-red-500/10 border border-red-500/20 rounded text-[7px] text-red-400 font-mono break-words">
+                      FAIL: {debugInfo.lastError}
+                    </div>
+                  )}
+                </div>
             </div>
           </div>
 
