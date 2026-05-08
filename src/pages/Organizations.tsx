@@ -128,12 +128,12 @@ const Organizations = () => {
                  <Link to="/contact" className="bg-white text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-brand-secondary hover:scale-105 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-2 cursor-pointer">
                     Start Transformation <ArrowRight className="w-5 h-5" />
                  </Link>
-                 <button 
-                  onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
+                 <Link 
+                  to="/impact-simulator"
                   className="px-8 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer text-white"
                  >
-                    Take Assessment <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
-                 </button>
+                    Try our Impact Simulator <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                 </Link>
               </div>
 
               <div className="mt-12 flex flex-wrap gap-10">
@@ -199,7 +199,7 @@ const Organizations = () => {
                      onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
                      className="w-full bg-brand-secondary text-slate-900 hover:bg-white hover:text-brand-dark px-8 py-5 rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(20,184,166,0.3)] hover:shadow-[0_0_50px_rgba(20,184,166,0.6)] hover:-translate-y-1 flex items-center justify-center gap-3 text-lg leading-none group cursor-pointer"
                    >
-                     Consult with NOVA <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                     Take Assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                    </button>
                 </div>
             </motion.div>
