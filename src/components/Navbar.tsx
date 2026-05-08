@@ -17,9 +17,7 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   
-  const navBg = scrolled 
-    ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3" 
-    : "bg-white/0 border-b border-transparent py-5";
+  const navBg = "bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-200/50 py-3";
 
   const toolGroups = [
     {
@@ -59,6 +57,12 @@ export const Navbar = () => {
           desc: "Simulation & Resume Optimization", 
           icon: <Zap className="w-4 h-4" />,
           path: "/display" 
+        },
+        { 
+          name: "Resume Optimizer", 
+          desc: "Reframing legacy experience", 
+          icon: <FileText className="w-4 h-4" />,
+          path: "/display?path=resume" 
         }
       ]
     },
@@ -81,7 +85,7 @@ export const Navbar = () => {
     }
   ];
 
-  const textColor = scrolled ? "text-slate-900" : "text-white";
+  const textColor = "text-slate-900";
   const activeColor = "text-brand-secondary";
 
   return (
@@ -90,7 +94,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2 transition-transform group-hover:scale-105">
-                 <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className={`h-8 md:h-10 w-auto transition-all duration-300 ${!scrolled ? 'brightness-0 invert' : ''}`} />
+                 <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className="h-8 md:h-10 w-auto transition-all duration-300" />
             </div>
           </Link>
           
