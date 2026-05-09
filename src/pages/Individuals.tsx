@@ -186,14 +186,12 @@ const stageData = [
             </div>
           </div>
         </div>
-        <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-slate-50 to-transparent z-40" />
       </header>
 
       {/* Package Section */}
       <section className="py-32 max-w-7xl mx-auto px-4 relative z-10">
         <div className="text-center mb-24">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Packages Offered</h2>
-          <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-8 rounded-full" />
           <p className="text-slate-500 text-lg">Tailored to you at a price you can afford.</p>
         </div>
 
@@ -307,7 +305,7 @@ const stageData = [
       </section>
 
       {/* Specialized Support Section - Moved & Redesigned for Compactness */}
-      <section className="py-24 bg-slate-50 relative overflow-hidden">
+      <section className="py-24 bg-white relative overflow-hidden">
         {/* Subtle Background Graphic */}
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-[0.03] pointer-events-none z-0">
           <svg viewBox="0 0 400 400" className="w-full h-full text-slate-900 fill-current">

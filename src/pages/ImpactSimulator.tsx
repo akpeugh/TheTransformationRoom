@@ -202,6 +202,7 @@ export default function ImpactSimulator() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [isNovaVisible, setIsNovaVisible] = useState(false);
   const [isNovaMuted, setIsNovaMuted] = useState(true);
+  const [isLocked, setIsLocked] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -219,25 +220,13 @@ export default function ImpactSimulator() {
     }
   }, [isNovaMuted, isNovaVisible]);
 
-  useEffect(() => {
-    // Pop up Nova shortly after launch - only once per session
-    if (sessionStorage.getItem('nova_sim_intro_played')) return;
-
-    const timer = setTimeout(() => {
-      setIsNovaVisible(true);
-      setIsNovaMuted(false); // Start unmuted
-      sessionStorage.setItem('nova_sim_intro_played', 'true');
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
   const triggerNovaMessage = () => {
-    // Only play once per visit to the simulator (session)
-    if (sessionStorage.getItem('nova_sim_intro_played')) return;
+    // Only play once per user
+    if (localStorage.getItem('nova_sim_intro_seen')) return;
     
     setIsNovaVisible(true);
     setIsNovaMuted(false);
-    sessionStorage.setItem('nova_sim_intro_played', 'true');
+    localStorage.setItem('nova_sim_intro_seen', 'true');
   };
 
   const handleScenarioChange = (s: Scenario) => {
@@ -500,7 +489,7 @@ export default function ImpactSimulator() {
                   // After finishing her message, she fades away
                   setTimeout(() => setIsNovaVisible(false), 1000);
                 }}
-                className={`w-full h-full object-cover transition-all duration-1000 ${isSimulating ? 'saturate-150 brightness-110' : 'saturate-100 brightness-100'}`}
+                className={`w-full h-full object-contain aspect-video transition-all duration-1000 ${isSimulating ? 'saturate-150 brightness-110' : 'saturate-100 brightness-100'}`}
               />
               <div className={`absolute inset-0 transition-opacity duration-1000 ${isSimulating ? 'bg-brand-secondary/5' : 'bg-transparent'}`} />
               
@@ -576,20 +565,36 @@ export default function ImpactSimulator() {
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 bg-gradient-to-r from-white via-white to-slate-500 bg-clip-text text-transparent">
               Transformation Impact Simulator
             </h1>
-            <p className="text-xl text-slate-400 font-light leading-relaxed max-w-3xl mx-auto">
+            <p className="text-xl text-slate-400 font-light leading-relaxed max-w-3xl mx-auto mb-12">
               A high-fidelity foresight engine designed to reveal the ROI of operational velocity. Map your legacy baseline and simulate the impact of strategic modernization.
             </p>
           </motion.div>
         </div>
 
-        {/* STEP 1: FACILITY PROFILE */}
-        <motion.section 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="mb-12"
-        >
+        {isLocked ? (
+          <div className="flex flex-col items-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setIsLocked(false);
+                triggerNovaMessage();
+              }}
+              className="bg-brand-secondary text-brand-dark px-12 py-6 rounded-full font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-brand-secondary/20 flex items-center justify-center gap-3 cursor-pointer mb-12 border-4 border-brand-secondary/30 ring-8 ring-brand-secondary/5"
+            >
+              Launch Forensics Engine <Zap className="w-6 h-6" />
+            </motion.button>
+          </div>
+        ) : (
+          <>
+            {/* STEP 1: FACILITY PROFILE */}
+            <motion.section 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="mb-12"
+            >
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 flex items-center justify-center border border-brand-primary/30">
               <Building2 className="w-6 h-6 text-brand-primary" />
@@ -1032,6 +1037,8 @@ export default function ImpactSimulator() {
             </div>
           </div>
         </section>
+          </>
+        )}
       </div>
 
       {/* Conversion Section */}
@@ -1052,19 +1059,10 @@ export default function ImpactSimulator() {
             <div className="flex flex-col sm:flex-row gap-6">
               <button 
                  onClick={() => window.location.href = '/contact'}
-                 className="bg-brand-secondary text-brand-dark px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-white transition-all text-center"
+                 className="bg-brand-secondary text-brand-dark px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-white transition-all text-center flex-1"
               >
                 Ready to Start Your Transformation
               </button>
-              <a 
-                href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0o3U7M-uV6c6z6p6uV6z666V6z..." // Example placeholder
-                target="_blank"
-                rel="noreferrer"
-                className="bg-brand-dark text-white px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-brand-secondary transition-all text-center flex items-center justify-center gap-3 group"
-              >
-                Book a 30-Minute Consultation
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-              </a>
             </div>
           </div>
         </div>

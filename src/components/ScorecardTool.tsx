@@ -91,10 +91,12 @@ export const ScorecardTool = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const triggerNovaUnmuted = () => {
+    if (localStorage.getItem('nova_readiness_intro_seen')) return;
+
     // Direct interaction allows sound
     setIsNovaVisible(true);
     setIsNovaMuted(false);
-    sessionStorage.setItem('nova_readiness_intro_played', 'true');
+    localStorage.setItem('nova_readiness_intro_seen', 'true');
   };
 
   useEffect(() => {
@@ -187,9 +189,10 @@ export const ScorecardTool = () => {
                 muted={isNovaMuted}
                 playsInline
                 onEnded={() => {
+                  localStorage.setItem('nova_readiness_intro_seen', 'true');
                   setTimeout(() => setIsNovaVisible(false), 1000);
                 }}
-                className="w-full h-full object-contain transition-all duration-1000"
+                className="w-full h-full object-contain aspect-video transition-all duration-1000"
               />
               <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
               

@@ -80,17 +80,12 @@ const CareerTool = () => {
   const [isNovaMuted, setIsNovaMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    // Pop up Nova shortly after launch - only once per session
-    if (sessionStorage.getItem('nova_career_intro_played')) return;
-
-    const timer = setTimeout(() => {
-      setIsNovaVisible(true);
-      setIsNovaMuted(false); 
-      sessionStorage.setItem('nova_career_intro_played', 'true');
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const triggerNovaCareer = () => {
+    if (localStorage.getItem('nova_career_intro_seen')) return;
+    setIsNovaVisible(true);
+    setIsNovaMuted(false);
+    localStorage.setItem('nova_career_intro_seen', 'true');
+  };
 
   // Handle Nova Volume
   useEffect(() => {
@@ -374,7 +369,7 @@ const CareerTool = () => {
                   // After finishing her message, she fades away
                   setTimeout(() => setIsNovaVisible(false), 800);
                 }}
-                className="w-full h-full object-cover transition-all duration-1000"
+                className="w-full h-full object-contain aspect-video transition-all duration-1000"
               />
               <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
               
@@ -546,7 +541,14 @@ const CareerTool = () => {
 
               <div className="flex gap-4">
                 <button onClick={() => setStep("goal")} className="flex-grow bg-slate-100 text-slate-600 py-5 rounded-2xl font-bold hover:bg-slate-200 transition-colors">Project Objective</button>
-                <button disabled={!formData.pathSelection} onClick={() => setStep(formData.pathSelection === "behavioral" ? "behavioral-q" : formData.pathSelection === "simulator" ? "simulator-q" : "r-title")} className="flex-[2] bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50">
+                <button 
+                  disabled={!formData.pathSelection} 
+                  onClick={() => {
+                    setStep(formData.pathSelection === "behavioral" ? "behavioral-q" : formData.pathSelection === "simulator" ? "simulator-q" : "r-title");
+                    triggerNovaCareer();
+                  }} 
+                  className="flex-[2] bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50"
+                >
                   Initialize Layer <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
