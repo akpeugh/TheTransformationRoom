@@ -24,6 +24,8 @@ export interface NovaUpdate {
     streamConnected?: boolean;
     lastError?: string;
     apiRouteReached?: boolean;
+    appUrl?: string;
+    troubleshooting?: string;
   };
 }
 
@@ -86,6 +88,7 @@ export class NovaVideoProvider {
         this.update({ 
           debug: { 
             apiRouteReached: true, 
+            appUrl: responseData.debug?.appUrl,
             ...responseData.debug 
           } 
         });
@@ -136,7 +139,14 @@ export class NovaVideoProvider {
     const response = await fetch("/api/heygen-token", { method: "POST" });
     const data = await response.json();
     if (!response.ok) {
-      this.update({ debug: { lastError: data.error, apiRouteReached: true, ...data.debug } });
+      this.update({ 
+        debug: { 
+          lastError: data.error, 
+          troubleshooting: data.troubleshooting,
+          apiRouteReached: true, 
+          ...data.debug 
+        } 
+      });
       throw new Error(data.error || "Failed to fetch HeyGen token");
     }
     return data;

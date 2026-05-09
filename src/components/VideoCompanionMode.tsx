@@ -29,6 +29,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
   const [aiResponse, setAiResponse] = useState("");
   const [audioLevel, setAudioLevel] = useState(0);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [troubleshooting, setTroubleshooting] = useState<string | null>(null);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isVideoOn, setIsVideoOn] = useState(false);
   const [sessionStartTime] = useState(Date.now());
@@ -151,6 +152,11 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
     if (update.aiResponse) setAiResponse(update.aiResponse);
     if (update.audioLevel !== undefined) setAudioLevel(update.audioLevel);
     if (update.error) setLastError(update.error);
+    if (update.debug?.lastError) {
+      setLastError(update.debug.lastError);
+      // @ts-ignore
+      if (update.debug.troubleshooting) setTroubleshooting(update.debug.troubleshooting);
+    }
     if (update.videoStream) {
       setHeygenStream(update.videoStream);
       setIsPlayingWelcome(false);
@@ -186,6 +192,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
     }
 
     providerRef.current = new NovaVideoProvider(handleNovaUpdate);
+    setTroubleshooting(null); // Clear previous troubleshooting
     await providerRef.current.initialize({
       apiKey,
       systemInstruction,
@@ -488,9 +495,23 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                   <X className="w-10 h-10 text-red-500" />
                 </div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">Neural Link Severed</h3>
-                <p className="text-slate-400 mb-8 font-light">
-                  {lastError || "An unexpected interrupt occurred in the transformation conduit."}
-                </p>
+                <div className="space-y-4 mb-8">
+                  <p className="text-slate-400 font-light">
+                    {lastError || "An unexpected interrupt occurred in the transformation conduit."}
+                  </p>
+                  {troubleshooting && (
+                    <div className="p-4 bg-brand-primary/10 border border-brand-primary/20 rounded-xl text-left">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary mb-1">Troubleshooting Step:</p>
+                      <p className="text-xs text-white/80 font-light">{troubleshooting}</p>
+                    </div>
+                  )}
+                  {debugInfo.appUrl && (
+                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-left">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Domain to Whitelist:</p>
+                      <p className="text-[10px] text-brand-secondary font-mono break-all">{debugInfo.appUrl}</p>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-4 justify-center">
                    <button onClick={startSession} className="px-8 py-3 bg-white text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all hover:bg-brand-secondary">
                      Restore Link
