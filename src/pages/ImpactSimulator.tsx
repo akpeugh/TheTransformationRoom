@@ -1032,38 +1032,6 @@ export default function ImpactSimulator() {
             </div>
           </div>
         </section>
-
-        {/* CTA SECTION */}
-        <section className="max-w-4xl mx-auto text-center pb-20">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8">
-            Ready to Validate These Estimates?
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <button 
-              onClick={() => window.open('https://thetransformationroom.com/contact', '_blank')}
-              className="bg-white text-brand-dark px-10 py-6 rounded-2xl font-bold hover:bg-brand-secondary transition-all flex items-center justify-center gap-3 shadow-2xl group"
-            >
-              Start Full Operational Assessment
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-            </button>
-            <button 
-              onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { prompt: `I just used the impact simulator. My estimated 5-year value potential is ${formatCurrency(results.fiveYearTotalValue)} with a net ROI of ${results.fiveYearRoi.toFixed(0)}%. I want to discuss the ${results.recommendation} package.` } }))}
-              className="bg-white/5 text-white border border-white/10 px-10 py-6 rounded-2xl font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-3"
-            >
-              Discuss Outcomes with NOVA
-              <Bot className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="mt-12 flex items-center justify-center gap-4 opacity-50">
-            <div className="w-12 h-px bg-slate-800" />
-            <Info className="w-4 h-4 text-slate-600" />
-            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-medium">
-               Consulting Assumptions Based on Industry Standard Performance Baselines
-            </p>
-            <div className="w-12 h-px bg-slate-800" />
-          </div>
-        </section>
       </div>
 
       {/* Conversion Section */}
@@ -1082,6 +1050,12 @@ export default function ImpactSimulator() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6">
+              <button 
+                 onClick={() => window.location.href = '/contact'}
+                 className="bg-brand-secondary text-brand-dark px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-white transition-all text-center"
+              >
+                Ready to Start Your Transformation
+              </button>
               <a 
                 href="https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ0o3U7M-uV6c6z6p6uV6z666V6z..." // Example placeholder
                 target="_blank"
@@ -1091,12 +1065,6 @@ export default function ImpactSimulator() {
                 Book a 30-Minute Consultation
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </a>
-              <button 
-                 onClick={() => window.location.href = '/contact'}
-                 className="bg-brand-secondary text-brand-dark px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-white transition-all text-center"
-              >
-                Start Operational Assessment
-              </button>
             </div>
           </div>
         </div>

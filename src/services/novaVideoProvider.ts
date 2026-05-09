@@ -1,12 +1,10 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import StreamingAvatar, { AvatarQuality, VoiceEmotion, TaskType } from "@heygen/streaming-avatar";
 
 export type NovaState = 'idle' | 'initializing' | 'listening' | 'thinking' | 'speaking' | 'error' | 'disconnected';
 
 export interface VideoSessionConfig {
   apiKey: string; // Gemini API Key
   systemInstruction: string;
-  provider?: 'gemini-live' | 'heygen';
 }
 
 export interface NovaUpdate {
@@ -15,17 +13,12 @@ export interface NovaUpdate {
   aiResponse?: string;
   audioLevel?: number;
   error?: string;
-  videoStream?: MediaStream;
   debug?: {
     apiKeyFound?: boolean;
-    avatarIdFound?: boolean;
-    voiceIdFound?: boolean;
     sessionCreated?: boolean;
     streamConnected?: boolean;
     lastError?: string;
-    apiRouteReached?: boolean;
     appUrl?: string;
-    troubleshooting?: string;
   };
 }
 
@@ -34,8 +27,8 @@ export class NovaVideoProvider {
   private onUpdate: (update: NovaUpdate) => void;
   private audioContext: AudioContext | null = null;
   private stream: MediaStream | null = null;
-  private session: any = null;
-  private avatar: StreamingAvatar | null = null;
+  private geminiSession: any = null;
+  private userCameraStream: MediaStream | null = null;
 
   constructor(onUpdate: (update: NovaUpdate) => void) {
     this.onUpdate = onUpdate;
@@ -53,9 +46,9 @@ export class NovaVideoProvider {
     try {
       this.update({ state: 'initializing' });
 
-      // 1. Initialize Gemini Brain
+      // Initialize Gemini Brain
       const genAI = new GoogleGenAI({ apiKey: config.apiKey });
-      this.session = await genAI.live.connect({
+      this.geminiSession = await genAI.live.connect({
         model: "gemini-2.0-flash-exp",
         callbacks: {
           onopen: () => {
@@ -82,71 +75,8 @@ export class NovaVideoProvider {
         }
       });
 
-      // 2. Initialize HeyGen Video Avatar if requested
-      if (config.provider === 'heygen') {
-        const responseData = await this.getHeyGenToken();
-        const { 
-          token, 
-          avatarId, 
-          voiceId, 
-          detectedAppUrl, 
-          apiKeyFound, 
-          avatarIdFound, 
-          voiceIdFound, 
-          isProduction,
-          heygenStatus,
-          heygenResponseBody,
-          troubleshooting 
-        } = responseData;
-
-        this.update({ 
-          debug: { 
-            apiRouteReached: true, 
-            appUrl: detectedAppUrl,
-            apiKeyFound,
-            avatarIdFound,
-            voiceIdFound,
-            troubleshooting,
-            lastError: responseData.error,
-            ...responseData.debug 
-          } 
-        });
-
-        if (!token) {
-          throw new Error(responseData.error || "Neural link failed: Missing transmission token.");
-        }
-
-        this.avatar = new StreamingAvatar({ token });
-        
-        console.log("[NovaProvider] Starting HeyGen Session with:", { avatarId, voiceId });
-
-        const sessionData = await this.avatar.createStartAvatar({
-          quality: AvatarQuality.Medium,
-          avatarName: avatarId || undefined,
-          voice: {
-            rate: 1,
-            emotion: VoiceEmotion.FRIENDLY,
-            voiceId: voiceId || undefined
-          }
-        });
-
-        if (sessionData && this.avatar) {
-          console.log("[NovaProvider] HeyGen Session Created:", sessionData.session_id);
-          this.update({ debug: { sessionCreated: true } });
-          // @ts-ignore - The SDK version might differ slightly in its implementation of stream events
-          this.avatar.on('stream_ready', (event: any) => {
-            console.log("[NovaProvider] HeyGen Stream Ready");
-            this.update({ videoStream: event.detail, debug: { streamConnected: true } });
-          });
-          
-          // Fallback if event doesn't fire but we have session
-          if ((sessionData as any).video_url) {
-             console.log("[NovaProvider] HeyGen Session Data has video_url");
-          }
-        }
-      }
-
       await this.setupAudio();
+      this.update({ debug: { sessionCreated: true, streamConnected: true } });
 
     } catch (err) {
       console.error("[NovaProvider] Init Failed:", err);
@@ -154,21 +84,24 @@ export class NovaVideoProvider {
     }
   }
 
-  private async getHeyGenToken(): Promise<any> {
-    const response = await fetch("/api/heygen-token", { method: "POST" });
-    const data = await response.json();
-    if (!response.ok) {
-      this.update({ 
-        debug: { 
-          lastError: data.error, 
-          troubleshooting: data.troubleshooting,
-          apiRouteReached: true, 
-          ...data.debug 
-        } 
+  async enableUserCamera(): Promise<MediaStream | null> {
+    try {
+      this.userCameraStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 1280, height: 720 }, 
+        audio: false 
       });
-      throw new Error(data.error || "Failed to fetch HeyGen token");
+      return this.userCameraStream;
+    } catch (error) {
+      console.error("[NovaProvider] User camera access failed:", error);
+      return null;
     }
-    return data;
+  }
+
+  disableUserCamera() {
+    if (this.userCameraStream) {
+      this.userCameraStream.getTracks().forEach(track => track.stop());
+      this.userCameraStream = null;
+    }
   }
 
   private async setupAudio() {
@@ -194,11 +127,11 @@ export class NovaVideoProvider {
         const level = sum / inputData.length;
         this.update({ audioLevel: level });
 
-        if (this.session && level > 0.01) {
+        if (this.geminiSession && level > 0.01) {
            const bytes = new Uint8Array(int16Data.buffer);
            let binary = '';
            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-           this.session.sendRealtimeInput({
+           this.geminiSession.sendRealtimeInput({
              audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' }
            });
         }
@@ -208,7 +141,7 @@ export class NovaVideoProvider {
       processor.connect(this.audioContext.destination);
     } catch (err) {
       console.error("[NovaProvider] Audio Setup Failed:", err);
-      this.update({ state: 'error', error: "Microphone access is required for Nova Video." });
+      this.update({ state: 'error', error: "Microphone access is required for Nova Voice." });
     }
   }
 
@@ -221,11 +154,6 @@ export class NovaVideoProvider {
       const text = msg.serverContent.outputTranscription.text;
       this.update({ aiResponse: text });
 
-      // Feed text to HeyGen to sync lips
-      if (this.avatar && text) {
-        this.avatar.speak({ text, task_type: TaskType.REPEAT }).catch(e => console.error("HeyGen Speak Error:", e));
-      }
-
       if (msg.serverContent.outputTranscription.finished) {
         setTimeout(() => this.update({ state: 'listening' }), 500);
       }
@@ -236,15 +164,14 @@ export class NovaVideoProvider {
     }
 
     if (msg.serverContent?.interrupted) {
-      // In newer SDKs it might be stopSpeaking or we just let it finish if short
       this.update({ state: 'listening', aiResponse: "... Nova listens ..." });
     }
   }
 
   private sendFirstMessage() {
-    if (this.session) {
-      this.session.sendClientContent({
-        turns: [{ role: "user", parts: [{ text: "Introduce yourself as Nova briefly and tell me you're ready to guide my transformation visually." }] }],
+    if (this.geminiSession) {
+      this.geminiSession.sendClientContent({
+        turns: [{ role: "user", parts: [{ text: "Introduce yourself as Nova briefly and tell me you're ready to guide my transformation." }] }],
         turnComplete: true
       });
     }
@@ -252,16 +179,10 @@ export class NovaVideoProvider {
 
   async stop() {
     if (this.stream) this.stream.getTracks().forEach(t => t.stop());
+    if (this.userCameraStream) this.userCameraStream.getTracks().forEach(t => t.stop());
     if (this.audioContext) this.audioContext.close();
-    if (this.session) this.session.close();
-    if (this.avatar) {
-      try {
-        await this.avatar.stopAvatar();
-      } catch (e) {
-        console.error("HeyGen Stop Error:", e);
-      }
-      this.avatar = null;
-    }
+    if (this.geminiSession) this.geminiSession.close();
     this.update({ state: 'disconnected' });
   }
 }
+

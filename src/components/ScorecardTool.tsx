@@ -90,32 +90,12 @@ export const ScorecardTool = () => {
   const [isNovaMuted, setIsNovaMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const triggerNova = () => {
-    // Only play once per session
-    if (sessionStorage.getItem('nova_readiness_intro_played')) return;
-    
-    setIsNovaVisible(true);
-    // Unmuted by default as per user request
-    setIsNovaMuted(false); 
-    sessionStorage.setItem('nova_readiness_intro_played', 'true');
-  };
-
   const triggerNovaUnmuted = () => {
     // Direct interaction allows sound
     setIsNovaVisible(true);
     setIsNovaMuted(false);
     sessionStorage.setItem('nova_readiness_intro_played', 'true');
   };
-
-  useEffect(() => {
-    // Pop up Nova shortly after launch - only once per session
-    if (sessionStorage.getItem('nova_readiness_intro_played')) return;
-
-    const timer = setTimeout(() => {
-      triggerNova();
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     // Volume control
@@ -209,7 +189,7 @@ export const ScorecardTool = () => {
                 onEnded={() => {
                   setTimeout(() => setIsNovaVisible(false), 1000);
                 }}
-                className="w-full h-full object-cover transition-all duration-1000"
+                className="w-full h-full object-contain transition-all duration-1000"
               />
               <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
               

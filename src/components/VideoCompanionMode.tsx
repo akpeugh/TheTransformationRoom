@@ -121,11 +121,10 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
 
   const providerRef = useRef<NovaVideoProvider | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const heygenVideoRef = useRef<HTMLVideoElement>(null);
   const conversationLog = useRef<string[]>([]);
 
-  const [heygenStream, setHeygenStream] = useState<MediaStream | null>(null);
   const [isPlayingWelcome, setIsPlayingWelcome] = useState(true);
+  const [showNovaLoop, setShowNovaLoop] = useState(false);
 
   // Update timer
   useEffect(() => {
@@ -144,8 +143,9 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
   const handleNovaUpdate = useCallback((update: NovaUpdate) => {
     if (update.state) {
       setNovaState(update.state);
-      if (update.state === 'speaking' || update.state === 'thinking') {
+      if (update.state === 'listening' || update.state === 'speaking' || update.state === 'thinking') {
         setIsPlayingWelcome(false);
+        setShowNovaLoop(true);
       }
     }
     if (update.transcript) setTranscript(update.transcript);
@@ -157,10 +157,6 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
       // @ts-ignore
       if (update.debug.troubleshooting) setTroubleshooting(update.debug.troubleshooting);
     }
-    if (update.videoStream) {
-      setHeygenStream(update.videoStream);
-      setIsPlayingWelcome(false);
-    }
     if (update.debug) {
       setDebugInfo(prev => ({ ...prev, ...update.debug }));
       console.log("[NovaDebug]", update.debug);
@@ -170,12 +166,13 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
     if (update.aiResponse) conversationLog.current.push(`Nova: ${update.aiResponse}`);
   }, []);
 
-  // Update HeyGen Video Stream when set
+  // Update User Video Stream when set
   useEffect(() => {
-    if (heygenStream && heygenVideoRef.current) {
-      heygenVideoRef.current.srcObject = heygenStream;
+    if (isVideoOn && videoRef.current && providerRef.current) {
+       // Component-level video management is already handled in toggleVideo
+       // But we ensure the stream is attached
     }
-  }, [heygenStream]);
+  }, [isVideoOn]);
 
   const systemInstruction = useMemo(() => `
     You are NOVA, an Elite Interstellar Intelligence. 
@@ -192,11 +189,10 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
     }
 
     providerRef.current = new NovaVideoProvider(handleNovaUpdate);
-    setTroubleshooting(null); // Clear previous troubleshooting
+    setTroubleshooting(null); 
     await providerRef.current.initialize({
       apiKey,
-      systemInstruction,
-      provider: 'heygen' // Use heygen as the provider
+      systemInstruction
     });
   };
 
@@ -207,16 +203,17 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
 
   const toggleVideo = async () => {
     if (!isVideoOn) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) videoRef.current.srcObject = stream;
-        setIsVideoOn(true);
-      } catch (err) {
-        console.error("Video access failed", err);
+      if (providerRef.current) {
+        const stream = await providerRef.current.enableUserCamera();
+        if (stream && videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setIsVideoOn(true);
+        }
       }
     } else {
-      const stream = videoRef.current?.srcObject as MediaStream;
-      stream?.getTracks().forEach(t => t.stop());
+      if (providerRef.current) {
+        providerRef.current.disableUserCamera();
+      }
       setIsVideoOn(false);
     }
   };
@@ -283,26 +280,28 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                  }}
                  className="w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-slate-800/80 border-2 border-brand-secondary/30 relative overflow-hidden group/avatar"
               >
-                 {heygenStream ? (
-                   <video
-                     ref={heygenVideoRef}
-                     autoPlay
-                     playsInline
-                     className={`w-full h-full object-cover object-top transition-all duration-1000 ${isSpeaking ? 'scale-105' : 'scale-100 grayscale-[0.2]'}`}
-                   />
-                 ) : state === 'idle' ? (
+                 {showNovaLoop ? (
+                    <video
+                      src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className={`w-full h-full object-contain object-top transition-all duration-1000 ${isSpeaking ? 'scale-105' : 'scale-100 grayscale-[0.2]'}`}
+                    />
+                 ) : state === 'idle' || state === 'initializing' ? (
                    <video
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.15; }}
                     playsInline
-                    className="w-full h-full object-cover object-top transition-all duration-1000 scale-105"
+                    className="w-full h-full object-contain object-top transition-all duration-1000 scale-105"
                    />
                  ) : (
                    <img 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                     alt="NOVA" 
-                    className={`w-full h-full object-cover object-top transition-all duration-1000 scale-100 ${isSpeaking ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
+                    className={`w-full h-full object-contain object-top transition-all duration-1000 scale-100 ${isSpeaking ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
                     referrerPolicy="no-referrer"
                    />
                  )}
@@ -393,7 +392,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.1; }}
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] brightness-75 transition-all duration-1000"
+                    className="absolute inset-0 w-full h-full object-contain grayscale-[0.3] brightness-75 transition-all duration-1000"
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-40" />
                    
@@ -450,7 +449,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.05; }}
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] brightness-50 transition-all duration-1000"
+                    className="absolute inset-0 w-full h-full object-contain grayscale-[0.3] brightness-50 transition-all duration-1000"
                    />
                    
                    <div className="relative z-20 flex flex-col items-center gap-8">
@@ -563,12 +562,14 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                 </div>
 
                 <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50">
-                   {heygenStream ? (
+                   {showNovaLoop ? (
                      <video
-                       ref={heygenVideoRef}
+                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                        autoPlay
+                       loop
+                       muted
                        playsInline
-                       className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-1000"
+                       className="absolute inset-0 w-full h-full object-contain object-top transition-all duration-1000"
                      />
                    ) : (
                      <NovaAvatar state={novaState} level={audioLevel} />
@@ -775,27 +776,15 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    Your biometric and visual spectrum data is processed locally for maximum interstellar security.
                 </p>
 
-                {/* DEBUG STATUS */}
+                {/* SYSTEM DIAGNOSTICS */}
                 <div className="space-y-1.5 pt-2 border-t border-white/5">
                   <div className="flex justify-between items-center text-[8px] font-mono">
-                    <span className="text-slate-500">API Route Reached:</span>
-                    <span className={debugInfo.apiRouteReached ? "text-emerald-500" : "text-slate-600"}>{debugInfo.apiRouteReached ? "YES" : "NO"}</span>
+                    <span className="text-slate-500">Intelligence Link:</span>
+                    <span className={debugInfo.sessionCreated ? "text-emerald-500" : "text-slate-600"}>{debugInfo.sessionCreated ? "ACTIVE" : "PENDING"}</span>
                   </div>
                   <div className="flex justify-between items-center text-[8px] font-mono">
-                    <span className="text-slate-500">Diagnostics:</span>
-                    <span className="text-slate-400">
-                      {debugInfo.apiKeyFound ? "KEY" : "NO_KEY"}/ 
-                      {debugInfo.avatarIdFound ? "AVA" : "NO_AVA"}/
-                      {debugInfo.voiceIdFound ? "VOX" : "NO_VOX"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-[8px] font-mono">
-                    <span className="text-slate-500">HeyGen Session:</span>
-                    <span className={debugInfo.sessionCreated ? "text-emerald-500" : "text-slate-600"}>{debugInfo.sessionCreated ? "STARTED" : "IDLE"}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[8px] font-mono">
-                    <span className="text-slate-500">Stream Status:</span>
-                    <span className={debugInfo.streamConnected ? "text-emerald-500" : "text-slate-600"}>{debugInfo.streamConnected ? "CONNECTED" : "WAITING"}</span>
+                    <span className="text-slate-500">Voice Stream:</span>
+                    <span className={debugInfo.streamConnected ? "text-emerald-500" : "text-slate-600"}>{debugInfo.streamConnected ? "STABLE" : "SYNCING"}</span>
                   </div>
                   {debugInfo.appUrl && (
                     <div className="flex flex-col gap-0.5 mt-2">
