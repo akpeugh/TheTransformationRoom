@@ -314,12 +314,12 @@ export const ChatBot: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.8, x: 20 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="absolute top-4 right-4 w-32 h-40 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
+                    className="absolute top-20 right-4 w-28 h-36 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
                   >
                     <video
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                       autoPlay
-                      onLoadedMetadata={(e) => { e.currentTarget.volume = 0.2; }}
+                      onLoadedMetadata={(e) => { e.currentTarget.volume = 0.1; }}
                       playsInline
                       onEnded={() => setShowIntroVideo(false)}
                       className="w-full h-full object-cover"

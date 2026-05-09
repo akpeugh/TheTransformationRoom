@@ -383,17 +383,21 @@ export const ScorecardTool = () => {
                 <span className="hidden md:inline-block">{QUESTIONS[currentQ].category}</span>
               </div>
               
-              <div className="flex gap-2 w-full mb-12">
-                {QUESTIONS.map((_, i) => (
-                  <div key={i} className="h-2 flex-1 bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-brand-secondary"
-                      initial={{ width: i < currentQ ? '100%' : '0%' }}
-                      animate={{ width: i < currentQ ? '100%' : i === currentQ ? '50%' : '0%' }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                ))}
+              <div className="relative h-3 w-full bg-slate-800/40 rounded-full overflow-hidden mb-12 border border-white/5 p-0.5">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary bg-[length:200%_auto] rounded-full relative shadow-[0_0_15px_rgba(20,184,166,0.3)]"
+                  initial={{ width: "0%" }}
+                  animate={{ 
+                    width: `${(currentQ / QUESTIONS.length) * 100}%`,
+                    backgroundPosition: ["0% center", "200% center"]
+                  }}
+                  transition={{ 
+                    width: { duration: 0.8, ease: [0.34, 1.56, 0.64, 1] },
+                    backgroundPosition: { duration: 4, repeat: Infinity, ease: "linear" }
+                  }}
+                >
+                  <div className="absolute inset-0 bg-white/10 w-full h-full [mask-image:linear-gradient(90deg,transparent,rgba(0,0,0,1),transparent)] -translate-x-full animate-[shimmer_2s_infinite]" />
+                </motion.div>
               </div>
 
               <h4 className="text-3xl md:text-4xl font-bold text-white mb-10 leading-snug">
