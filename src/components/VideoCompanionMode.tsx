@@ -496,19 +496,39 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                 </div>
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4">Neural Link Severed</h3>
                 <div className="space-y-4 mb-8">
-                  <p className="text-slate-400 font-light">
-                    {lastError || "An unexpected interrupt occurred in the transformation conduit."}
-                  </p>
+                  <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+                    <p className="text-red-400 font-light text-sm">
+                      {lastError || "An unexpected interrupt occurred in the transformation conduit."}
+                    </p>
+                  </div>
+                  
                   {troubleshooting && (
-                    <div className="p-4 bg-brand-primary/10 border border-brand-primary/20 rounded-xl text-left">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary mb-1">Troubleshooting Step:</p>
-                      <p className="text-xs text-white/80 font-light">{troubleshooting}</p>
+                    <div className="p-5 bg-brand-primary/10 border border-brand-primary/20 rounded-xl text-left">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-3 h-3 text-brand-primary" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Recommended Action:</p>
+                      </div>
+                      <p className="text-xs text-white/90 font-light leading-relaxed">{troubleshooting}</p>
                     </div>
                   )}
-                  {debugInfo.appUrl && (
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-left">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Domain to Whitelist:</p>
-                      <p className="text-[10px] text-brand-secondary font-mono break-all">{debugInfo.appUrl}</p>
+                  
+                  {(!debugInfo.apiKeyFound || (troubleshooting?.includes("Forbidden") || lastError?.includes("Forbidden"))) && (
+                    <div className="p-5 bg-slate-900 border border-white/10 rounded-xl text-left space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Brain className="w-3 h-3 text-brand-secondary" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Setup Check:</p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-[10px] text-slate-400 leading-relaxed font-light">
+                          1. Ensure <span className="text-white font-bold">HEYGEN_API_KEY</span> is added to your AI Studio Secrets panel.
+                        </p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed font-light">
+                          2. Whitelist this domain in HeyGen <span className="text-white font-bold">Space Settings -&gt; Whitelisted Domains</span>:
+                        </p>
+                        <div className="p-2 bg-black/40 rounded border border-white/5 font-mono text-[9px] text-brand-primary break-all select-all">
+                          {debugInfo.appUrl || window.location.host}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -695,9 +715,9 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                       <div className="w-10 h-10 rounded-full bg-brand-dark/10 flex items-center justify-center group-hover:bg-brand-dark/20 transition-colors">
                         <Sparkles className="w-5 h-5 text-brand-dark" />
                       </div>
-                      <span className="text-sm">Initiate Connection</span>
+                      <span className="text-sm">Accept Neural Link</span>
                     </div>
-                    <span className="relative z-10 text-[9px] opacity-60 font-bold tracking-widest">Accept Secure Video Link</span>
+                    <span className="relative z-10 text-[9px] opacity-60 font-bold tracking-widest">Establish Secure Connection</span>
                   </button>
                 </div>
               </div>
@@ -762,8 +782,12 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                     <span className={debugInfo.apiRouteReached ? "text-emerald-500" : "text-slate-600"}>{debugInfo.apiRouteReached ? "YES" : "NO"}</span>
                   </div>
                   <div className="flex justify-between items-center text-[8px] font-mono">
-                    <span className="text-slate-500">Env Vars Found:</span>
-                    <span className={debugInfo.apiKeyFound ? "text-emerald-500" : "text-amber-500"}>{debugInfo.apiKeyFound ? "KEY-OK" : "NO-KEY"}</span>
+                    <span className="text-slate-500">Diagnostics:</span>
+                    <span className="text-slate-400">
+                      {debugInfo.apiKeyFound ? "KEY" : "NO_KEY"}/ 
+                      {debugInfo.avatarIdFound ? "AVA" : "NO_AVA"}/
+                      {debugInfo.voiceIdFound ? "VOX" : "NO_VOX"}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center text-[8px] font-mono">
                     <span className="text-slate-500">HeyGen Session:</span>
@@ -773,6 +797,12 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                     <span className="text-slate-500">Stream Status:</span>
                     <span className={debugInfo.streamConnected ? "text-emerald-500" : "text-slate-600"}>{debugInfo.streamConnected ? "CONNECTED" : "WAITING"}</span>
                   </div>
+                  {debugInfo.appUrl && (
+                    <div className="flex flex-col gap-0.5 mt-2">
+                       <span className="text-[7px] text-slate-500 font-mono uppercase tracking-widest">Active Domain:</span>
+                       <span className="text-[8px] text-brand-secondary font-mono truncate">{debugInfo.appUrl}</span>
+                    </div>
+                  )}
                   {debugInfo.lastError && (
                     <div className="mt-2 p-1.5 bg-red-500/10 border border-red-500/20 rounded text-[7px] text-red-400 font-mono break-words">
                       FAIL: {debugInfo.lastError}

@@ -11,16 +11,29 @@ export default async function handler(req: any, res: any) {
 
   try {
     const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
-    const APP_URL = process.env.APP_URL || process.env.VITE_APP_URL || "Unknown Domain";
-    // Use fallback IDs if not provided
-    const HEYGEN_AVATAR_ID = process.env.HEYGEN_AVATAR_ID || process.env.VITE_HEYGEN_AVATAR_ID || "92ef99d925184626bdd01572101baf81";
-    const HEYGEN_VOICE_ID = process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID || "42d00d4aac5441279d8536cd6b52c53c";
+    
+    // Improved Domain Detection logic using requested fallback order
+    const appUrl =
+      process.env.APP_URL ||
+      process.env.VITE_APP_URL ||
+      req.headers.origin ||
+      (req.headers.host ? `https://${req.headers.host}` : "Unknown Domain");
 
-    const debug = {
+    // Use environment variables for IDs with no hardcoded fallback
+    const avatarId =
+      process.env.HEYGEN_AVATAR_ID ||
+      process.env.VITE_HEYGEN_AVATAR_ID;
+
+    const voiceId =
+      process.env.HEYGEN_VOICE_ID ||
+      process.env.VITE_HEYGEN_VOICE_ID;
+
+    const debug: any = {
       apiKeyFound: !!HEYGEN_API_KEY,
-      avatarIdFound: !!HEYGEN_AVATAR_ID,
-      voiceIdFound: !!HEYGEN_VOICE_ID,
-      appUrl: APP_URL,
+      avatarIdFound: !!avatarId,
+      voiceIdFound: !!voiceId,
+      detectedAppUrl: appUrl,
+      appUrl: appUrl,
       isProduction: process.env.NODE_ENV === "production"
     };
 
@@ -46,19 +59,32 @@ export default async function handler(req: any, res: any) {
     if (!response.ok) {
       console.error("[api/heygen-token] HeyGen API error:", data);
       let errorMessage = data.message || "Failed to fetch token from HeyGen";
-      let troubleshooting = "Check if your API key is valid and has sufficient credits.";
+      let troubleshooting = "Ensure your HEYGEN_API_KEY is correct and your plan supports Streaming Avatar (Team or Enterprise plans).";
       
       if (response.status === 401) {
-        troubleshooting = "Unauthorized: Your HEYGEN_API_KEY might be invalid.";
+        troubleshooting = "Unauthorized: The HEYGEN_API_KEY provided is invalid. Check your HeyGen settings.";
       } else if (response.status === 403) {
-        troubleshooting = "Forbidden: Please ensure you have whitelisted your domain in HeyGen settings.";
+        troubleshooting = "Forbidden: Streaming is not enabled for your account or this domain. You MUST whitelist the domain in HeyGen Space Settings.";
+      } else if (response.status === 429) {
+        troubleshooting = "Rate Limit: You have exceeded the HeyGen API rate limits.";
       }
 
       return res.status(response.status).json({
         success: false,
         error: errorMessage,
+        heygenStatus: response.status,
+        heygenResponseBody: data,
+        detectedAppUrl: appUrl,
+        apiKeyFound: !!HEYGEN_API_KEY,
+        avatarIdFound: !!avatarId,
+        voiceIdFound: !!voiceId,
+        isProduction: process.env.NODE_ENV === "production",
         troubleshooting,
-        debug
+        debug: {
+          ...debug,
+          heygenStatus: response.status,
+          heygenResponseBody: data
+        }
       });
     }
 
@@ -66,20 +92,34 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({
       success: true,
       token: data.data.token,
-      avatarId: HEYGEN_AVATAR_ID,
-      voiceId: HEYGEN_VOICE_ID,
+      avatarId,
+      voiceId,
+      detectedAppUrl: appUrl,
       debug
     });
 
   } catch (error: any) {
     console.error("[api/heygen-token] Internal Server Error:", error);
+    const appUrl =
+      process.env.APP_URL ||
+      process.env.VITE_APP_URL ||
+      req.headers.origin ||
+      (req.headers.host ? `https://${req.headers.host}` : "Unknown Domain");
+
     return res.status(500).json({
       success: false,
       error: error.message || "Internal server error occurred while retrieving token",
+      detectedAppUrl: appUrl,
+      apiKeyFound: !!process.env.HEYGEN_API_KEY,
+      avatarIdFound: !!(process.env.HEYGEN_AVATAR_ID || process.env.VITE_HEYGEN_AVATAR_ID),
+      voiceIdFound: !!(process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID),
+      isProduction: process.env.NODE_ENV === "production",
       debug: {
         apiKeyFound: !!process.env.HEYGEN_API_KEY,
         avatarIdFound: !!(process.env.HEYGEN_AVATAR_ID || process.env.VITE_HEYGEN_AVATAR_ID),
-        voiceIdFound: !!(process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID)
+        voiceIdFound: !!(process.env.HEYGEN_VOICE_ID || process.env.VITE_HEYGEN_VOICE_ID),
+        detectedAppUrl: appUrl,
+        appUrl: appUrl
       }
     });
   }

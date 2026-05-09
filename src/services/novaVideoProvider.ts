@@ -85,25 +85,44 @@ export class NovaVideoProvider {
       // 2. Initialize HeyGen Video Avatar if requested
       if (config.provider === 'heygen') {
         const responseData = await this.getHeyGenToken();
+        const { 
+          token, 
+          avatarId, 
+          voiceId, 
+          detectedAppUrl, 
+          apiKeyFound, 
+          avatarIdFound, 
+          voiceIdFound, 
+          isProduction,
+          heygenStatus,
+          heygenResponseBody,
+          troubleshooting 
+        } = responseData;
+
         this.update({ 
           debug: { 
             apiRouteReached: true, 
-            appUrl: responseData.debug?.appUrl,
+            appUrl: detectedAppUrl,
+            apiKeyFound,
+            avatarIdFound,
+            voiceIdFound,
+            troubleshooting,
+            lastError: responseData.error,
             ...responseData.debug 
           } 
         });
 
-        const token = responseData.token;
+        if (!token) {
+          throw new Error(responseData.error || "Neural link failed: Missing transmission token.");
+        }
+
         this.avatar = new StreamingAvatar({ token });
         
-        const avatarId = responseData.avatarId || "92ef99d925184626bdd01572101baf81";
-        const voiceId = responseData.voiceId || "42d00d4aac5441279d8536cd6b52c53c";
-
         console.log("[NovaProvider] Starting HeyGen Session with:", { avatarId, voiceId });
 
         const sessionData = await this.avatar.createStartAvatar({
           quality: AvatarQuality.Medium,
-          avatarName: avatarId,
+          avatarName: avatarId || undefined,
           voice: {
             rate: 1,
             emotion: VoiceEmotion.FRIENDLY,
