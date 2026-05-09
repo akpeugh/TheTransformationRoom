@@ -86,7 +86,7 @@ const CareerTool = () => {
 
     const timer = setTimeout(() => {
       setIsNovaVisible(true);
-      setIsNovaMuted(true); 
+      setIsNovaMuted(false); 
       sessionStorage.setItem('nova_career_intro_played', 'true');
     }, 800);
     return () => clearTimeout(timer);
@@ -95,7 +95,7 @@ const CareerTool = () => {
   // Handle Nova Volume
   useEffect(() => {
     if (videoRef.current && !isNovaMuted) {
-      videoRef.current.volume = 0.3; // Professional low background volume
+      videoRef.current.volume = 0.15; // Lower professional background volume
     }
   }, [isNovaMuted, isNovaVisible]);
 

@@ -384,26 +384,30 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    <video
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
                     autoPlay
-                    onLoadedMetadata={(e) => { e.currentTarget.volume = 0.15; }}
+                    onLoadedMetadata={(e) => { e.currentTarget.volume = 0.1; }}
                     playsInline
                     className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] brightness-75 transition-all duration-1000"
                    />
                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-40" />
                    
-                   {/* Centered Connection Button in the video screen area */}
+                   {/* Kinetic Core - Soft and Non-Interfering */}
                    <div className="relative z-20 flex flex-col items-center gap-6">
-                      <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={startSession}
-                        className="w-24 h-24 rounded-full bg-brand-secondary text-brand-dark flex items-center justify-center shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:shadow-[0_0_60px_rgba(20,184,166,0.6)] transition-all group"
+                      <motion.div 
+                        animate={{ 
+                          scale: [1, 1.15, 1],
+                          opacity: [0.4, 0.7, 0.4]
+                        }}
+                        transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                        className="w-48 h-48 rounded-full border border-brand-secondary/20 flex items-center justify-center"
                       >
-                        <Video className="w-10 h-10 group-hover:scale-110 transition-transform" />
-                      </motion.button>
-                      <div className="text-center">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-1">Connect to NOVA</h3>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-secondary">Initiate Link</p>
-                      </div>
+                         <motion.div 
+                           animate={{ rotate: 360 }}
+                           transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                           className="w-32 h-32 rounded-full border border-dashed border-brand-primary/20 flex items-center justify-center"
+                         >
+                            <Brain className="w-10 h-10 text-brand-secondary/30" />
+                         </motion.div>
+                      </motion.div>
                    </div>
 
                    {/* Overlay subtle tech grid */}
@@ -423,26 +427,54 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center z-20"
+                className="relative z-20 w-full h-full flex flex-col items-center justify-between p-12"
               >
-                <div className="mb-12">
-                   <NovaAvatar state="initializing" level={0.02} />
+                {/* Visual Status Indicator */}
+                <div className="absolute top-8 left-8 flex items-center gap-3 px-4 py-2 bg-slate-900/60 backdrop-blur-md rounded-full border border-white/5">
+                  <div className="w-2 h-2 rounded-full bg-brand-primary animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.6)]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/70">
+                    Status: Establishing Link
+                  </span>
                 </div>
-                <div className="flex flex-col items-center gap-6">
-                  <div className="flex items-center gap-3">
-                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
-                       <Zap className="w-6 h-6 text-brand-secondary" />
-                    </motion.div>
-                    <h3 className="text-2xl font-black text-white uppercase tracking-widest">Neural Syncing...</h3>
-                  </div>
-                  <div className="w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ x: "-100%" }}
-                      animate={{ x: "100%" }}
-                      transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                      className="w-full h-full bg-brand-secondary"
-                    />
-                  </div>
+
+                <div className="flex-1 w-full max-w-4xl flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50 shadow-2xl">
+                   <video
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
+                    autoPlay
+                    onLoadedMetadata={(e) => { e.currentTarget.volume = 0.05; }}
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] brightness-50 transition-all duration-1000"
+                   />
+                   
+                   <div className="relative z-20 flex flex-col items-center gap-8">
+                      <div className="relative">
+                         <div className="absolute -inset-8 bg-brand-primary/20 rounded-full blur-2xl animate-pulse" />
+                         <NovaAvatar state="initializing" level={0.05} />
+                      </div>
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                             <Zap className="w-6 h-6 text-brand-secondary" />
+                          </motion.div>
+                          <h3 className="text-2xl font-black text-white uppercase tracking-widest">Neural Syncing...</h3>
+                        </div>
+                        <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "100%" }}
+                            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                            className="w-full h-full bg-brand-secondary"
+                          />
+                        </div>
+                      </div>
+                   </div>
+                </div>
+
+                {/* Response Area Placeholder */}
+                <div className="max-w-3xl mx-auto w-full text-center py-8 opacity-40">
+                   <p className="text-brand-primary font-black uppercase tracking-[0.4em] text-xs">
+                      Synchronizing Neural Frequencies
+                   </p>
                 </div>
               </motion.div>
             ) : (novaState === 'error') ? (
@@ -615,7 +647,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
           {/* SESSION METRICS / INITIATION UI */}
           <div className="flex-1 space-y-8">
             {novaState === 'idle' ? (
-              <div className="space-y-6 pt-4">
+              <div className="space-y-8 pt-4">
                 <button 
                   onClick={terminateSession}
                   className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest group"
@@ -623,6 +655,30 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                   <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
                   Exit Video Hub
                 </button>
+
+                <div className="space-y-4">
+                  <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Ready for Neural Link</h4>
+                  <p className="text-xs text-slate-500 leading-relaxed font-light">
+                    Establish a secure interstellar video conduit with NOVA to begin your transformation mapping.
+                  </p>
+                </div>
+
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                  <button 
+                    onClick={startSession}
+                    className="relative w-full h-24 bg-brand-secondary text-brand-dark rounded-3xl flex flex-col items-center justify-center gap-2 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl group overflow-hidden active:scale-[0.98]"
+                  >
+                    <div className="absolute inset-0 bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                    <div className="relative z-10 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-brand-dark/10 flex items-center justify-center group-hover:bg-brand-dark/20 transition-colors">
+                        <Sparkles className="w-5 h-5 text-brand-dark" />
+                      </div>
+                      <span className="text-sm">Initiate Connection</span>
+                    </div>
+                    <span className="relative z-10 text-[9px] opacity-60 font-bold tracking-widest">Accept Secure Video Link</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <>

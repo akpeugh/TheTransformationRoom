@@ -215,7 +215,7 @@ export default function ImpactSimulator() {
   // Handle Nova Volume
   useEffect(() => {
     if (videoRef.current && !isNovaMuted) {
-      videoRef.current.volume = 0.2; // Optimized for clarity but not overwhelming
+      videoRef.current.volume = 0.12; // Optimized for clarity but not overwhelming
     }
   }, [isNovaMuted, isNovaVisible]);
 
@@ -225,7 +225,7 @@ export default function ImpactSimulator() {
 
     const timer = setTimeout(() => {
       setIsNovaVisible(true);
-      setIsNovaMuted(true); // Start muted for reliable autoplay
+      setIsNovaMuted(false); // Start unmuted
       sessionStorage.setItem('nova_sim_intro_played', 'true');
     }, 1200);
     return () => clearTimeout(timer);

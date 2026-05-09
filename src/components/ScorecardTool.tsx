@@ -95,8 +95,8 @@ export const ScorecardTool = () => {
     if (sessionStorage.getItem('nova_readiness_intro_played')) return;
     
     setIsNovaVisible(true);
-    // Keep muted by default for auto-playback to avoid browser blocks
-    setIsNovaMuted(true); 
+    // Unmuted by default as per user request
+    setIsNovaMuted(false); 
     sessionStorage.setItem('nova_readiness_intro_played', 'true');
   };
 
@@ -120,7 +120,7 @@ export const ScorecardTool = () => {
   useEffect(() => {
     // Volume control
     if (videoRef.current && !isNovaMuted) {
-      videoRef.current.volume = 0.25;
+      videoRef.current.volume = 0.15;
     }
   }, [isNovaMuted, isNovaVisible]);
 
