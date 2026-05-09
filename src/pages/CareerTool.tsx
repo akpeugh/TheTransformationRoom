@@ -80,6 +80,18 @@ const CareerTool = () => {
   const [isNovaMuted, setIsNovaMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  useEffect(() => {
+    // Auto-play Nova on enter - only once per user
+    if (localStorage.getItem('nova_career_intro_seen')) return;
+
+    const timer = setTimeout(() => {
+      setIsNovaVisible(true);
+      setIsNovaMuted(false);
+      localStorage.setItem('nova_career_intro_seen', 'true');
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   const triggerNovaCareer = () => {
     if (localStorage.getItem('nova_career_intro_seen')) return;
     setIsNovaVisible(true);

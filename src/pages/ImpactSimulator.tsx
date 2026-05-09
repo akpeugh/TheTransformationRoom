@@ -202,8 +202,19 @@ export default function ImpactSimulator() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [isNovaVisible, setIsNovaVisible] = useState(false);
   const [isNovaMuted, setIsNovaMuted] = useState(true);
-  const [isLocked, setIsLocked] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Pop up Nova shortly after launch - only once per user
+    if (localStorage.getItem('nova_sim_intro_seen')) return;
+
+    const timer = setTimeout(() => {
+      setIsNovaVisible(true);
+      setIsNovaMuted(false);
+      localStorage.setItem('nova_sim_intro_seen', 'true');
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (lastUpdateTime > 0) {
@@ -571,30 +582,14 @@ export default function ImpactSimulator() {
           </motion.div>
         </div>
 
-        {isLocked ? (
-          <div className="flex flex-col items-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setIsLocked(false);
-                triggerNovaMessage();
-              }}
-              className="bg-brand-secondary text-brand-dark px-12 py-6 rounded-full font-black uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-brand-secondary/20 flex items-center justify-center gap-3 cursor-pointer mb-12 border-4 border-brand-secondary/30 ring-8 ring-brand-secondary/5"
-            >
-              Launch Forensics Engine <Zap className="w-6 h-6" />
-            </motion.button>
-          </div>
-        ) : (
-          <>
-            {/* STEP 1: FACILITY PROFILE */}
-            <motion.section 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="mb-12"
-            >
+        {/* STEP 1: FACILITY PROFILE */}
+        <motion.section 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="mb-12"
+        >
           <div className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 flex items-center justify-center border border-brand-primary/30">
               <Building2 className="w-6 h-6 text-brand-primary" />
@@ -1037,8 +1032,6 @@ export default function ImpactSimulator() {
             </div>
           </div>
         </section>
-          </>
-        )}
       </div>
 
       {/* Conversion Section */}
