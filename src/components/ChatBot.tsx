@@ -58,6 +58,7 @@ export const ChatBot: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [isVideoModeOpen, setIsVideoModeOpen] = useState(false);
+  const [showIntroVideo, setShowIntroVideo] = useState(false);
 
   const toggleListening = () => {
     if (!recognitionRef.current) {
@@ -110,6 +111,13 @@ export const ChatBot: React.FC = () => {
     window.addEventListener('ais:open-chat', handleOpen);
     return () => window.removeEventListener('ais:open-chat', handleOpen);
   }, []);
+
+  useEffect(() => {
+    if (isOpen && !sessionStorage.getItem('nova_chat_intro_played')) {
+      setShowIntroVideo(true);
+      sessionStorage.setItem('nova_chat_intro_played', 'true');
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -247,8 +255,18 @@ export const ChatBot: React.FC = () => {
             {/* Header */}
             <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative">
-                  <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                <div className={`w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative transition-all duration-500 ${showIntroVideo ? 'scale-110 shadow-[0_0_15px_rgba(45,212,191,0.5)]' : ''}`}>
+                  {showIntroVideo ? (
+                    <video
+                      src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover scale-150"
+                    />
+                  ) : (
+                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                  )}
                 </div>
                 <div>
                   <h3 className="font-bold text-sm tracking-tight">NOVA</h3>
@@ -287,8 +305,38 @@ export const ChatBot: React.FC = () => {
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-grow overflow-y-auto p-6 space-y-6 scroll-smooth bg-slate-50"
+              className="flex-grow overflow-y-auto p-6 space-y-6 scroll-smooth bg-slate-50 relative"
             >
+              {/* Intro Video Overlay (Side View) */}
+              <AnimatePresence>
+                {showIntroVideo && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute top-4 right-4 w-32 h-40 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
+                  >
+                    <video
+                      src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
+                      autoPlay
+                      onLoadedMetadata={(e) => { e.currentTarget.volume = 0.2; }}
+                      playsInline
+                      onEnded={() => setShowIntroVideo(false)}
+                      className="w-full h-full object-cover"
+                    />
+                    <button 
+                      onClick={() => setShowIntroVideo(false)}
+                      className="absolute top-1 right-1 p-1 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                       <span className="text-[8px] font-black uppercase tracking-widest text-brand-secondary">Neural Greeting</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {messages.map((msg, i) => (
                 <motion.div
                   key={i}

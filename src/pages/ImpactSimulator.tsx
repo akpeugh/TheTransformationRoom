@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   TrendingUp, 
@@ -22,7 +22,8 @@ import {
   LayoutDashboard,
   RefreshCcw,
   AlertCircle,
-  Bot
+  Bot,
+  X
 } from "lucide-react";
 import { 
   BarChart, 
@@ -198,6 +199,52 @@ export default function ImpactSimulator() {
 
   const [scenario, setScenario] = useState<Scenario>("realistic");
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [isNovaVisible, setIsNovaVisible] = useState(false);
+  const [isNovaMuted, setIsNovaMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (lastUpdateTime > 0) {
+      setIsSimulating(true);
+      const timer = setTimeout(() => setIsSimulating(false), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [lastUpdateTime]);
+
+  // Handle Nova Volume
+  useEffect(() => {
+    if (videoRef.current && !isNovaMuted) {
+      videoRef.current.volume = 0.2; // Optimized for clarity but not overwhelming
+    }
+  }, [isNovaMuted, isNovaVisible]);
+
+  useEffect(() => {
+    // Pop up Nova shortly after launch - only once per session
+    if (sessionStorage.getItem('nova_sim_intro_played')) return;
+
+    const timer = setTimeout(() => {
+      setIsNovaVisible(true);
+      setIsNovaMuted(true); // Start muted for reliable autoplay
+      sessionStorage.setItem('nova_sim_intro_played', 'true');
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const triggerNovaMessage = () => {
+    // Only play once per visit to the simulator (session)
+    if (sessionStorage.getItem('nova_sim_intro_played')) return;
+    
+    setIsNovaVisible(true);
+    setIsNovaMuted(false);
+    sessionStorage.setItem('nova_sim_intro_played', 'true');
+  };
+
+  const handleScenarioChange = (s: Scenario) => {
+    setScenario(s);
+    setLastUpdateTime(Date.now());
+    triggerNovaMessage();
+  };
 
   // Factors based on scenario and solutions
   const factors = useMemo(() => {
@@ -360,11 +407,13 @@ export default function ImpactSimulator() {
   const handleInputChange = (key: keyof Inputs, value: number) => {
     setInputs(prev => ({ ...prev, [key]: value }));
     setLastUpdateTime(Date.now());
+    triggerNovaMessage();
   };
 
   const toggleSolution = (key: keyof Solutions) => {
     setSolutions(prev => ({ ...prev, [key]: !prev[key] }));
     setLastUpdateTime(Date.now());
+    triggerNovaMessage();
   };
 
   const formatCurrency = (val: number) => {
@@ -428,6 +477,75 @@ export default function ImpactSimulator() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-secondary/5 blur-[120px] rounded-full" />
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03]" />
       </div>
+
+      {/* Nova Floating Overlay */}
+      <AnimatePresence>
+        {isNovaVisible && (
+          <motion.div 
+            drag
+            dragMomentum={false}
+            initial={{ opacity: 0, y: 50, x: 50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="fixed bottom-10 right-10 z-[100] cursor-grab active:cursor-grabbing group"
+          >
+            <div className={`relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)] ${isSimulating ? 'border-brand-secondary scale-105 shadow-[0_0_30px_rgba(0,242,255,0.4)]' : 'border-white/10 bubble-glow hover:border-white/30'}`}>
+              <video 
+                ref={videoRef}
+                src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Simulation%20Intro.mp4"
+                autoPlay
+                muted={isNovaMuted}
+                playsInline
+                onEnded={() => {
+                  // After finishing her message, she fades away
+                  setTimeout(() => setIsNovaVisible(false), 1000);
+                }}
+                className={`w-full h-full object-cover transition-all duration-1000 ${isSimulating ? 'saturate-150 brightness-110' : 'saturate-100 brightness-100'}`}
+              />
+              <div className={`absolute inset-0 transition-opacity duration-1000 ${isSimulating ? 'bg-brand-secondary/5' : 'bg-transparent'}`} />
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setIsNovaVisible(false)}
+                className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Mute/Unmute Toggle */}
+              <button 
+                onClick={() => setIsNovaMuted(!isNovaMuted)}
+                className="absolute bottom-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                {isNovaMuted ? <Bot className="w-4 h-4 opacity-50" /> : <Activity className="w-4 h-4 text-brand-secondary" />}
+              </button>
+
+              {/* Internal Label */}
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${isSimulating ? 'bg-brand-secondary animate-ping' : 'bg-brand-secondary/50'}`} />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-secondary">
+                    Nova Strategic Lens
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* External Status Tag */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap"
+            >
+              <div className={`px-4 py-1.5 rounded-full backdrop-blur-md border flex items-center gap-2 transition-all duration-500 ${isSimulating ? 'bg-brand-secondary/20 border-brand-secondary/50 text-brand-secondary ring-4 ring-brand-secondary/10' : 'bg-slate-900/60 border-white/10 text-slate-500'}`}>
+                <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                  {isSimulating ? "Recalibrating Strategy..." : "Operational Companion Active"}
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Global SVG Gradients */}
       <svg className="absolute w-0 h-0">
@@ -536,35 +654,62 @@ export default function ImpactSimulator() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="mb-12 relative"
+          className="mb-16 relative"
         >
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-secondary/5 to-transparent pointer-events-none rounded-[4rem]" />
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-brand-secondary/20 flex items-center justify-center border border-brand-secondary/30">
-                <Target className="w-6 h-6 text-brand-secondary" />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12 relative z-10 px-2">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-brand-secondary/20 flex items-center justify-center border border-brand-secondary/30 shadow-[0_0_20px_rgba(0,242,255,0.1)]">
+                <Target className="w-7 h-7 text-brand-secondary" />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Phase 02</span>
-                <h3 className="text-2xl font-bold tracking-tight">Deploy Strategic Levers</h3>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-secondary mb-1 block">Phase 02</span>
+                <h3 className="text-3xl font-bold tracking-tight text-white">Deploy Strategic Levers</h3>
               </div>
             </div>
 
-            <div className="flex bg-slate-900/80 backdrop-blur-xl border border-white/10 p-1.5 rounded-2xl shadow-2xl">
-              {(["conservative", "realistic", "aggressive"] as Scenario[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setScenario(s)}
-                  className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                    scenario === s 
-                      ? "bg-brand-secondary text-brand-dark shadow-[0_0_20px_rgba(0,242,255,0.3)]" 
-                      : "text-slate-500 hover:text-white"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="flex bg-slate-900/60 backdrop-blur-3xl border border-white/10 p-2.5 rounded-[2rem] shadow-2xl gap-3 w-full md:w-auto min-h-[90px]">
+              {(["conservative", "realistic", "aggressive"] as Scenario[]).map((s) => {
+                const isActive = scenario === s;
+                const variants = {
+                  conservative: {
+                    active: "bg-slate-300 text-slate-900 shadow-[0_10px_20px_rgba(255,255,255,0.1)]",
+                    label: "Low Impact",
+                    indicator: "bg-slate-400"
+                  },
+                  realistic: {
+                    active: "bg-brand-secondary text-brand-dark shadow-[0_10px_20px_rgba(0,242,255,0.2)]",
+                    label: "Mid Impact",
+                    indicator: "bg-brand-secondary"
+                  },
+                  aggressive: {
+                    active: "bg-brand-primary text-white shadow-[0_10px_20px_rgba(66,85,255,0.2)]",
+                    label: "Max Impact",
+                    indicator: "bg-brand-primary"
+                  }
+                };
+
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleScenarioChange(s)}
+                    className={`flex-1 md:w-40 flex flex-col items-center justify-center py-3 px-6 rounded-2xl transition-all duration-500 border ${
+                      isActive 
+                        ? `${variants[s].active} border-transparent scale-[1.05]` 
+                        : "bg-white/5 border-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"
+                    }`}
+                  >
+                    <span className="text-[11px] font-black uppercase tracking-[0.25em] mb-1">{s}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-current animate-pulse" : variants[s].indicator} opacity-50`} />
+                      <span className={`text-[9px] font-bold uppercase tracking-widest opacity-60 ${isActive ? "text-inherit" : "text-slate-500"}`}>
+                        {variants[s].label}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

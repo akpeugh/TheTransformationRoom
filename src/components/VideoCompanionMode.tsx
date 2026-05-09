@@ -283,6 +283,14 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                      playsInline
                      className={`w-full h-full object-cover object-top transition-all duration-1000 ${isSpeaking ? 'scale-105' : 'scale-100 grayscale-[0.2]'}`}
                    />
+                 ) : state === 'idle' ? (
+                   <video
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
+                    autoPlay
+                    onLoadedMetadata={(e) => { e.currentTarget.volume = 0.15; }}
+                    playsInline
+                    className="w-full h-full object-cover object-top transition-all duration-1000 scale-105"
+                   />
                  ) : (
                    <img 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
@@ -359,29 +367,55 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
             {novaState === 'idle' ? (
               <motion.div 
                 key="idle"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 1.1 }}
-                className="text-center p-8 max-w-xl z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative z-20 w-full h-full flex flex-col items-center justify-between p-12"
               >
-                <div className="mb-12">
-                   <NovaAvatar state="idle" level={0} />
+                {/* Visual Status Indicator */}
+                <div className="absolute top-8 left-8 flex items-center gap-3 px-4 py-2 bg-slate-900/60 backdrop-blur-md rounded-full border border-white/5">
+                  <div className="w-2 h-2 rounded-full bg-brand-secondary animate-pulse shadow-[0_0_10px_rgba(20,184,166,0.6)]" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/70">
+                    Status: Awaiting Link
+                  </span>
                 </div>
-                <h3 className="text-4xl font-black text-white uppercase tracking-tighter mb-4 flex items-center justify-center gap-3">
-                  <Brain className="w-8 h-8 text-brand-secondary" />
-                  Initiate Link
-                </h3>
-                <p className="text-slate-400 mb-10 leading-relaxed font-light text-lg">
-                  Establish a secure interstellar video conduit with NOVA. Prepare for operational reorganization and trajectory mapping.
-                </p>
-                <button 
-                  onClick={startSession}
-                  className="group relative px-12 py-5 bg-brand-secondary text-brand-dark rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl shadow-brand-secondary/20 hover:shadow-brand-secondary/40 transition-all flex items-center justify-center gap-3 mx-auto"
-                >
-                  <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                  Connect to Nova
-                  <div className="absolute inset-0 rounded-2xl bg-white/20 scale-x-0 group-hover:scale-x-100 transition-transform origin-left pointer-events-none" />
-                </button>
+
+                <div className="flex-1 w-full max-w-4xl flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50 shadow-2xl">
+                   <video
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
+                    autoPlay
+                    onLoadedMetadata={(e) => { e.currentTarget.volume = 0.15; }}
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover grayscale-[0.3] brightness-75 transition-all duration-1000"
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-40" />
+                   
+                   {/* Centered Connection Button in the video screen area */}
+                   <div className="relative z-20 flex flex-col items-center gap-6">
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={startSession}
+                        className="w-24 h-24 rounded-full bg-brand-secondary text-brand-dark flex items-center justify-center shadow-[0_0_40px_rgba(20,184,166,0.4)] hover:shadow-[0_0_60px_rgba(20,184,166,0.6)] transition-all group"
+                      >
+                        <Video className="w-10 h-10 group-hover:scale-110 transition-transform" />
+                      </motion.button>
+                      <div className="text-center">
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-1">Connect to NOVA</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-secondary">Initiate Link</p>
+                      </div>
+                   </div>
+
+                   {/* Overlay subtle tech grid */}
+                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none mix-blend-overlay" />
+                </div>
+
+                {/* Response / Caption Area (Placeholder in idle) */}
+                <div className="max-w-3xl mx-auto w-full text-center py-8">
+                   <p className="text-slate-400/60 font-light text-lg">
+                      Prepare for operational reorganization and trajectory mapping.
+                   </p>
+                </div>
               </motion.div>
             ) : (novaState === 'initializing') ? (
               <motion.div 
@@ -455,8 +489,20 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col items-center justify-center">
-                   <NovaAvatar state={novaState} level={audioLevel} />
+                <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50">
+                   {heygenStream ? (
+                     <video
+                       ref={heygenVideoRef}
+                       autoPlay
+                       playsInline
+                       className="absolute inset-0 w-full h-full object-cover object-top transition-all duration-1000"
+                     />
+                   ) : (
+                     <NovaAvatar state={novaState} level={audioLevel} />
+                   )}
+                   
+                   {/* Overlay subtle tech grid */}
+                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none mix-blend-overlay" />
                 </div>
 
                 {/* Response / Caption Area */}
@@ -535,77 +581,93 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
         {/* 2. SIDE PANEL: PERSISTENT CONTROLS & LOCAL VIEW */}
         <div className="w-full md:w-96 bg-slate-950 border-t md:border-t-0 md:border-l border-white/5 flex flex-col p-6 sm:p-8 bg-gradient-to-b from-slate-950 to-slate-900 overflow-y-auto">
           
-          {/* LOCAL USER VIEW */}
-          <div className="relative aspect-video bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border border-white/5 mb-8">
-            <AnimatePresence>
-              {!isVideoOn && (
-                <motion.div 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-slate-600 gap-4"
-                >
-                  <VideoOff className="w-10 h-10 opacity-20" />
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Visual Conduit Inactive</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              muted 
-              playsInline 
-              className={`w-full h-full object-cover grayscale brightness-90 transition-opacity duration-1000 ${!isVideoOn ? 'opacity-0' : 'opacity-100'}`} 
-            />
-            
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
-              <span className="text-[8px] font-black uppercase tracking-widest text-white/80">User Spectrum</span>
-            </div>
-          </div>
-
-          {/* SESSION METRICS */}
-          <div className="flex-1 space-y-8">
-            <div className="flex items-center justify-between">
-               <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Link Metadata</h4>
-               <span className="text-[10px] font-mono text-slate-600">{formatTime(timeElapsed)}</span>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Neural Alignment</p>
-                  <span className="text-[10px] font-mono text-brand-secondary">{novaState !== 'idle' && novaState !== 'error' ? '98.2%' : '0%'}</span>
-                </div>
-                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+          {/* LOCAL USER VIEW - Only visible when NOT idle */}
+          {novaState !== 'idle' && (
+            <div className="relative aspect-video bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl border border-white/5 mb-8">
+              <AnimatePresence>
+                {!isVideoOn && (
                   <motion.div 
-                    animate={{ width: novaState !== 'idle' && novaState !== 'error' ? "98.2%" : "0%" }}
-                    className="h-full bg-brand-secondary shadow-[0_0_15px_rgba(20,184,166,0.6)]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Cognitive Bandwidth</p>
-                  <span className="text-[10px] font-mono text-brand-primary">{novaState !== 'idle' && novaState !== 'error' ? 'High' : 'Low'}</span>
-                </div>
-                <div className="flex gap-1 h-3 items-end">
-                   {[...Array(12)].map((_, i) => (
-                     <motion.div 
-                      key={i}
-                      animate={{ 
-                        height: (novaState === 'speaking' || (novaState === 'listening' && audioLevel > 0.05)) 
-                          ? [8, 12, 6, 12, 8][i % 5] 
-                          : 4 
-                      }}
-                      transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
-                      className={`flex-1 rounded-sm ${i < 8 ? 'bg-brand-primary/60' : 'bg-slate-800'}`}
-                     />
-                   ))}
-                </div>
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-slate-600 gap-4"
+                  >
+                    <VideoOff className="w-10 h-10 opacity-20" />
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Visual Conduit Inactive</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                muted 
+                playsInline 
+                className={`w-full h-full object-cover grayscale brightness-90 transition-opacity duration-1000 ${!isVideoOn ? 'opacity-0' : 'opacity-100'}`} 
+              />
+              
+              <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/10">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-white/80">User Spectrum</span>
               </div>
             </div>
+          )}
+
+          {/* SESSION METRICS / INITIATION UI */}
+          <div className="flex-1 space-y-8">
+            {novaState === 'idle' ? (
+              <div className="space-y-6 pt-4">
+                <button 
+                  onClick={terminateSession}
+                  className="flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-widest group"
+                >
+                  <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
+                  Exit Video Hub
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Link Metadata</h4>
+                   <span className="text-[10px] font-mono text-slate-600">{formatTime(timeElapsed)}</span>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Neural Alignment</p>
+                      <span className="text-[10px] font-mono text-brand-secondary">{novaState !== 'error' ? '98.2%' : '0%'}</span>
+                    </div>
+                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div 
+                        animate={{ width: novaState !== 'error' ? "98.2%" : "0%" }}
+                        className="h-full bg-brand-secondary shadow-[0_0_15px_rgba(20,184,166,0.6)]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Cognitive Bandwidth</p>
+                      <span className="text-[10px] font-mono text-brand-primary">{novaState !== 'error' ? 'High' : 'Low'}</span>
+                    </div>
+                    <div className="flex gap-1 h-3 items-end">
+                       {[...Array(12)].map((_, i) => (
+                         <motion.div 
+                          key={i}
+                          animate={{ 
+                            height: (novaState === 'speaking' || (novaState === 'listening' && audioLevel > 0.05)) 
+                              ? [8, 12, 6, 12, 8][i % 5] 
+                              : 4 
+                          }}
+                          transition={{ repeat: Infinity, duration: 1, delay: i * 0.1 }}
+                          className={`flex-1 rounded-sm ${i < 8 ? 'bg-brand-primary/60' : 'bg-slate-800'}`}
+                         />
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
                 <div className="flex gap-3 mb-2">
@@ -645,33 +707,37 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
 
           {/* CONTROLS */}
           <div className="mt-8 space-y-4">
-             <div className="flex gap-4">
-                <button 
-                  onClick={toggleMic}
-                  className={`flex-1 h-16 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border ${isMicOn ? 'bg-white/5 border-white/10 text-white' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}
-                >
-                  {isMicOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
-                  <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Audio</span>
-                </button>
-                <button 
-                  onClick={toggleVideo}
-                  className={`flex-1 h-16 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border ${isVideoOn ? 'bg-brand-primary/10 border-brand-primary/20 text-brand-primary shadow-[0_0_20px_rgba(6,182,212,0.1)]' : 'bg-white/5 border-white/10 text-slate-500'}`}
-                >
-                  {isVideoOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
-                  <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Visual</span>
-                </button>
-             </div>
-             
-             <button 
-              onClick={terminateSession}
-              className="w-full h-20 bg-slate-100 hover:bg-brand-secondary text-slate-900 rounded-3xl flex items-center justify-center gap-4 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-xl group overflow-hidden relative"
-             >
-               <span className="relative z-10 flex items-center gap-3">
-                 <PhoneOff className="w-4 h-4" />
-                 Terminate Link
-               </span>
-               <div className="absolute inset-0 bg-brand-secondary scale-x-0 group-hover:scale-x-100 transition-transform origin-right" />
-             </button>
+             {novaState !== 'idle' && (
+               <>
+                 <div className="flex gap-4">
+                    <button 
+                      onClick={toggleMic}
+                      className={`flex-1 h-16 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border ${isMicOn ? 'bg-white/5 border-white/10 text-white' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}
+                    >
+                      {isMicOn ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+                      <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Audio</span>
+                    </button>
+                    <button 
+                      onClick={toggleVideo}
+                      className={`flex-1 h-16 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all border ${isVideoOn ? 'bg-brand-primary/10 border-brand-primary/20 text-brand-primary shadow-[0_0_20px_rgba(6,182,212,0.1)]' : 'bg-white/5 border-white/10 text-slate-500'}`}
+                    >
+                      {isVideoOn ? <Video className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
+                      <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Visual</span>
+                    </button>
+                 </div>
+                 
+                 <button 
+                  onClick={terminateSession}
+                  className="w-full h-20 bg-slate-100 hover:bg-brand-secondary text-slate-900 rounded-3xl flex items-center justify-center gap-4 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-xl group overflow-hidden relative"
+                 >
+                   <span className="relative z-10 flex items-center gap-3">
+                     <PhoneOff className="w-4 h-4" />
+                     Terminate Link
+                   </span>
+                   <div className="absolute inset-0 bg-brand-secondary scale-x-0 group-hover:scale-x-100 transition-transform origin-right" />
+                 </button>
+               </>
+             )}
           </div>
         </div>
 

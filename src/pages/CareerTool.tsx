@@ -75,6 +75,29 @@ const CareerTool = () => {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [generationProgress, setGenerationProgress] = useState(0);
   const [activeSubStep, setActiveSubStep] = useState(1);
+  
+  const [isNovaVisible, setIsNovaVisible] = useState(false);
+  const [isNovaMuted, setIsNovaMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Pop up Nova shortly after launch - only once per session
+    if (sessionStorage.getItem('nova_career_intro_played')) return;
+
+    const timer = setTimeout(() => {
+      setIsNovaVisible(true);
+      setIsNovaMuted(true); 
+      sessionStorage.setItem('nova_career_intro_played', 'true');
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Handle Nova Volume
+  useEffect(() => {
+    if (videoRef.current && !isNovaMuted) {
+      videoRef.current.volume = 0.3; // Professional low background volume
+    }
+  }, [isNovaMuted, isNovaVisible]);
 
   const loadingMessages = [
     "NOVA is analyzing your professional DNA...",
@@ -328,6 +351,75 @@ const CareerTool = () => {
         title="Career Hub"
         description="Explore your professional DNA with NOVA Intelligence. Use our Career Path Simulator, Resume Optimizer, and Behavioral Traits Assessment."
       />
+
+      {/* Nova Strategic Companion Overlay */}
+      <AnimatePresence>
+        {isNovaVisible && (
+          <motion.div 
+            drag
+            dragMomentum={false}
+            initial={{ opacity: 0, y: 50, x: 50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            className="fixed bottom-8 right-8 z-[100] cursor-grab active:cursor-grabbing group"
+          >
+            <div className="relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 border-white/10 bubble-glow hover:border-white/30 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+              <video 
+                ref={videoRef}
+                src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Career%20Intro.mp4"
+                autoPlay
+                muted={isNovaMuted}
+                playsInline
+                onEnded={() => {
+                  // After finishing her message, she fades away
+                  setTimeout(() => setIsNovaVisible(false), 800);
+                }}
+                className="w-full h-full object-cover transition-all duration-1000"
+              />
+              <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setIsNovaVisible(false)}
+                className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Mute/Unmute Toggle */}
+              <button 
+                onClick={() => setIsNovaMuted(!isNovaMuted)}
+                className="absolute bottom-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                {isNovaMuted ? <Bot className="w-4 h-4 opacity-50" /> : <Sparkles className="w-4 h-4 text-brand-secondary" />}
+              </button>
+
+              {/* Internal Label */}
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary/50 animate-pulse" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-secondary">
+                    Nova Career Mentor
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Status Tag */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap"
+            >
+              <div className="px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 bg-slate-900/60 text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                  Strategic Onboarding Active
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Left Sidebar */}
       <div className="md:w-1/4 bg-slate-900 p-8 md:p-12 text-white flex flex-col justify-between overflow-y-auto relative z-10 shadow-2xl shrink-0">
         <div>
@@ -592,10 +684,12 @@ const CareerTool = () => {
 
           {/* Result Steps (Behavioral Out, Simulator Out, Resume Review) would go here similarly to ResumeOptimizer.tsx but integrated */}
           {step === "behavioral-generating" && (
-             <motion.div key="gen" className="text-center my-auto">
-                <Loader2 className="w-20 h-20 text-brand-secondary animate-spin mx-auto mb-8" />
+             <motion.div key="gen" className="text-center my-auto flex flex-col items-center">
+                <div className="w-24 h-24 rounded-3xl bg-slate-100 flex items-center justify-center mb-10 border border-slate-200">
+                   <Loader2 className="w-12 h-12 text-brand-secondary animate-spin" />
+                </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-4">{loadingMessage}</h3>
-                <div className="max-w-md mx-auto h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="max-w-md w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                    <motion.div className="h-full bg-brand-secondary" animate={{ width: `${generationProgress}%` }} />
                 </div>
              </motion.div>
@@ -652,9 +746,21 @@ const CareerTool = () => {
                   </div>
                </div>
 
-               <div className="mt-16 flex gap-6">
-                  <button onClick={() => setStep("path")} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold">New Assessment</button>
-                  <Link to="/contact" className="flex-1 px-8 py-4 bg-brand-primary text-white rounded-xl font-bold text-center shadow-xl shadow-brand-primary/20">Apply for High-Velocity Coaching</Link>
+               <div className="mt-16 flex flex-col sm:flex-row gap-6">
+                  <button onClick={() => setStep("path")} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Assessment</button>
+                  <button 
+                    onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
+                      detail: { 
+                        type: 'individual', 
+                        prompt: "Let's discuss my behavioral traits assessment results with NOVA. I'm interested in how these match the recommended high-growth roles." 
+                      } 
+                    }))} 
+                    className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
+                  >
+                    <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
+                    Discuss Traits with NOVA
+                  </button>
+                  <Link to="/contact" className="flex-1 px-8 py-4 bg-brand-primary text-white rounded-xl font-bold text-center shadow-xl shadow-brand-primary/20 flex items-center justify-center">Apply for High-Velocity Coaching</Link>
                </div>
             </motion.div>
           )}
@@ -707,12 +813,20 @@ const CareerTool = () => {
                </div>
 
                <div className="mt-20 flex flex-col sm:flex-row gap-6">
-                  <button onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                    detail: { type: 'individual', prompt: `I just simulated a career path with NOVA to ${formData.targetRole}. Let's discuss how to close Step 1: ${parsedResult.roadmap?.[0]?.step}` }
-                  }))} className="flex-1 py-5 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-primary transition-all">
-                    <Bot className="w-5 h-5 text-brand-secondary" /> Deconstruct Roadmap with NOVA
+                  <button onClick={() => setStep("path")} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Simulation</button>
+                  <button 
+                    onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
+                      detail: { 
+                        type: 'individual', 
+                        prompt: `Let's discuss my career path simulation results with NOVA. I just simulated a path to ${formData.targetRole} and want to deconstruct the roadmap.` 
+                      } 
+                    }))} 
+                    className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
+                  >
+                    <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
+                    Deconstruct Roadmap with NOVA
                   </button>
-                  <Link to="/contact" className="flex-1 py-5 bg-brand-secondary text-brand-dark rounded-2xl font-bold flex items-center justify-center gap-3 text-center">
+                  <Link to="/contact" className="flex-1 px-8 py-4 bg-brand-secondary text-brand-dark rounded-xl font-bold flex items-center justify-center gap-3 text-center shadow-xl hover:opacity-90 transition-all">
                     <ShieldCheck className="w-5 h-5" /> Ready for Strategic Transition
                   </Link>
                </div>

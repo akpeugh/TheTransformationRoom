@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
-import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft, Brain, Mail } from "lucide-react";
+import { Factory, Database, Users, Sparkles, Bot, ArrowRight, ChevronRight, CheckCircle2, RotateCcw, ArrowLeft, Brain, Mail, X, Activity } from "lucide-react";
 
 type Question = {
   id: string;
@@ -86,6 +86,44 @@ export const ScorecardTool = () => {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [scores, setScores] = useState({ hardware: 0, data: 0, workforce: 0, total: 0 });
 
+  const [isNovaVisible, setIsNovaVisible] = useState(false);
+  const [isNovaMuted, setIsNovaMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const triggerNova = () => {
+    // Only play once per session
+    if (sessionStorage.getItem('nova_readiness_intro_played')) return;
+    
+    setIsNovaVisible(true);
+    // Keep muted by default for auto-playback to avoid browser blocks
+    setIsNovaMuted(true); 
+    sessionStorage.setItem('nova_readiness_intro_played', 'true');
+  };
+
+  const triggerNovaUnmuted = () => {
+    // Direct interaction allows sound
+    setIsNovaVisible(true);
+    setIsNovaMuted(false);
+    sessionStorage.setItem('nova_readiness_intro_played', 'true');
+  };
+
+  useEffect(() => {
+    // Pop up Nova shortly after launch - only once per session
+    if (sessionStorage.getItem('nova_readiness_intro_played')) return;
+
+    const timer = setTimeout(() => {
+      triggerNova();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Volume control
+    if (videoRef.current && !isNovaMuted) {
+      videoRef.current.volume = 0.25;
+    }
+  }, [isNovaMuted, isNovaVisible]);
+
   const handleAnswer = (score: number) => {
     const nextAnswers = { ...answers, [QUESTIONS[currentQ].id]: score };
     setAnswers(nextAnswers);
@@ -146,9 +184,77 @@ export const ScorecardTool = () => {
   };
 
   return (
-    <div id="strategic-scorecard-section" className="mt-20 lg:mt-32 bg-slate-900 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-[0_0_50px_rgba(20,184,166,0.15)] border border-slate-800 perspective-1000 min-h-[600px] flex items-center">
+    <div id="strategic-scorecard-section" className="mt-20 lg:mt-32 bg-slate-900 rounded-[3rem] p-8 md:p-16 relative overflow-hidden shadow-[0_0_50px_rgba(20,184,166,0.15)] border border-slate-800 min-h-[600px] flex items-center">
       <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-brand-secondary/10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+
+      {/* Nova Strategic Advisor Overlay */}
+      <AnimatePresence>
+        {isNovaVisible && (
+          <motion.div 
+            drag
+            dragMomentum={false}
+            initial={{ opacity: 0, y: 100, scale: 0.9, x: 20 }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+            exit={{ opacity: 0, y: 100, scale: 0.8, x: 20 }}
+            className="fixed bottom-10 right-10 z-[100] cursor-grab active:cursor-grabbing group"
+          >
+            <div className="relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 border-white/10 bubble-glow hover:border-white/30 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+              <video 
+                ref={videoRef}
+                src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Readiness.mp4"
+                autoPlay
+                muted={isNovaMuted}
+                playsInline
+                onEnded={() => {
+                  setTimeout(() => setIsNovaVisible(false), 1000);
+                }}
+                className="w-full h-full object-cover transition-all duration-1000"
+              />
+              <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
+              
+              {/* Close Button */}
+              <button 
+                onClick={() => setIsNovaVisible(false)}
+                className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Mute/Unmute Toggle */}
+              <button 
+                onClick={() => setIsNovaMuted(!isNovaMuted)}
+                className="absolute bottom-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
+              >
+                {isNovaMuted ? <Bot className="w-4 h-4 opacity-50" /> : <Activity className="w-4 h-4 text-brand-secondary" />}
+              </button>
+
+              {/* Internal Label */}
+              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary/50 animate-pulse" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-secondary">
+                    Nova Strategic Advisor
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Status Tag */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap"
+            >
+              <div className="px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 bg-slate-900/60 text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-widest leading-none">
+                  Organizational Diagnosis Active
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto">
         <AnimatePresence mode="wait">
@@ -217,7 +323,10 @@ export const ScorecardTool = () => {
                 <motion.button 
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setStep("questions")}
+                  onClick={() => {
+                    setStep("questions");
+                    triggerNovaUnmuted();
+                  }}
                   className="group relative w-full bg-gradient-to-r from-brand-secondary via-emerald-400 to-brand-secondary bg-[length:200%_auto] hover:bg-[center_right_1rem] text-brand-dark px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-500 shadow-[0_0_20px_rgba(20,184,166,0.2)] hover:shadow-[0_0_40px_rgba(20,184,166,0.6)] flex items-center justify-center gap-3 mx-auto overflow-hidden outline outline-2 outline-offset-2 outline-transparent hover:outline-brand-secondary/50 hover:animate-pulse"
                 >
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
