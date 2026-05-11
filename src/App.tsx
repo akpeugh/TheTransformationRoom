@@ -56,6 +56,7 @@ export default function App() {
             <Route path="/individuals" element={<Individuals />} />
             <Route path="/career-hub" element={<CareerTool />} />
             <Route path="/display" element={<Navigate to="/career-hub" replace />} />
+            <Route path="/tools" element={<Navigate to="/organizations" replace />} />
             <Route path="/about" element={<About />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
