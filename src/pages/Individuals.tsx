@@ -37,9 +37,9 @@ const Individuals = () => {
     const params = new URLSearchParams(location.search);
     const tool = params.get('tool');
     if (tool === 'resume') {
-      navigate('/display?path=resume');
+      navigate('/career-hub?path=resume');
     } else if (tool === 'career') {
-      navigate('/display?path=simulator');
+      navigate('/career-hub?path=simulator');
     }
   }, [location.search, navigate]);
 
@@ -424,7 +424,7 @@ const stageData = [
 
                    <div className="flex flex-col sm:flex-row gap-6">
                       <Link 
-                        to="/display"
+                        to="/career-hub"
                         className="bg-brand-primary text-white px-10 py-6 rounded-2xl font-bold text-xl hover:bg-brand-dark transition-all shadow-2xl shadow-brand-primary/30 flex items-center justify-center gap-3 group hover:scale-[1.02] active:scale-95 cursor-pointer"
                       >
                          Launch Hub <Zap className="w-6 h-6 text-brand-secondary group-hover:rotate-12 transition-transform" />

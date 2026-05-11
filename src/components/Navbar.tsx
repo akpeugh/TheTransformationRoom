@@ -56,13 +56,13 @@ export const Navbar = () => {
           name: "Career Hub", 
           desc: "Simulation & Resume Optimization", 
           icon: <Zap className="w-4 h-4" />,
-          path: "/display" 
+          path: "/career-hub" 
         },
         { 
           name: "Resume Optimizer", 
           desc: "Reframing legacy experience", 
           icon: <FileText className="w-4 h-4" />,
-          path: "/display?path=resume" 
+          path: "/career-hub?path=resume" 
         }
       ]
     },

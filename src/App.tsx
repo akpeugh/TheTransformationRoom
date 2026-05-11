@@ -52,10 +52,10 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="/organizations" element={<Organizations />} />
             <Route path="/individuals" element={<Individuals />} />
-            <Route path="/display" element={<CareerTool />} />
+            <Route path="/career-hub" element={<CareerTool />} />
+            <Route path="/display" element={<Navigate to="/career-hub" replace />} />
             <Route path="/about" element={<About />} />
             <Route path="/testimonials" element={<Testimonials />} />
             <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />

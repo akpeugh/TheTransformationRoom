@@ -11,7 +11,7 @@ interface SEOProps {
 
 const SEO: React.FC<SEOProps> = ({ 
   title, 
-  description = "The Transformation Room spezializes in aligning people, connecting systems, and driving results through professional operations and technology consulting.", 
+  description = "The Transformation Room specializes in aligning people, connecting systems, and driving results through professional operations and technology consulting.", 
   image = "https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png",
   url = "https://thetransformationroom.com",
   schema
@@ -25,6 +25,7 @@ const SEO: React.FC<SEOProps> = ({
       {/* Standard Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content="index, follow" />
       <link rel="canonical" href={canonicalUrl} />
 
       {/* Open Graph / Facebook */}
