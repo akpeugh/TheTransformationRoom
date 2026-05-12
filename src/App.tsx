@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 
@@ -11,16 +11,22 @@ import { NavigationTracker } from "./components/NavigationTracker";
 
 import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
 
-// Pages
-import Home from "./pages/Home";
-import Organizations from "./pages/Organizations";
-import Individuals from "./pages/Individuals";
-import CareerTool from "./pages/CareerTool";
-import About from "./pages/About";
-import Testimonials from "./pages/Testimonials";
-import Contact from "./pages/Contact";
-import PodcastLibrary from "./pages/PodcastLibrary";
-import ImpactSimulator from "./pages/ImpactSimulator";
+// Pages (Lazy loaded)
+const Home = lazy(() => import("./pages/Home"));
+const Organizations = lazy(() => import("./pages/Organizations"));
+const Individuals = lazy(() => import("./pages/Individuals"));
+const CareerTool = lazy(() => import("./pages/CareerTool"));
+const About = lazy(() => import("./pages/About"));
+const Testimonials = lazy(() => import("./pages/Testimonials"));
+const Contact = lazy(() => import("./pages/Contact"));
+const PodcastLibrary = lazy(() => import("./pages/PodcastLibrary"));
+const ImpactSimulator = lazy(() => import("./pages/ImpactSimulator"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-8 h-8 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin" />
+  </div>
+);
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -50,20 +56,22 @@ export default function App() {
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/organizations" element={<Organizations />} />
-            <Route path="/individuals" element={<Individuals />} />
-            <Route path="/career-hub" element={<CareerTool />} />
-            <Route path="/display" element={<Navigate to="/career-hub" replace />} />
-            <Route path="/tools" element={<Navigate to="/organizations" replace />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/testimonials" element={<Testimonials />} />
-            <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
-            <Route path="/podcasts" element={<PodcastLibrary />} />
-            <Route path="/impact-simulator" element={<ImpactSimulator />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/organizations" element={<Organizations />} />
+              <Route path="/individuals" element={<Individuals />} />
+              <Route path="/career-hub" element={<CareerTool />} />
+              <Route path="/display" element={<Navigate to="/career-hub" replace />} />
+              <Route path="/tools" element={<Navigate to="/organizations" replace />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/testimonials" element={<Testimonials />} />
+              <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
+              <Route path="/podcasts" element={<PodcastLibrary />} />
+              <Route path="/impact-simulator" element={<ImpactSimulator />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </main>
         <Footer />
         <ChatBot />
