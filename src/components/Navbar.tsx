@@ -94,7 +94,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-14 items-center">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2 transition-transform group-hover:scale-105">
-                 <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className="h-8 md:h-10 w-auto transition-all duration-300" />
+                 <img src="/TR_Logo.webp" alt="TTR" className="h-8 md:h-10 w-auto transition-all duration-300"  width="160" height="40" loading="lazy" />
             </div>
           </Link>
           

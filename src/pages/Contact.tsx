@@ -132,7 +132,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
             <div className="p-8 bg-white/5 border border-white/10 rounded-3xl group transition-all hover:border-brand-secondary/30 relative overflow-hidden">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
+                  src="/Nova_face.webp" 
                   alt="NOVA Background" 
                   className="w-full h-full object-cover opacity-10 group-hover:opacity-20 blur-[10px] group-hover:blur-[5px] transition-all duration-700 pointer-events-none" 
                   referrerPolicy="no-referrer" 
@@ -145,7 +145,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                 </p>
                 <div className="flex gap-4 items-start mb-4">
                   <div className="w-12 h-12 rounded-xl overflow-hidden border border-brand-secondary/30 bg-slate-800 shrink-0">
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-white mb-2">Engage with NOVA?</h4>
@@ -218,7 +218,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               {aiConsultationData && (
                 <div className="bg-brand-secondary/10 border border-brand-secondary/30 p-4 rounded-xl flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-brand-secondary/20 border border-brand-secondary/30 shrink-0 shadow-sm">
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-800">NOVA Session Intelligence Integrated</p>

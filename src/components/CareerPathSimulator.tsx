@@ -314,7 +314,7 @@ export const CareerPathSimulator: React.FC<CareerPathSimulatorProps> = ({ onClos
               >
                  <div className="flex items-center gap-6 mb-12">
                     <div className="w-20 h-20 rounded-2xl bg-slate-900 overflow-hidden shrink-0 border border-brand-secondary/30 shadow-2xl">
-                       <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                       <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                     </div>
                     <div>
                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Path Generated Successfully</span>

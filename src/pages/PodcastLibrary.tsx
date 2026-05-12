@@ -146,6 +146,7 @@ const PodcastLibrary = () => {
                   <button 
                     onClick={() => playPodcast(podcast)}
                     className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 group/play transition-all duration-500 rounded-3xl"
+                    aria-label="Play Podcast"
                   >
                     <div className="w-20 h-20 bg-brand-secondary rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(20,184,166,0.3)] group-hover/play:scale-110 transition-transform">
                       <Play className="w-8 h-8 text-brand-dark fill-current ml-1" />
@@ -228,6 +229,7 @@ const PodcastLibrary = () => {
                     onClick={() => handleShare(podcast)}
                     className="p-2 text-slate-500 hover:text-white transition-colors"
                     title="Share Episode"
+                    aria-label="Share Episode"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
@@ -235,6 +237,7 @@ const PodcastLibrary = () => {
                     onClick={() => handleDownload(podcast)}
                     className="p-2 text-slate-500 hover:text-white transition-colors"
                     title="Download Episode"
+                    aria-label="Download Episode"
                   >
                     <Download className="w-4 h-4" />
                   </button>

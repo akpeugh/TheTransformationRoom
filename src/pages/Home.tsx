@@ -31,6 +31,7 @@ import {
 import { DISCOVERY_CALL_1HR } from "../constants";
 import SEO from "../components/SEO";
 import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from "../constants/schema";
+import { LazyVideo } from "../components/LazyVideo";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -185,7 +186,7 @@ const Home = () => {
       <section className="relative min-h-screen flex items-center perspective-1000 pb-20">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900 z-10" />
-          <video 
+          <video aria-label="Video presentation"  
             key={videoMap["Hero/Header"]}
             src={videoMap["Hero/Header"]} 
             autoPlay 
@@ -193,6 +194,7 @@ const Home = () => {
             loop 
             playsInline 
             preload="auto"
+            poster="/TR_Logo.webp"
             className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
             onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           />
@@ -394,14 +396,14 @@ const Home = () => {
                   <div className="absolute -inset-4 bg-brand-primary/20 rounded-3xl rotate-1 blur-2xl" style={{ transform: "translateZ(-30px)" }} />
                   
                   <div className="relative rounded-2xl overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,86,77,0.5)] border border-white/30" style={{ transform: "translateZ(20px)" }}>
-                    <video 
+                    <LazyVideo aria-label="Video presentation"  
                       key={videoMap["Connecting People & AI"]}
                       src={videoMap["Connecting People & AI"]} 
                       autoPlay 
                       muted 
                       loop 
                       playsInline 
-                      preload="metadata"
+                      preload="none"
                       className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
                       onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
                     />
@@ -460,14 +462,14 @@ const Home = () => {
                     style={{ transformStyle: "preserve-3d" }}
                     className="relative rounded-3xl overflow-hidden bg-slate-900 shadow-[0_32px_64px_-16px_rgba(0,86,77,0.5)] border border-white/20 aspect-video z-10"
                   >
-                    <video 
+                    <LazyVideo aria-label="Video presentation"  
                       key={videoMap["Modernizing Manufacturing / Warehousing"]}
                       src={videoMap["Modernizing Manufacturing / Warehousing"]} 
                       autoPlay 
                       muted 
                       loop 
                       playsInline 
-                      preload="metadata"
+                      preload="none"
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 scale-105"
                       onError={() => console.error("Error loading video: Modernizing Manufacturing / Warehousing", videoMap["Modernizing Manufacturing / Warehousing"])}
                     />
@@ -547,14 +549,14 @@ const Home = () => {
                             </div>
                           </div>
                           <div className="relative h-64 lg:h-auto rounded-2xl overflow-hidden shadow-lg border border-slate-200 my-6 bg-slate-900">
-                            <video 
+                            <LazyVideo aria-label="Video presentation"  
                               key={videoMap[cat.videoKey]}
                               src={videoMap[cat.videoKey]} 
                               autoPlay 
                               muted 
                               loop 
                               playsInline 
-                              preload="metadata"
+                              preload="none"
                               className="w-full h-full object-cover"
                               onError={() => console.error(`Error loading video: ${cat.videoKey}`, videoMap[cat.videoKey])}
                             />

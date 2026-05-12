@@ -42,7 +42,7 @@ export const GlobalPodcastPlayer = () => {
                         <Headphones className="w-5 h-5" />
                         <span className="font-bold text-xs tracking-widest uppercase">Now Playing</span>
                     </div>
-                    <button onClick={handleClose} className="text-slate-400 hover:text-white transition-colors">
+                    <button onClick={handleClose} aria-label="Close podcast player" className="text-slate-400 hover:text-white transition-colors">
                         <X className="w-4 h-4" />
                     </button>
                 </div>

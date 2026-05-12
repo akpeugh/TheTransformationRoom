@@ -490,7 +490,7 @@ export default function ImpactSimulator() {
             className="fixed bottom-10 right-10 z-[100] cursor-grab active:cursor-grabbing group"
           >
             <div className={`relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)] ${isSimulating ? 'border-brand-secondary scale-105 shadow-[0_0_30px_rgba(0,242,255,0.4)]' : 'border-white/10 bubble-glow hover:border-white/30'}`}>
-              <video 
+              <video aria-label="Video presentation"  
                 ref={videoRef}
                 src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Simulation%20Intro.mp4"
                 autoPlay

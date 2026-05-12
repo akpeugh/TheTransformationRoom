@@ -257,7 +257,7 @@ export const ChatBot: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative transition-all duration-500 ${showIntroVideo ? 'scale-110 shadow-[0_0_15px_rgba(45,212,191,0.5)]' : ''}`}>
                   {showIntroVideo ? (
-                    <video
+                    <video aria-label="Video presentation" 
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                       autoPlay
                       muted
@@ -265,7 +265,7 @@ export const ChatBot: React.FC = () => {
                       className="w-full h-full object-cover scale-150"
                     />
                   ) : (
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                   )}
                 </div>
                 <div>
@@ -296,6 +296,7 @@ export const ChatBot: React.FC = () => {
                   onClick={() => setIsOpen(false)}
                   className="hover:bg-white/10 p-2 rounded-full transition-colors"
                   id="close-chat"
+                  aria-label="Close Chat"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -316,7 +317,7 @@ export const ChatBot: React.FC = () => {
                     exit={{ opacity: 0, scale: 0.8 }}
                     className="absolute top-20 right-4 w-28 h-36 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
                   >
-                    <video
+                    <video aria-label="Video presentation" 
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                       autoPlay
                       onLoadedMetadata={(e) => { e.currentTarget.volume = 0.1; }}
@@ -351,7 +352,7 @@ export const ChatBot: React.FC = () => {
                     }`}>
                       {msg.role === 'user' ? <User className="w-4 h-4" /> : 
                        msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
-                        <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                        <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                       )}
                     </div>
                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
@@ -385,7 +386,7 @@ export const ChatBot: React.FC = () => {
                 >
                   <div className="max-w-[85%] flex gap-3 flex-row">
                     <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative bg-slate-900 flex items-center justify-center border border-brand-primary/20">
-                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer" />
+                      <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                       <div className="absolute inset-0 bg-brand-secondary/20 animate-pulse" />
                     </div>
                     <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex flex-col gap-2">
@@ -512,7 +513,7 @@ export const ChatBot: React.FC = () => {
               {/* The Intelligence Pattern (Center) */}
               <div className="relative z-10 w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-900 border border-brand-primary/20">
                  <img 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
+                    src="/Nova_face.webp" 
                     alt="NOVA" 
                     className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     referrerPolicy="no-referrer"

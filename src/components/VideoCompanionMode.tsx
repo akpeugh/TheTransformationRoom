@@ -281,7 +281,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                  className="w-36 h-36 sm:w-48 sm:h-48 rounded-full bg-slate-800/80 border-2 border-brand-secondary/30 relative overflow-hidden group/avatar"
               >
                  {showNovaLoop ? (
-                    <video
+                    <video aria-label="Video presentation" 
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                       autoPlay
                       loop
@@ -290,7 +290,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                       className={`w-full h-full object-contain object-top transition-all duration-1000 ${isSpeaking ? 'scale-105' : 'scale-100 grayscale-[0.2]'}`}
                     />
                  ) : state === 'idle' || state === 'initializing' ? (
-                   <video
+                   <video aria-label="Video presentation" 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.15; }}
@@ -299,7 +299,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    />
                  ) : (
                    <img 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
+                    src="/Nova_face.webp" 
                     alt="NOVA" 
                     className={`w-full h-full object-contain object-top transition-all duration-1000 scale-100 ${isSpeaking ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
                     referrerPolicy="no-referrer"
@@ -387,7 +387,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                 </div>
 
                 <div className="flex-1 w-full max-w-4xl flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50 shadow-2xl">
-                   <video
+                   <video aria-label="Video presentation" 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.1; }}
@@ -444,7 +444,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                 </div>
 
                 <div className="flex-1 w-full max-w-4xl flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50 shadow-2xl">
-                   <video
+                   <video aria-label="Video presentation" 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Video%20Intro.mp4"
                     autoPlay
                     onLoadedMetadata={(e) => { e.currentTarget.volume = 0.05; }}
@@ -563,7 +563,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
 
                 <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden rounded-[2rem] border border-white/5 bg-slate-950/50">
                    {showNovaLoop ? (
-                     <video
+                     <video aria-label="Video presentation" 
                        src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
                        autoPlay
                        loop
@@ -671,7 +671,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <video 
+              <video aria-label="Video presentation"  
                 ref={videoRef} 
                 autoPlay 
                 muted 
@@ -849,6 +849,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
         <button 
           onClick={terminateSession}
           className="absolute top-6 right-6 w-12 h-12 bg-black/60 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/10 z-[110] md:hidden"
+          aria-label="Close Video Companion Mode"
         >
           <X className="w-6 h-6" />
         </button>

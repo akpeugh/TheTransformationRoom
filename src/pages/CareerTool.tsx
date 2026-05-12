@@ -371,7 +371,7 @@ const CareerTool = () => {
             className="fixed bottom-8 right-8 z-[100] cursor-grab active:cursor-grabbing group"
           >
             <div className="relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 border-white/10 bubble-glow hover:border-white/30 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-              <video 
+              <video aria-label="Video presentation"  
                 ref={videoRef}
                 src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Career%20Intro.mp4"
                 autoPlay
@@ -783,7 +783,7 @@ const CareerTool = () => {
             <motion.div key="sim-out" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl mx-auto py-12">
                <div className="flex items-center gap-8 mb-16">
                   <div className="w-24 h-24 rounded-3xl bg-slate-900 overflow-hidden shrink-0 border border-brand-secondary/30 shadow-2xl">
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" />
+                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover"  width="400" height="400" loading="lazy" />
                   </div>
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Path Simulation Success</span>
