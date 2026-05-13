@@ -12,7 +12,7 @@ interface SEOProps {
 const SEO: React.FC<SEOProps> = ({ 
   title, 
   description = "The Transformation Room specializes in aligning people, connecting systems, and driving results through professional operations and technology consulting.", 
-  image = "/TR_Logo.webp",
+  image = "https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png",
   url = "https://thetransformationroom.com",
   schema
 }) => {

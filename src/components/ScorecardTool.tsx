@@ -589,7 +589,7 @@ export const ScorecardTool = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 mb-2 px-2">
                     <div className="w-8 h-8 rounded-lg overflow-hidden border border-brand-secondary/30 bg-slate-800">
-                      <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">NOVA Strategy Analysis Ready</span>
                   </div>

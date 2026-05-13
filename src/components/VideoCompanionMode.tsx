@@ -299,7 +299,7 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
                    />
                  ) : (
                    <img 
-                    src="/Nova_face.webp" 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                     alt="NOVA" 
                     className={`w-full h-full object-contain object-top transition-all duration-1000 scale-100 ${isSpeaking ? 'scale-105 grayscale-0' : 'scale-100 grayscale-[0.2]'}`} 
                     referrerPolicy="no-referrer"

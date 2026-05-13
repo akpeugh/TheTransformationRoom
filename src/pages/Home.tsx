@@ -189,12 +189,14 @@ const Home = () => {
           <video aria-label="Video presentation"  
             key={videoMap["Hero/Header"]}
             src={videoMap["Hero/Header"]} 
+            crossOrigin="anonymous"
             autoPlay 
             muted 
             loop 
             playsInline 
             preload="auto"
-            poster="/TR_Logo.webp"
+            referrerPolicy="no-referrer"
+            poster="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png"
             className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
             onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           />

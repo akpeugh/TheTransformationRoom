@@ -265,7 +265,7 @@ export const ChatBot: React.FC = () => {
                       className="w-full h-full object-cover scale-150"
                     />
                   ) : (
-                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                   )}
                 </div>
                 <div>
@@ -352,7 +352,7 @@ export const ChatBot: React.FC = () => {
                     }`}>
                       {msg.role === 'user' ? <User className="w-4 h-4" /> : 
                        msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
-                        <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                        <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                       )}
                     </div>
                     <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
@@ -386,7 +386,7 @@ export const ChatBot: React.FC = () => {
                 >
                   <div className="max-w-[85%] flex gap-3 flex-row">
                     <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative bg-slate-900 flex items-center justify-center border border-brand-primary/20">
-                      <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                       <div className="absolute inset-0 bg-brand-secondary/20 animate-pulse" />
                     </div>
                     <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex flex-col gap-2">
@@ -513,7 +513,7 @@ export const ChatBot: React.FC = () => {
               {/* The Intelligence Pattern (Center) */}
               <div className="relative z-10 w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-slate-900 border border-brand-primary/20">
                  <img 
-                    src="/Nova_face.webp" 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                     alt="NOVA" 
                     className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     referrerPolicy="no-referrer"

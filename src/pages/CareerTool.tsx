@@ -783,7 +783,7 @@ const CareerTool = () => {
             <motion.div key="sim-out" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl mx-auto py-12">
                <div className="flex items-center gap-8 mb-16">
                   <div className="w-24 h-24 rounded-3xl bg-slate-900 overflow-hidden shrink-0 border border-brand-secondary/30 shadow-2xl">
-                    <img src="/Nova_face.webp" alt="NOVA" className="w-full h-full object-cover"  width="400" height="400" loading="lazy" />
+                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover"  width="400" height="400" loading="lazy" />
                   </div>
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Path Simulation Success</span>

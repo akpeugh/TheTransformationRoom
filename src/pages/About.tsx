@@ -168,36 +168,77 @@ const About = () => {
              </p>
           </div>
           
-          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-12">
-            <motion.div 
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="w-full md:w-1/3"
-            >
-              <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl">
-                <img 
-                  src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" 
-                  alt="Katie Peugh" 
-                  className="w-full h-full object-cover" 
-                  referrerPolicy="no-referrer" 
-                />
-              </div>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="w-full md:w-2/3 space-y-6 text-left"
-            >
-              <h3 className="text-3xl font-bold text-slate-900">Katie Peugh</h3>
-              <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Founder & Lead Strategist</p>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                I've supported over 100 retail stores and distribution centers through complex operational shifts. My expertise centers on driving HR transformation, deploying cutting-edge employee tools, and managing end-to-end automation projects.
-              </p>
-              <p className="text-slate-600 text-lg leading-relaxed">
-                From auxiliary systems and mobile tools to navigating acquisitions, integrations, WMS conversions, and YMS implementations, I focus on aligning people, processes, and technology for scalable success.
-              </p>
-            </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            {/* Katie Peugh */}
+            <div className="flex flex-col items-center md:items-start gap-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                className="w-full"
+              >
+                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                  <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" 
+                    alt="Katie Peugh" 
+                    className="w-full h-full object-cover" 
+                    width="400" height="500" loading="lazy"
+                    referrerPolicy="no-referrer" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-6 text-center md:text-left"
+              >
+                <h3 className="text-3xl font-bold text-slate-900">Katie Peugh</h3>
+                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Operations & Talent Strategy</p>
+                <p className="text-slate-600 text-lg leading-relaxed italic">
+                  "I focus on aligning people, processes, and technology for scalable success."
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  With over 10 years across supply chain and warehouse environments, Katie has supported over 100 retail stores and distribution centers through complex operational shifts. Her expertise centers on driving HR transformation and managing end-to-end automation projects.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Fawn Cook */}
+            <div className="flex flex-col items-center md:items-start gap-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="w-full"
+              >
+                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                  <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Fawn.JPG" 
+                    alt="Fawn Cook" 
+                    className="w-full h-full object-cover" 
+                    width="400" height="500" loading="lazy"
+                    referrerPolicy="no-referrer" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-6 text-center md:text-left"
+              >
+                <h3 className="text-3xl font-bold text-slate-900">Fawn Cook</h3>
+                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Business Insights & Organizational Design</p>
+                <p className="text-slate-600 text-lg leading-relaxed italic">
+                  "Building high-performing teams and driving transformation at scale."
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Fawn brings a proven track record of helping organizations scale and navigate growth challenges. Her focus on business insights ensures that every transformation is backed by data and designed for long-term health.
+                </p>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>

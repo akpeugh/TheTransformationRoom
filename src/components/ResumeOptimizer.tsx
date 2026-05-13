@@ -1070,11 +1070,16 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
 
                               <div className="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
                                 <div className="flex items-center gap-4">
-                                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-secondary shadow-lg">
-                                    <img src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" className="w-full h-full object-cover" />
+                                  <div className="flex -space-x-4">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-secondary shadow-lg relative z-10">
+                                      <img src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" alt="Katie Peugh" className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-secondary shadow-lg">
+                                      <img src="https://storage.googleapis.com/thetransformationroomassets/Fawn.JPG" alt="Fawn Cook" className="w-full h-full object-cover" />
+                                    </div>
                                   </div>
                                   <div>
-                                    <p className="text-sm font-bold">Ready for a deeper dive?</p>
+                                    <p className="text-sm font-bold">Ready for a deeper dive with Katie & Fawn?</p>
                                     <p className="text-xs text-slate-400">Schedule a sync or submit your details.</p>
                                   </div>
                                 </div>

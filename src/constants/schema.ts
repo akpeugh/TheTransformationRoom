@@ -3,7 +3,7 @@ export const ORGANIZATION_SCHEMA = {
   "@type": "ProfessionalService",
   "name": "The Transformation Room",
   "url": "https://thetransformationroom.com",
-  "logo": "/TR_Logo.webp",
+  "logo": "https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png",
   "description": "Aligning people, connecting systems, and driving results through professional operations and technology consulting.",
   "address": {
     "@type": "PostalAddress",
