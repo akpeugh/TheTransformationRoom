@@ -168,7 +168,7 @@ const About = () => {
              </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
             {/* Katie Peugh */}
             <div className="flex flex-col items-center md:items-start gap-8">
               <motion.div 
@@ -236,6 +236,42 @@ const About = () => {
                 </p>
                 <p className="text-slate-600 leading-relaxed">
                   Fawn brings a proven track record of helping organizations scale and navigate growth challenges. Her focus on business insights ensures that every transformation is backed by data and designed for long-term health.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Valeria Mazo */}
+            <div className="flex flex-col items-center md:items-start gap-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="w-full"
+              >
+                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                  <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Valeria%20Mazo.jpg" 
+                    alt="Valeria Mazo" 
+                    className="w-full h-full object-cover" 
+                    width="400" height="500" loading="lazy"
+                    referrerPolicy="no-referrer" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-6 text-center md:text-left"
+              >
+                <h3 className="text-3xl font-bold text-slate-900">Valeria Mazo</h3>
+                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Finance & ROI Strategy</p>
+                <p className="text-slate-600 text-lg leading-relaxed italic">
+                  "Expertise in finance, technology solutions, and marketing alignment with a focus on measurable outcomes."
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Valeria drives the financial and strategic alignment of our technology solutions, ensuring that every project delivers clear, measurable return on investment for our clients.
                 </p>
               </motion.div>
             </div>
