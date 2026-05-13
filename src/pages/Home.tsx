@@ -188,8 +188,6 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900 z-10" />
           <video aria-label="Video presentation"  
             key={videoMap["Hero/Header"]}
-            src={videoMap["Hero/Header"]} 
-            crossOrigin="anonymous"
             autoPlay 
             muted 
             loop 
@@ -198,8 +196,10 @@ const Home = () => {
             referrerPolicy="no-referrer"
             poster="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png"
             className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
-            onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
-          />
+            onError={(e) => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"], e)}
+          >
+            <source src={videoMap["Hero/Header"]} type="video/mp4" />
+          </video>
         </div>
         
         <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center px-4 pt-20">

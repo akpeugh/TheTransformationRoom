@@ -49,7 +49,7 @@ export class NovaVideoProvider {
       // Initialize Gemini Brain
       const genAI = new GoogleGenAI({ apiKey: config.apiKey });
       this.geminiSession = await genAI.live.connect({
-        model: "gemini-2.0-flash-exp",
+        model: "models/gemini-2.0-flash",
         callbacks: {
           onopen: () => {
             console.log("[NovaProvider] Brain connection opened");
