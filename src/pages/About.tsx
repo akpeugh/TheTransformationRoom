@@ -44,7 +44,7 @@ const About = () => {
     <div>
       <SEO 
         title="About Us"
-        description="Meet the operators behind The Transformation Room. We specialize in industrial systems, cognitive strategy, and workforce transformation."
+        description="Meet the practitioners behind The Transformation Room. We specialize in industrial systems, cognitive strategy, and workforce transformation."
       />
       <section className="bg-slate-50 pt-40 pb-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />
@@ -86,7 +86,7 @@ const About = () => {
               <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline decoration-brand-primary underline-offset-4">OUR PHILOSOPHY</span>
               <h1 className="text-5xl font-bold mb-8 leading-tight text-slate-900">Inside Operations, <br /><span className="text-brand-primary">Not Outside.</span></h1>
               <p className="text-xl text-slate-600 mb-10 leading-relaxed">
-                The Transformation Room was built from years of working inside high-volume operations, helping teams bridge the gap between complex strategy and practical execution. We aren't traditional consultants. We're <span className="text-slate-900 font-bold">operators</span> who have lived through the transformations we lead.
+                The Transformation Room was built from years of working inside high-volume operations, helping teams bridge the gap between complex strategy and practical execution. We aren't traditional consultants. We're <span className="text-slate-900 font-bold">practitioners</span> who have lived through the transformations we lead.
               </p>
               
               <div className="grid grid-cols-3 gap-6 mb-10">
@@ -168,7 +168,7 @@ const About = () => {
              </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
             {/* Katie Peugh */}
             <div className="flex flex-col items-center md:items-start gap-8">
               <motion.div 
@@ -240,12 +240,48 @@ const About = () => {
               </motion.div>
             </div>
 
-            {/* Valeria Mazo */}
+            {/* Emily Zraunig */}
             <div className="flex flex-col items-center md:items-start gap-8">
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
+                className="w-full"
+              >
+                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                  <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Emily%20Z.jpg" 
+                    alt="Emily Zraunig" 
+                    className="w-full h-full object-cover" 
+                    width="400" height="500" loading="lazy"
+                    referrerPolicy="no-referrer" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-6 text-center md:text-left"
+              >
+                <h3 className="text-3xl font-bold text-slate-900">Emily Zraunig</h3>
+                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Solution Design & Leadership</p>
+                <p className="text-slate-600 text-lg leading-relaxed italic">
+                  "Developing practical solutions and creating clarity through challenge assessment."
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Emily has worked closely with organizational leaders to assess operational challenges, design practical and sustainable technology solutions, and create strategic clarity for complex projects.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Valeria Mazo */}
+            <div className="flex flex-col items-center md:items-start gap-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
                 className="w-full"
               >
                 <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
@@ -262,16 +298,52 @@ const About = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 0.7 }}
                 className="space-y-6 text-center md:text-left"
               >
                 <h3 className="text-3xl font-bold text-slate-900">Valeria Mazo</h3>
                 <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Finance & ROI Strategy</p>
                 <p className="text-slate-600 text-lg leading-relaxed italic">
-                  "Expertise in finance, technology solutions, and marketing alignment with a focus on measurable outcomes."
+                  "Strategic alignment of technology solutions with measurable financial outcomes."
                 </p>
                 <p className="text-slate-600 leading-relaxed">
-                  Valeria drives the financial and strategic alignment of our technology solutions, ensuring that every project delivers clear, measurable return on investment for our clients.
+                  Valeria drives the strategic alignment of technology solutions, ensuring that every project delivers clear, measurable return on investment and financial health for our clients.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Katie Albares */}
+            <div className="flex flex-col items-center md:items-start gap-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="w-full"
+              >
+                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                  <img 
+                    src="https://storage.googleapis.com/thetransformationroomassets/Katie%20Albares.jpg" 
+                    alt="Katie Albares" 
+                    className="w-full h-full object-cover" 
+                    width="400" height="500" loading="lazy"
+                    referrerPolicy="no-referrer" 
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                className="space-y-6 text-center md:text-left"
+              >
+                <h3 className="text-3xl font-bold text-slate-900">Katie Albares</h3>
+                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">Operations & Human Performance</p>
+                <p className="text-slate-600 text-lg leading-relaxed italic">
+                  "Specializing in operational excellence and bridging communication gaps between leadership and field operations."
+                </p>
+                <p className="text-slate-600 leading-relaxed">
+                  Katie specializes in creating alignment between strategic goals and frontline execution. Her experience focuses on operational process improvement and ensuring that teams have the clarity and support needed to thrive during transformation.
                 </p>
               </motion.div>
             </div>

@@ -201,30 +201,52 @@ const CareerTool = () => {
     try {
       let text = "";
       if (file.type === "application/pdf") {
+        console.log("[CareerTool] Parsing PDF...");
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument(new Uint8Array(arrayBuffer)).promise;
+        const pdf = await pdfjsLib.getDocument({
+          data: new Uint8Array(arrayBuffer),
+          useWorkerFetch: true,
+        }).promise;
+        
+        console.log(`[CareerTool] PDF loaded with ${pdf.numPages} pages`);
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          const pageText = content.items.map((item: any) => item.str).join(" ");
+          const pageText = content.items
+            .map((item: any) => item.str || "")
+            .join(" ");
           text += pageText + "\n";
         }
-      } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.endsWith(".docx")) {
+      } else if (
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || 
+        file.name.toLowerCase().endsWith(".docx")
+      ) {
+        console.log("[CareerTool] Parsing DOCX...");
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
         text = result.value;
-      } else if (file.type === "text/plain") {
+        if (result.messages.length > 0) {
+          console.warn("[CareerTool] Mammoth messages:", result.messages);
+        }
+      } else if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
+        console.log("[CareerTool] Parsing TXT...");
         text = await file.text();
       } else {
-        alert("Unsupported file type. Please upload a PDF, DOCX, or TXT file.");
+        const errorMsg = "Unsupported file type. Please upload a PDF, DOCX, or TXT file.";
+        console.error(`[CareerTool] ${errorMsg} Got: ${file.type} (${file.name})`);
+        alert(errorMsg);
       }
 
-      if (text) {
-        setFormData(prev => ({ ...prev, rawContent: text }));
+      if (text.trim()) {
+        console.log(`[CareerTool] Successfully extracted ${text.length} characters`);
+        setFormData(prev => ({ ...prev, rawContent: text.trim() }));
+      } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".docx")) {
+        console.warn("[CareerTool] No text extracted from file. Possible scan/image-based document.");
+        alert("We couldn't extract text from this document. It might be a scanned image. Please try pasting the text manually.");
       }
     } catch (error) {
-      console.error("Error parsing file:", error);
-      alert("Error parsing file. Please try pasting the text instead.");
+      console.error("[CareerTool] Error parsing file:", error);
+      alert(`Error parsing file: ${error instanceof Error ? error.message : "Unknown error"}. Please try pasting the text instead.`);
     } finally {
       setParsingFile(false);
       if (fileInputRef.current) {
@@ -238,7 +260,7 @@ const CareerTool = () => {
     setStep("behavioral-generating");
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
+        model: "gemini-1.5-flash",
         contents: `You are NOVA, an Elite Interstellar Intelligence and strategic guide at The Transformation Room.
         
         USER PROFILE:
@@ -276,7 +298,8 @@ const CareerTool = () => {
       });
 
       let text = response.text || "{}";
-      text = text.replace(/^```json/g, "").replace(/```$/g, "").trim();
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) text = jsonMatch[0];
       const result = JSON.parse(text);
       setParsedResult(result);
       setOptimizedContent(`## 🧠 Your Behavioral Profile\n${result.overview}\n\n## 💼 Recommended Roles\n${result.roles}\n\n## 📝 Actionable Next Steps\n${result.nextSteps}`);
@@ -295,7 +318,7 @@ const CareerTool = () => {
     setGenerationProgress(0);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
+        model: "gemini-1.5-flash",
         contents: `You are NOVA, providing a Career Path Simulation.
         Current Role: ${formData.currentRole}
         Desired Role: ${formData.targetRole}
@@ -315,7 +338,8 @@ const CareerTool = () => {
       });
 
       let text = response.text || "{}";
-      text = text.replace(/^```json/g, "").replace(/```$/g, "").trim();
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) text = jsonMatch[0];
       const result = JSON.parse(text);
       setParsedResult(result);
       setStep("simulator-out");
@@ -331,15 +355,16 @@ const CareerTool = () => {
     setLoading(true);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
+        model: "gemini-1.5-flash",
         contents: `You are an expert Executive Resume Writer.
         Current Role: ${formData.currentRole}
         Target Role: ${formData.targetRole}
         Gap: ${formData.biggestGap}
         Content: ${formData.rawContent}
         
-        TASK: Optimize the professional summary for "Operational Transformation".
-        Provide 2 format options (A and B).`,
+        TASK: Optimize the professional summary for "Operational Transformation" and "Systems Thinking". 
+        Provide 2 format options (A: Impact-Focused, B: Visionary & Strategic).
+        Include 3 specific rewrite recommendations.`,
       });
 
       setOptimizedContent(response.text || "Optimization complete.");

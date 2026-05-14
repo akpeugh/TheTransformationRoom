@@ -153,30 +153,52 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     try {
       let text = "";
       if (file.type === "application/pdf") {
+        console.log("[ResumeOptimizer] Parsing PDF...");
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument(new Uint8Array(arrayBuffer)).promise;
+        const pdf = await pdfjsLib.getDocument({
+          data: new Uint8Array(arrayBuffer),
+          useWorkerFetch: true,
+        }).promise;
+        
+        console.log(`[ResumeOptimizer] PDF loaded with ${pdf.numPages} pages`);
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          const pageText = content.items.map((item: any) => item.str).join(" ");
+          const pageText = content.items
+            .map((item: any) => item.str || "")
+            .join(" ");
           text += pageText + "\n";
         }
-      } else if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.endsWith(".docx")) {
+      } else if (
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || 
+        file.name.toLowerCase().endsWith(".docx")
+      ) {
+        console.log("[ResumeOptimizer] Parsing DOCX...");
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
         text = result.value;
-      } else if (file.type === "text/plain") {
+        if (result.messages.length > 0) {
+          console.warn("[ResumeOptimizer] Mammoth messages:", result.messages);
+        }
+      } else if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
+        console.log("[ResumeOptimizer] Parsing TXT...");
         text = await file.text();
       } else {
-        alert("Unsupported file type. Please upload a PDF, DOCX, or TXT file.");
+        const errorMsg = "Unsupported file type. Please upload a PDF, DOCX, or TXT file.";
+        console.error(`[ResumeOptimizer] ${errorMsg} Got: ${file.type} (${file.name})`);
+        alert(errorMsg);
       }
 
-      if (text) {
-        setFormData(prev => ({ ...prev, rawContent: text }));
+      if (text.trim()) {
+        console.log(`[ResumeOptimizer] Successfully extracted ${text.length} characters`);
+        setFormData(prev => ({ ...prev, rawContent: text.trim() }));
+      } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".docx")) {
+        console.warn("[ResumeOptimizer] No text extracted from file. Possible scan/image-based document.");
+        alert("We couldn't extract text from this document. It might be a scanned image. Please try pasting the text manually.");
       }
     } catch (error) {
-      console.error("Error parsing file:", error);
-      alert("Error parsing file. Please try pasting the text instead.");
+      console.error("[ResumeOptimizer] Error parsing file:", error);
+      alert(`Error parsing file: ${error instanceof Error ? error.message : "Unknown error"}. Please try pasting the text instead.`);
     } finally {
       setParsingFile(false);
       if (fileInputRef.current) {
@@ -189,7 +211,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     setLoading(true);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
+        model: "gemini-1.5-flash",
         contents: `You are NOVA, an Elite Interstellar Intelligence and strategic guide at The Transformation Room.
         
         YOUR ROLES:
@@ -251,7 +273,12 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
       });
 
       let text = response.text || "{}";
-      text = text.replace(/^```json/g, "").replace(/```$/g, "").trim();
+      // Robust JSON extraction
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+         text = jsonMatch[0];
+      }
+      
       const result = JSON.parse(text);
 
       setParsedResult(result);
@@ -270,7 +297,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     setLoading(true);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-flash-latest",
+        model: "gemini-1.5-flash",
         contents: `You are an expert Executive Resume Writer at "The Transformation Room", specializing in Supply Chain, Logistics, and High-Tech Operations. 
         Your persona is deeply empathetic to operational stress and burnout, yet you are a technological visionary. You help professionals frame their experience not just as "doing the work", but as scaling systems, leading people, and driving tech-forward transformation.
         

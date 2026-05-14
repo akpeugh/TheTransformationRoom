@@ -32,6 +32,7 @@ import { DISCOVERY_CALL_1HR } from "../constants";
 import SEO from "../components/SEO";
 import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from "../constants/schema";
 import { LazyVideo } from "../components/LazyVideo";
+import { LeadershipSection } from "../components/LeadershipSection";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -193,7 +194,6 @@ const Home = () => {
             loop 
             playsInline 
             preload="auto"
-            referrerPolicy="no-referrer"
             poster="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png"
             className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
             onError={(e) => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"], e)}
@@ -668,6 +668,7 @@ const Home = () => {
         </div>
       </section>
 
+      <LeadershipSection />
 
     </div>
   );

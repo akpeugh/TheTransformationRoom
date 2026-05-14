@@ -10,7 +10,14 @@ export const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
         <div className="space-y-8">
           <div className="flex items-center gap-2">
-            <img src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" alt="TTR" className="h-10 w-auto brightness-0 invert"  width="160" height="40" loading="lazy" />
+            <img 
+              src="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png" 
+              alt="TTR" 
+              className="h-10 w-auto brightness-0 invert"  
+              width="160" height="40" 
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
             <span className="text-xl font-black tracking-tighter uppercase">Transformation Room</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed font-light">

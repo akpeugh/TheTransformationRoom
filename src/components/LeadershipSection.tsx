@@ -26,7 +26,13 @@ export const LeadershipSection = () => {
       name: "Valeria Mazo",
       role: "Finance & ROI Strategy",
       image: "https://storage.googleapis.com/thetransformationroomassets/Valeria%20Mazo.jpg",
-      desc: "Expertise in finance, technology solutions, and marketing alignment with a focus on measurable outcomes."
+      desc: "Valeria drives the strategic alignment of technology solutions, ensuring that every project delivers clear, measurable return on investment and financial health for our clients."
+    },
+    {
+      name: "Katie Albares",
+      role: "Operations & Human Performance",
+      image: "https://storage.googleapis.com/thetransformationroomassets/Katie%20Albares.jpg",
+      desc: "Specializes in operational excellence and bridging communication gaps between leadership and field operations."
     }
   ];
 
