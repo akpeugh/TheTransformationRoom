@@ -32,7 +32,6 @@ import { DISCOVERY_CALL_1HR } from "../constants";
 import SEO from "../components/SEO";
 import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from "../constants/schema";
 import { LazyVideo } from "../components/LazyVideo";
-import { LeadershipSection } from "../components/LeadershipSection";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -667,8 +666,6 @@ const Home = () => {
           </motion.div>
         </div>
       </section>
-
-      <LeadershipSection />
 
     </div>
   );
