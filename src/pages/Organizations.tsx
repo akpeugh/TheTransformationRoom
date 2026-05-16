@@ -243,26 +243,38 @@ const Organizations = () => {
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-full mb-8 shadow-sm">
                   <div className="w-2 h-2 rounded-full bg-brand-secondary animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-200">Featured Podcast Episode</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-200">{t("org.podcast.featured")}</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-                  Escape IT Bureaucracy<br className="hidden md:block"/>
-                  <span className="text-brand-secondary">Reclaim Velocity.</span>
+                  {t("org.podcast.title1")}<br className="hidden md:block"/>
+                  <span className="text-brand-secondary">{t("org.podcast.title2")}</span>
                 </h2>
                 <div className="w-20 h-1.5 bg-brand-secondary mb-8 rounded-full" />
                 <p className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
-                  Listen to our latest episode: <span className="text-white font-bold">"{featuredPodcast.title}"</span>. We break down the cognitive and structural bottlenecks that turn IT departments into "No" machines and how to transform them into engines of high-velocity innovation.
+                  <Markdown components={{
+                     span({children}) {
+                        return <span className="text-white font-bold">{children}</span>;
+                     }
+                  }}>
+                    {t("org.podcast.desc1").replace("{title}", featuredPodcast.title).replace(/"(.*?)"/g, "<span>\"$1\"</span>")}
+                  </Markdown>
                 </p>
                 <p className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
-                  Discover how we integrate <span className="font-bold text-white">AI strategy, industrial hardware, and workforce experience</span> into a single, high-output engine powered by our Four Pillars of Transformation:
+                  <Markdown components={{
+                     strong({children}) {
+                        return <span className="font-bold text-white">{children}</span>;
+                     }
+                  }}>
+                    {t("org.podcast.desc2")}
+                  </Markdown>
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                   {[
-                    "Optimized Process",
-                    "Tech Strategy",
-                    "Real-Time Insights",
-                    "Workforce Alignment"
+                    t("home.pillars.1.title"),
+                    t("home.pillars.2.title"),
+                    t("home.pillars.3.title"),
+                    t("home.pillars.4.title")
                   ].map((pillar, idx) => (
                     <div key={idx} className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-secondary/20 flex items-center justify-center shrink-0">
@@ -274,7 +286,7 @@ const Organizations = () => {
                 </div>
 
                 <Link to="/contact" className="inline-flex items-center gap-3 bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold hover:bg-white transition-all shadow-xl hover:shadow-brand-secondary/30 active:scale-95 group">
-                  Book a Discovery Call
+                  {t("org.podcast.book")}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
@@ -290,7 +302,7 @@ const Organizations = () => {
                 {/* Audio Player UI */}
                 <div className="absolute -top-5 -right-5 md:-top-8 md:-right-8 bg-brand-secondary text-brand-dark px-6 py-3 rounded-2xl font-bold text-sm shadow-2xl transform rotate-3 flex items-center gap-2 border border-white/20">
                   <Sparkles className="w-4 h-4" />
-                  <span>Our Podcast</span>
+                  <span>{t("org.podcast.badge")}</span>
                 </div>
                 
                 <div className="mb-10 text-center">
@@ -325,19 +337,19 @@ const Organizations = () => {
                       className="w-full bg-brand-secondary text-brand-dark py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-white transition-colors"
                     >
                       <Play className="w-5 h-5 fill-current" />
-                      Listen Now
+                      {t("org.podcast.listen")}
                     </button>
                   </div>
                 </div>
                 
                 <div className="mt-10 grid grid-cols-2 gap-4 text-center">
                    <div className="bg-slate-800/50 rounded-2xl p-5 border border-white/5 hover:bg-slate-800 transition-colors">
-                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">Expert</span>
-                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Discussion</span>
+                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">{t("org.podcast.tag1")}</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{t("org.podcast.tag2")}</span>
                    </div>
                    <div className="bg-slate-800/50 rounded-2xl p-5 border border-white/5 hover:bg-slate-800 transition-colors">
-                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">Systems</span>
-                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Focus</span>
+                      <span className="block text-white font-bold text-xl md:text-2xl mb-1">{t("org.podcast.tag3")}</span>
+                      <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{t("org.podcast.tag4")}</span>
                    </div>
                 </div>
               </motion.div>

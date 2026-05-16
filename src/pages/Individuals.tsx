@@ -447,22 +447,22 @@ const stageData = [
                 <div className="lg:col-span-6 relative group">
                    <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/20 to-brand-primary/20 blur-[60px] rounded-full scale-90 z-0 animate-pulse" />
                    
-                   <div className="bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl relative z-10 p-1">
+                    <div className="bg-slate-900 rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl relative z-10 p-1">
                       <div className="bg-slate-800/80 p-8 rounded-[2.8rem]">
                          <div className="flex items-center gap-6 mb-12">
                             <div className="w-16 h-16 rounded-2xl bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/30">
                                <Bot className="w-8 h-8 text-brand-secondary" />
                             </div>
                             <div>
-                               <p className="text-white font-bold text-xl tracking-tight">NOVA Intelligence Active</p>
-                               <span className="text-[10px] text-brand-secondary font-black uppercase tracking-[0.2em]">Synchronizing data layers...</span>
+                               <p className="text-white font-bold text-xl tracking-tight">{t("ind.tools.novaActive")}</p>
+                               <span className="text-[10px] text-brand-secondary font-black uppercase tracking-[0.2em]">{t("ind.tools.syncing")}</span>
                             </div>
                          </div>
                          
                          <div className="space-y-4">
                             {[
-                              { label: "Simulator", val: "Operational Flow Mapping", color: "bg-brand-secondary/20 text-brand-secondary" },
-                              { label: "Optimizer", val: "Narrative Authority Shift", color: "bg-brand-primary/20 text-brand-primary" }
+                              { label: t("ind.tools.simulator"), val: t("ind.tools.flowMapping"), color: "bg-brand-secondary/20 text-brand-secondary" },
+                              { label: t("ind.tools.optimizer"), val: t("ind.tools.narrative"), color: "bg-brand-primary/20 text-brand-primary" }
                             ].map((item, i) => (
                               <div key={i} className="flex justify-between items-center bg-white/5 border border-white/5 p-6 rounded-2xl hover:bg-white/10 transition-colors">
                                  <div>

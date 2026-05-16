@@ -79,7 +79,12 @@ const QUESTIONS: Question[] = [
   }
 ];
 
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
+
 export const ScorecardTool = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const navigate = useNavigate();
   const [step, setStep] = useState<"intro" | "questions" | "calculating" | "results">("intro");
   const [currentQ, setCurrentQ] = useState(0);
@@ -254,17 +259,17 @@ export const ScorecardTool = () => {
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full mb-6">
                   <Sparkles className="w-3 h-3 text-brand-primary" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Powered by NOVA Intelligence</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{t("ind.tools.novaActive") || "Powered by NOVA Intelligence"}</span>
                 </div>
-                <h3 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">Your Transformation Scorecard</h3>
+                <h3 className="text-4xl md:text-5xl font-bold text-white mb-8 tracking-tight">{t("org.scorecard.title")}</h3>
                 <p className="text-xl text-slate-400 mb-10 leading-relaxed font-light">
-                  NOVA will analyze your operational architecture across three core pillars to reveal your specific maturity baseline and identify hidden gaps.
+                  {t("org.scorecard.desc")}
                 </p>
                 <div className="space-y-8">
                   {[
-                    { label: "Hardware & Automation", icon: <Factory className="w-5 h-5" />, score: 65 },
-                    { label: "Data & AI Readiness", icon: <Database className="w-5 h-5" />, score: 42 },
-                    { label: "Workforce Digital Experience", icon: <Users className="w-5 h-5" />, score: 28 },
+                    { label: t("org.scorecard.hw"), icon: <Factory className="w-5 h-5" />, score: 65 },
+                    { label: t("org.scorecard.data"), icon: <Database className="w-5 h-5" />, score: 42 },
+                    { label: t("org.scorecard.wf"), icon: <Users className="w-5 h-5" />, score: 28 },
                   ].map((item, i) => (
                     <motion.div 
                       key={i} 
@@ -299,10 +304,10 @@ export const ScorecardTool = () => {
 
               <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 md:p-12 text-center group hover:border-brand-secondary/50 transition-colors duration-500">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold uppercase tracking-widest mb-8 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                  <Sparkles className="w-4 h-4" /> Personalized Benchmark
+                  <Sparkles className="w-4 h-4" /> {t("org.scorecard.badge") || "Personalized Benchmark"}
                 </div>
-                <h4 className="text-2xl font-bold text-white mb-6">Ready for Strategic Discovery?</h4>
-                <p className="text-slate-400 mb-10">Engage NOVA's diagnostic engine to locate your fastest path to ROI and identify hidden operational gaps.</p>
+                <h4 className="text-2xl font-bold text-white mb-6">{t("org.scorecard.cta1")}</h4>
+                <p className="text-slate-400 mb-10">{t("org.scorecard.cta2")}</p>
                 <motion.button 
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.98 }}
@@ -313,7 +318,7 @@ export const ScorecardTool = () => {
                   className="group relative w-full bg-gradient-to-r from-brand-secondary via-emerald-400 to-brand-secondary bg-[length:200%_auto] hover:bg-[center_right_1rem] text-brand-dark px-10 py-5 rounded-2xl font-bold text-lg transition-all duration-500 shadow-[0_0_20px_rgba(20,184,166,0.2)] hover:shadow-[0_0_40px_rgba(20,184,166,0.6)] flex items-center justify-center gap-3 mx-auto overflow-hidden outline outline-2 outline-offset-2 outline-transparent hover:outline-brand-secondary/50 hover:animate-pulse"
                 >
                   <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                  <span className="relative z-10 transition-transform duration-300 group-hover:scale-105 inline-block">Take Interactive Diagnostic</span>
+                  <span className="relative z-10 transition-transform duration-300 group-hover:scale-105 inline-block">{t("org.scorecard.btn1")}</span>
                   <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
                 
@@ -328,9 +333,9 @@ export const ScorecardTool = () => {
                   >
                     <div className="absolute inset-0 bg-brand-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <Bot className="w-5 h-5 text-brand-secondary relative z-10" /> 
-                    <span className="relative z-10">Consult with NOVA</span>
+                    <span className="relative z-10">{t("org.scorecard.btn2")}</span>
                   </motion.button>
-                  <p className="mt-6 text-xs text-slate-500 italic">"Technology is the bridge, but strategy is the blueprint."</p>
+                  <p className="mt-6 text-xs text-slate-500 italic">{t("org.scorecard.quote")}</p>
                 </div>
               </div>
             </motion.div>

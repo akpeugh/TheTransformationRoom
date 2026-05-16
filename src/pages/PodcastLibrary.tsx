@@ -161,25 +161,25 @@ const PodcastLibrary = () => {
                 <div>
                   <div className="flex items-center gap-4 mb-6">
                     <span className="bg-brand-secondary text-brand-dark px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                      Featured Episode
+                      {t("pod.badge.featured")}
                     </span>
                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
                       <Clock className="w-4 h-4" />
-                      Digital Strategy
+                      {t("pod.tag.digital")}
                     </div>
                   </div>
                   <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                    {podcast.title}
+                    {t(`pod.data.${podcast.id}.title`) || podcast.title}
                   </h2>
                   <p className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
-                    {podcast.description}
+                    {t(`pod.data.${podcast.id}.desc`) || podcast.description}
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <button className="bg-brand-secondary text-brand-dark px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-white transition-all shadow-xl shadow-brand-secondary/20"
                       onClick={() => playPodcast(podcast)}
                     >
                       <Play className="w-5 h-5 fill-current" />
-                      Listen Now
+                      {t("pod.listen")}
                     </button>
                     <button 
                       onClick={() => handleShare(podcast)}
@@ -187,13 +187,13 @@ const PodcastLibrary = () => {
                       title="Share Episode"
                     >
                       <Share2 className="w-5 h-5" />
-                      Share
+                      {t("pod.share")}
                     </button>
                     <button 
                       onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: 'organization', prompt: `Could you provide a detailed summary or transcript for the podcast episode "${podcast.title}"?` } }))}
                       className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl font-bold hover:bg-white/10 transition-all"
                     >
-                      Transcript
+                      {t("pod.transcript")}
                     </button>
                   </div>
                 </div>
@@ -206,10 +206,10 @@ const PodcastLibrary = () => {
       {/* Library Grid */}
       <section className="max-w-7xl mx-auto px-4 pb-24">
         <div className="flex items-center justify-between mb-12">
-          <h3 className="text-3xl font-bold text-white tracking-tight">Full Library</h3>
+          <h3 className="text-3xl font-bold text-white tracking-tight">{t("pod.library.title")}</h3>
           <div className="w-1/2 h-px bg-slate-800 hidden md:block" />
           <div className="text-slate-400 text-sm font-bold uppercase tracking-widest">
-            {PODCASTS.length} Episodes
+            {PODCASTS.length} {t("pod.episodes")}
           </div>
         </div>
 
@@ -249,13 +249,13 @@ const PodcastLibrary = () => {
               </div>
 
               <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary mb-3 block">
-                {podcast.type || "Operational Intelligence"}
+                {t(`pod.data.${podcast.id}.type`) || podcast.type || "Operational Intelligence"}
               </span>
               <h4 className="text-xl font-bold text-white mb-4 group-hover:text-brand-secondary transition-colors">
-                {podcast.title}
+                {t(`pod.data.${podcast.id}.title`) || podcast.title}
               </h4>
               <p className="text-sm text-slate-400 leading-relaxed font-light mb-8 flex-grow">
-                {podcast.description}
+                {t(`pod.data.${podcast.id}.desc`) || podcast.description}
               </p>
 
               <button 
@@ -263,7 +263,7 @@ const PodcastLibrary = () => {
                 className="w-full bg-white/5 border border-white/10 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 group-hover:bg-brand-secondary group-hover:text-brand-dark group-hover:border-transparent transition-all"
               >
                 <Play className="w-4 h-4 fill-current" />
-                Listen Episode
+                {t("pod.listenEpisode")}
               </button>
             </motion.div>
           ))}
@@ -274,16 +274,16 @@ const PodcastLibrary = () => {
       <section className="max-w-7xl mx-auto px-4 mt-32 text-center pb-24">
         <div className="bg-brand-primary/20 border border-brand-primary/30 rounded-[3rem] p-12 backdrop-blur-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none" />
-          <h3 className="text-3xl font-bold text-white mb-6 relative z-10">Reclaim Your Institutional Velocity.</h3>
+          <h3 className="text-3xl font-bold text-white mb-6 relative z-10">{t("pod.cta.title")}</h3>
           <p className="text-slate-300 mb-10 text-lg font-light relative z-10">
-            Don't let operational bureaucracy stifle your growth. Our strategy sessions dive deep into your unique bottlenecks to build high-output systems.
+            {t("pod.cta.desc")}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { detail: { type: 'organization', prompt: "Tell me more about the transformation paths mentioned in the podcast." } }))}
               className="bg-white/5 border border-white/10 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-2"
             >
-              Ask NOVA <Sparkles className="w-5 h-5 text-brand-secondary" />
+              {t("pod.cta.ask")} <Sparkles className="w-5 h-5 text-brand-secondary" />
             </button>
           </div>
         </div>
