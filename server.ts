@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -18,8 +19,9 @@ async function startServer() {
   
   try {
     if (process.env.OPENAI_API_KEY) {
-      openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      console.log("[Server] OpenAI initialized successfully.");
+      const key = process.env.OPENAI_API_KEY;
+      openai = new OpenAI({ apiKey: key });
+      console.log(`[Server] OpenAI initialized successfully. Key length: ${key.length}, Starts with: ${key.substring(0, 3)}...`);
     } else {
       console.log("[Server] OpenAI initialization skipped: No API key found.");
     }
@@ -27,9 +29,16 @@ async function startServer() {
     console.error("[Server] OpenAI initialization error:", error);
   }
 
+  // API routes go here FIRST
+  app.get("/api/health", (req, res) => {
+    console.log("[Server] Health check ping received.");
+    res.json({ status: "ok", environment: process.env.NODE_ENV || 'development' });
+  });
+
   // --- /api/nova-chat route ---
   app.post("/api/nova-chat", async (req, res) => {
-    console.log(`[Server] POST /api/nova-chat route reached.`);
+    const startTime = Date.now();
+    console.log(`[Server] [${new Date().toISOString()}] POST /api/nova-chat - Start`);
     try {
       if (!openai) {
         console.error("[Server] Error: OpenAI client is not configured.");
@@ -37,6 +46,8 @@ async function startServer() {
       }
 
       const { messages, userType } = req.body;
+      console.log(`[Server] Request Body Keys: ${Object.keys(req.body).join(", ")}`);
+      
       if (!messages || !Array.isArray(messages)) {
         console.error("[Server] Error: Invalid messages array received.");
         return res.status(400).json({ error: "Invalid messages array." });
@@ -195,6 +206,14 @@ MANDATORY FORMATTING:
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
+
+  // Global Error Handler
+  app.use((err: any, req: any, res: any, next: any) => {
+    console.error("[Server] Unhandled Error:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Internal Server Conduit Failure", details: err.message });
+    }
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`[Server] Nova Engine ignition successful on port ${PORT}`);

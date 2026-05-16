@@ -114,21 +114,27 @@ export const ChatBot: React.FC = () => {
       console.log(`[ChatBot API] Initializing request. Model: OpenAI`);
       console.log(`[ChatBot API] Route: /api/nova-chat`);
       console.log(`[ChatBot API] Messages count: ${conversationHistory.length}`);
-      console.log(`[ChatBot API] Streaming: active true`);
+      console.log(`[ChatBot API] User Type: ${userType}`);
       
-      const res = await fetch('/api/nova-chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: conversationHistory.map(m => ({
-            role: m.role,
-            content: m.content
-          })),
-          userType: userType
-        })
-      });
+      let res;
+      try {
+        res = await fetch('/api/nova-chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: conversationHistory.map(m => ({
+              role: m.role,
+              content: m.content
+            })),
+            userType: userType
+          })
+        });
+      } catch (fetchError: any) {
+        console.error("[ChatBot API] Network/Fetch Error:", fetchError);
+        throw new Error(`Network failure: ${fetchError.message || "Could not reach the server conduit."}`);
+      }
 
       console.log(`[ChatBot API] Response received. Status: ${res.status}`);
 

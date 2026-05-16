@@ -206,7 +206,7 @@ export const Navbar = () => {
             </Link>
 
             <button 
-              onClick={() => setLanguage(lang => lang === "EN" ? "ES" : "EN")}
+              onClick={() => setLanguage(language === "EN" ? "ES" : "EN")}
               className={`flex items-center gap-1 text-sm font-bold uppercase tracking-widest transition-all duration-300 py-2 ${textColor} hover:text-brand-secondary ml-4`}
               aria-label="Toggle Language"
             >

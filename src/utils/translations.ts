@@ -548,18 +548,7 @@ export const translations: TranslationsList = {
     "contact.form.descPHOrg": "Tell us about your current bottlenecks, systems goals, or workforce challenges...",
     "contact.form.descPHInd": "Tell us about your career transition goals, resume needs, or areas where you feel stuck...",
     "contact.form.btn": "Send Inquiry",
-    "contact.form.resp": "We'll be in contact within 24 business hours",
-    "sim.adv.title": "Advisory Recommendation",
-    "sim.adv.insight.title": "Performance Insight",
-    "sim.adv.metrics.annual": "Annual Value",
-    "sim.adv.metrics.payback": "Payback Period",
-    "sim.adv.metrics.months": "Months",
-    "sim.adv.metrics.opex": "OpEx Reduction",
-    "sim.adv.metrics.admin": "Admin Recovery",
-    "sim.adv.metrics.hours": "Hours",
-    "sim.conv.title": "Want to validate this with your real operational data?",
-    "sim.conv.desc": "We help you move from simulation to reality. Our assessments reveal the hidden friction in your systems and provide a surgically precise roadmap for modernization.",
-    "sim.conv.cta": "Ready to Start Your Transformation"
+    "contact.form.resp": "We'll be in contact within 24 business hours"
   },
   ES: {
     // Navigation
@@ -1106,18 +1095,7 @@ export const translations: TranslationsList = {
     "contact.form.descPHOrg": "Cuéntanos sobre tus cuellos de botella, metas o desafíos laborales...",
     "contact.form.descPHInd": "Cuéntanos sobre tus objetivos de carrera, necesidades de CV o dónde te sientes estancado...",
     "contact.form.btn": "Enviar Consulta",
-    "contact.form.resp": "Nos pondremos en contacto dentro de 24 horas hábiles",
-    "sim.adv.title": "Recomendación Consultiva",
-    "sim.adv.insight.title": "Visión de Desempeño",
-    "sim.adv.metrics.annual": "Valor Anual",
-    "sim.adv.metrics.payback": "Período de Recuperación",
-    "sim.adv.metrics.months": "Meses",
-    "sim.adv.metrics.opex": "Reducción OpEx",
-    "sim.adv.metrics.admin": "Recuperación de Admin",
-    "sim.adv.metrics.hours": "Horas",
-    "sim.conv.title": "¿Quieres validar esto con tus datos operativos reales?",
-    "sim.conv.desc": "Te ayudamos a pasar de la simulación a la realidad. Nuestras evaluaciones revelan la fricción oculta en tus sistemas y proporcionan una hoja de ruta con precisión quirúrgica para la modernización.",
-    "sim.conv.cta": "Listo para Iniciar tu Transformación"
+    "contact.form.resp": "Nos pondremos en contacto dentro de 24 horas hábiles"
   }
 };
 

@@ -181,13 +181,9 @@ export const VideoCompanionMode = ({ onClose, messages }: AIVideoCallProps) => {
   `, [messages]);
 
   const startSession = async () => {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      setLastError("Strategic Link Refused: GEMINI_API_KEY is missing from environment.");
-      setNovaState("error");
-      return;
-    }
-
+    // Migrated from Gemini - currently using placeholder as voice system is being re-evaluated
+    const apiKey = "OPENAI_PLACEHOLDER";
+    
     providerRef.current = new NovaVideoProvider(handleNovaUpdate);
     setTroubleshooting(null); 
     await providerRef.current.initialize({

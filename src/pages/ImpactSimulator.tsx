@@ -436,7 +436,7 @@ export default function ImpactSimulator() {
   const cumulativeData = useMemo(() => {
     const months = [];
     for (let i = 1; i <= 60; i++) {
-        const yr = language === 'es' ? 'A' : 'Y';
+        const yr = language === 'ES' ? 'A' : 'Y';
         months.push(i % 12 === 0 ? `${yr}${i/12}` : `M${i}`);
     }
     
@@ -994,12 +994,12 @@ export default function ImpactSimulator() {
                   <span className="text-xs font-black uppercase tracking-[0.2em] text-white">{t("sim.adv.title") || "Advisory Recommendation"}</span>
                 </div>
                 <h3 className="text-4xl md:text-5xl font-black tracking-tighter mb-8 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                  {language === 'es' ? "Tu Hoja de Ruta Estratégica:" : "Your Strategic Roadmap:"} <br className="hidden md:block" /> {language === 'es' ? `Integración Nivel ${results.recommendation}` : `${results.recommendation} Level Integration`}
+                  {language === 'ES' ? "Tu Hoja de Ruta Estratégica:" : "Your Strategic Roadmap:"} <br className="hidden md:block" /> {language === 'ES' ? `Integración Nivel ${results.recommendation}` : `${results.recommendation} Level Integration`}
                 </h3>
                 
                 <div className="space-y-6 max-w-2xl">
                   <p className="text-xl text-slate-300 leading-relaxed font-light">
-                    {language === 'es' ? (
+                    {language === 'ES' ? (
                       <>Tu evaluación revela una oportunidad de alto apalancamiento en <span className="text-brand-secondary font-bold">{results.opportunities[0].name}</span>. Al consolidar flujos de trabajo fragmentados y reportes manuales, puedes desbloquear <span className="text-white font-bold">{formatCurrency(results.totalAnnualValue)}</span> en valor organizacional latente.</>
                     ) : (
                       <>Your assessment reveals a high-leverage opportunity in <span className="text-brand-secondary font-bold">{results.opportunities[0].name}</span>. By consolidating fragmented workflows and manual reporting, you can unlock <span className="text-white font-bold">{formatCurrency(results.totalAnnualValue)}</span> in latent organizational value.</>
@@ -1014,7 +1014,7 @@ export default function ImpactSimulator() {
                       <span className="text-sm font-black uppercase tracking-widest text-brand-secondary">{t("sim.adv.insight.title") || "Performance Insight"}</span>
                     </div>
                     <p className="text-lg text-slate-400 leading-relaxed italic font-light">
-                      {language === 'es' ? (
+                      {language === 'ES' ? (
                         `"Al recapturar el tiempo de actividad operativo, solo tu ganancia de volumen apoya un ROI de ${results.payback.toFixed(0)} meses, haciendo efectivamente que tu modernización se autofinancie."`
                       ) : (
                         `"By recapturing operational uptime, your volume gain alone supports a ${results.payback.toFixed(0)}-month ROI, effectively rendering your modernization self-funding."`
