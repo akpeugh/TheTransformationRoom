@@ -28,10 +28,13 @@ import {
   Brain
 } from "lucide-react";
 
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 import { DISCOVERY_CALL_1HR } from "../constants";
 import SEO from "../components/SEO";
 import { ORGANIZATION_SCHEMA, WEBSITE_SCHEMA } from "../constants/schema";
 import { LazyVideo } from "../components/LazyVideo";
+import Markdown from "react-markdown";
 
 const NovaInsight = ({ text, className = "" }: { text: string; className?: string }) => (
   <motion.div 
@@ -69,6 +72,8 @@ const videoMap: Record<string, string> = {
 };
 
 const Home = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
   const location = useLocation();
@@ -91,68 +96,68 @@ const Home = () => {
 
   const categories = [
     {
-      title: "Analytics",
-      label: "Data & Insights",
+      title: t("home.cat.1.title"),
+      label: t("home.cat.1.label"),
       icon: <BarChart3 className="w-6 h-6" />,
       videoKey: "Analytics",
-      desc: "Transforming raw operational data into actionable intelligence through real-time dashboards and predictive modeling.",
-      details: "Implementation of edge computing data capture, custom AI-driven anomaly detection, and cross-functional reporting suites that provide a single source of truth for leadership."
+      desc: t("home.cat.1.desc"),
+      details: t("home.cat.1.details")
     },
     {
-      title: "Co-robots & Humanoid Robots",
-      label: "Robotics Strategy",
+      title: t("home.cat.2.title"),
+      label: t("home.cat.2.label"),
       icon: <Bot className="w-6 h-6" />,
       videoKey: "Robots / Cobots",
-      desc: "Deploying intelligent robotics to handle repetitive, ergonomic-straining, or hazardous tasks, allowing your human workforce to focus on high-value operations.",
-      details: "Evaluation of cobot integration for assembly, deployment of humanoid robots for warehouse movement, and safety-first workspace redesign for human-machine collaboration."
+      desc: t("home.cat.2.desc"),
+      details: t("home.cat.2.details")
     },
     {
-      title: "AS/RS (Automated Storage & Retrieval)",
-      label: "Space Optimization",
+      title: t("home.cat.3.title"),
+      label: t("home.cat.3.label"),
       icon: <Layers className="w-6 h-6" />,
       videoKey: "AS/RS",
-      desc: "Maximizing vertical cube utilization and picking speed for high-density environments, specifically optimized for e-commerce and wholesale throughput.",
-      details: "Selection and implementation of shuttle systems, vertical lift modules (VLMs), and mini-load systems to drive density and eliminate manual travel time."
+      desc: t("home.cat.3.desc"),
+      details: t("home.cat.3.details")
     },
     {
-      title: "Asset Tracking & AI Detection",
-      label: "Digital Visibility",
+      title: t("home.cat.4.title"),
+      label: t("home.cat.4.label"),
       icon: <Cpu className="w-6 h-6" />,
       videoKey: "Asset Tracking",
-      desc: "Total visibility across the four walls and beyond using Drones, Computer Vision, RFID, and BLE tag technology.",
-      details: "Autonomous drone inventory counts, AI camera detection for safety/compliance, smart locker integrations, and real-time asset localization for high-value equipment."
+      desc: t("home.cat.4.desc"),
+      details: t("home.cat.4.details")
     },
     {
-      title: "AMRs/AGVs",
-      label: "Autonomous Flow",
+      title: t("home.cat.5.title"),
+      label: t("home.cat.5.label"),
       icon: <Truck className="w-6 h-6" />,
       videoKey: "AMR / AGV",
-      desc: "Automating horizontal movement through autonomous mobile robots for lifting, tugging, and facility maintenance.",
-      details: "Fleet management for autonomous fork lifts, scrubbers, and tuggers. Path-planning optimization and integration with existing WMS for seamless task interleaving."
+      desc: t("home.cat.5.desc"),
+      details: t("home.cat.5.details")
     },
     {
-      title: "Auxiliary & Training Tools",
-      label: "Workforce Enablement",
+      title: t("home.cat.6.title"),
+      label: t("home.cat.6.label"),
       icon: <Cpu className="w-6 h-6" />,
       videoKey: "Auxiliary / AR / VR",
-      desc: "Bridging the skill gap through immersive technologies like AR/VR for training and physical exoskeletons for performance safety.",
-      details: "AR-guided picking and assembly instructions, VR safety simulators, and passive/active exoskeleton rollouts to reduce work-related injury and accelerate onboarding."
+      desc: t("home.cat.6.desc"),
+      details: t("home.cat.6.details")
     },
     {
-      title: "Employee Facing Tools",
-      label: "User Experience",
+      title: t("home.cat.7.title"),
+      label: t("home.cat.7.label"),
       icon: <Users className="w-6 h-6" />,
       videoKey: "Employee Facing Tools",
-      desc: "Modernizing the workforce experience through digital tools that drive engagement, flexibility, and performance rewards.",
-      details: "Development of gamification engines for productivity, mobile-first shift bidding/scheduling, and real-time performance feedback portals that boost retention."
+      desc: t("home.cat.7.desc"),
+      details: t("home.cat.7.details")
     },
     {
-      title: "Transportation & Logistics Systems",
-      label: "Network Logistics",
+      title: t("home.cat.8.title"),
+      label: t("home.cat.8.label"),
       icon: <Truck className="w-6 h-6" />,
       videoKey: "Transportation & Logistics",
-      desc: "Connecting the facility to the outside world through intelligent dispatch, driver tech, and yard management systems.",
-      details: "TMS implementation, driver mobile application deployments, Yard Management System (YMS) automation and real-time bank scheduling for inbound/outbound flow."
+      desc: t("home.cat.8.desc"),
+      details: t("home.cat.8.details")
     }
   ];
 
@@ -213,21 +218,21 @@ const Home = () => {
               className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter cursor-default drop-shadow-2xl z-20 relative break-words"
               whileHover={{ scale: 1.01, rotateX: -2, rotateY: 1, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
             >
-              The Transformation Room
+              {t("home.title")}
             </motion.h1>
               <motion.span 
                 whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
                 className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300 drop-shadow-md"
               >
-                Turn Operational Complexity Into Scalable, High-Performing Systems
+                {t("home.subtitle")}
               </motion.span>
               <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-3xl mx-auto font-light drop-shadow-lg">
-                We guide organizations to streamline broken processes for scale, and equip individuals with the operational acumen to thrive in a high-tech world.
+                {t("home.desc")}
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link to="/contact" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer text-center">
                   <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                  Start Transformation <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  {t("home.start")} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -249,45 +254,45 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-20 text-white"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">We're right for you if you're dealing with:</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">{t("home.whoWeWorkWith.title")}</h2>
             <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
             {[
               {
-                title: "Scale & Expansion",
-                issue: "Multi-site Operations",
-                desc: "Scaling warehouse or distribution networks hitting physical capacity limits.",
+                title: t("home.www.1.title"),
+                issue: t("home.www.1.issue"),
+                desc: t("home.www.1.desc"),
                 icon: <Globe className="w-6 h-6" />
               },
               {
-                title: "Omnichannel Fulfillment",
-                issue: "Retail Stores & E-com",
-                desc: "Complex inventory allocation and high-velocity order fulfillment.",
+                title: t("home.www.2.title"),
+                issue: t("home.www.2.issue"),
+                desc: t("home.www.2.desc"),
                 icon: <ShoppingBag className="w-6 h-6" />
               },
               {
-                title: "Data Silos",
-                issue: "Disconnected Systems",
-                desc: "Poor visibility across systems leading to reactive instead of proactive decisions.",
+                title: t("home.www.3.title"),
+                issue: t("home.www.3.issue"),
+                desc: t("home.www.3.desc"),
                 icon: <Network className="w-6 h-6" />
               },
               {
-                title: "Margin Pressure",
-                issue: "Labor Inefficiencies",
-                desc: "Rising operational costs and difficulty retaining skilled facility talent.",
+                title: t("home.www.4.title"),
+                issue: t("home.www.4.issue"),
+                desc: t("home.www.4.desc"),
                 icon: <TrendingDown className="w-6 h-6" />
               },
               {
-                title: "Outgrown Processes",
-                issue: "Growth Without Structure",
-                desc: "Relying on legacy 'heroics' instead of scalable, automated systems.",
+                title: t("home.www.5.title"),
+                issue: t("home.www.5.issue"),
+                desc: t("home.www.5.desc"),
                 icon: <Building2 className="w-6 h-6" />
               },
               {
-                title: "Individual Growth",
-                issue: "Career Velocity & AI",
-                desc: "Professionals looking to transition careers, master AI integration, or get a step ahead in the modern workforce.",
+                title: t("home.www.6.title"),
+                issue: t("home.www.6.issue"),
+                desc: t("home.www.6.desc"),
                 icon: <Zap className="w-6 h-6" />
               }
             ].map((item, i) => (
@@ -335,9 +340,9 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Bridging Operations & Intelligence</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{t("home.engine.title")}</h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Innovation is only effective when it connects. We integrate AI strategy, industrial hardware, and workforce experience into a single, high-output ecosystem.
+              {t("home.engine.desc")}
             </p>
           </motion.div>
 
@@ -352,16 +357,16 @@ const Home = () => {
               >
                 <div className="inline-flex items-center gap-2 text-brand-primary font-bold text-xs uppercase tracking-widest mb-6">
                   <Database className="w-5 h-5" />
-                  Strategy & Intelligence
+                  {t("home.engine.phase1.label")}
                 </div>
-                <h3 className="text-3xl font-bold mb-6 text-slate-900">Connecting People and AI</h3>
+                <h3 className="text-3xl font-bold mb-6 text-slate-900">{t("home.engine.phase1.title")}</h3>
                 <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                  We build the data frameworks and custom agents that turn raw operational data into boardroom visibility. Our approach ensures AI is a tool for your people, not a replacement for them.
+                  {t("home.engine.phase1.desc")}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {[
-                    { title: "Custom Agents", desc: "Intelligent workflows for anomaly detection and scheduling.", icon: <Bot className="w-5 h-5" /> },
-                    { title: "Data Pipelines", desc: "Clean, structured data for predictive analytics.", icon: <BarChart3 className="w-5 h-5" /> }
+                    { title: t("home.engine.phase1.1.title"), desc: t("home.engine.phase1.1.desc"), icon: <Bot className="w-5 h-5" /> },
+                    { title: t("home.engine.phase1.2.title"), desc: t("home.engine.phase1.2.desc"), icon: <BarChart3 className="w-5 h-5" /> }
                   ].map((item, i) => (
                     <div key={i} className="flex gap-4">
                       <div className="shrink-0 w-10 h-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary">
@@ -421,8 +426,8 @@ const Home = () => {
                       <Zap className="w-4 h-4 text-brand-secondary" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Impact</p>
-                      <p className="text-sm font-bold text-slate-900 leading-none">+24% Productivity</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{t("home.engine.impact")}</p>
+                      <p className="text-sm font-bold text-slate-900 leading-none">{t("home.engine.impact.stat")}</p>
                     </div>
                   </motion.div>
                 </motion.div>
@@ -439,11 +444,11 @@ const Home = () => {
                 >
                   <div className="inline-flex items-center gap-2 text-brand-primary font-bold text-xs uppercase tracking-widest mb-6">
                     <Cpu className="w-5 h-5" />
-                    Industrial Implementation
+                    {t("home.engine.phase2.label")}
                   </div>
-                  <h3 className="text-3xl font-bold mb-6 text-slate-900">Modernizing Manufacturing & Warehousing</h3>
+                  <h3 className="text-3xl font-bold mb-6 text-slate-900">{t("home.engine.phase2.title")}</h3>
                   <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                    Working across complex supply chain networks, we help you evaluate and implement the hardware, from humanoid robotics to AS/RS, that turns bottlenecks into throughput.
+                    {t("home.engine.phase2.desc")}
                   </p>
                 </motion.div>
                 <motion.div 
@@ -528,13 +533,13 @@ const Home = () => {
                       >
                         <div className="p-8 pt-0 grid grid-cols-1 lg:grid-cols-2 gap-12 border-t border-slate-100">
                           <div className="space-y-6">
-                            <h4 className="text-sm font-bold text-brand-primary uppercase tracking-widest mt-6">Overview</h4>
+                            <h4 className="text-sm font-bold text-brand-primary uppercase tracking-widest mt-6">{t("home.cat.overview")}</h4>
                             <p className="text-lg text-slate-600 font-medium leading-relaxed">{cat.desc}</p>
                             
                             <div className="mt-8">
                                 <details open className="group border border-slate-200 bg-white rounded-xl overflow-hidden">
                                   <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors list-none">
-                                    <span className="font-bold text-slate-900 text-sm">Value Propositions & Use Cases</span>
+                                    <span className="font-bold text-slate-900 text-sm">{t("home.cat.values")}</span>
                                     <Plus className="w-5 h-5 text-brand-secondary group-open:rotate-45 transition-transform" />
                                   </summary>
                                   <div className="p-4 pt-0 text-sm text-slate-600 leading-relaxed border-t border-slate-100">
@@ -542,8 +547,8 @@ const Home = () => {
                                       {cat.details}
                                     </div>
                                     <div className="bg-brand-primary/5 p-4 rounded-lg">
-                                       <p className="text-[10px] font-bold text-brand-primary uppercase mb-2">Key Impact</p>
-                                       <p className="text-xs italic">Enhanced through-put, reduced operational drag, and measurable ROI within 12-18 months.</p>
+                                       <p className="text-[10px] font-bold text-brand-primary uppercase mb-2">{t("home.cat.keyImpact")}</p>
+                                       <p className="text-xs italic">{t("home.cat.keyImpactDesc")}</p>
                                     </div>
                                   </div>
                                 </details>
@@ -579,31 +584,31 @@ const Home = () => {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">The Pillars of Transformation</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t("home.pillars.title")}</h2>
             <div className="w-20 h-1.5 bg-brand-secondary mx-auto" />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               { 
-                title: "Optimized Process", 
+                title: t("home.pillars.1.title"), 
                 icon: <Settings className="w-8 h-8" />, 
-                desc: "Identifying operational inefficiencies and building practical solutions to improve how work actually gets done."
+                desc: t("home.pillars.1.desc")
               },
               { 
-                title: "Tech Strategy", 
+                title: t("home.pillars.2.title"), 
                 icon: <Cpu className="w-8 h-8" />, 
-                desc: "Evaluating, integrating, and optimizing technology systems across your warehouse operations, workforce, and business functions."
+                desc: t("home.pillars.2.desc")
               },
               {
-                title: "Real-Time Insights",
+                title: t("home.pillars.3.title"),
                 icon: <Activity className="w-8 h-8" />,
-                desc: "Designing frameworks and dashboards that provide leaders with the necessary visibility to make faster decisions."
+                desc: t("home.pillars.3.desc")
               },
               {
-                title: "Workforce Alignment",
+                title: t("home.pillars.4.title"),
                 icon: <Users className="w-8 h-8" />,
-                desc: "Connecting change management, labor planning, and scheduling to ensure that high-level strategy successfully translates into action."
+                desc: t("home.pillars.4.desc")
               }
             ].map((pillar, i) => (
               <motion.div 
@@ -644,7 +649,7 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-5xl md:text-6xl font-bold mb-8 tracking-tight"
           >
-            Our Commitment
+            {t("home.commit.title")}
           </motion.h2>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -654,15 +659,23 @@ const Home = () => {
             className="relative"
           >
             <Quote className="w-16 h-16 text-white/10 absolute -top-8 -left-4 transform -rotate-12" />
-            <p className="text-2xl md:text-3xl text-slate-200 leading-relaxed font-light">
-              We operate on a <span className="text-brand-secondary font-bold">"skin-in-the-game"</span> model. Our success is measured by your satisfaction, your team's satisfaction, and your tangible ROI. <br/><br/>
+            <div className="text-2xl md:text-3xl text-slate-200 leading-relaxed font-light">
+              <Markdown 
+                components={{
+                  strong({children}) {
+                    return <span className="text-brand-secondary font-bold">{children}</span>;
+                  }
+                }}
+              >
+                {t("home.commit.desc1")}
+              </Markdown> <br/><br/>
               <span className="font-bold text-white flex justify-center items-center relative inline-block mt-4">
                 <span className="relative">
-                  If we're in the room, we're in it for the long haul.
+                  {t("home.commit.desc2")}
                   <span className="absolute bottom-1 left-0 w-full h-2 bg-brand-secondary/60 -z-10 transform -rotate-1 rounded-sm" />
                 </span>
               </span>
-            </p>
+            </div>
           </motion.div>
         </div>
       </section>

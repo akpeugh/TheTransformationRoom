@@ -5,8 +5,12 @@ import { Headphones, Play, ArrowRight, Sparkles, Clock, Share2, Download } from 
 import { PODCASTS, Podcast } from "../data/podcasts";
 import SEO from "../components/SEO";
 import { ORGANIZATION_SCHEMA } from "../constants/schema";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 const PodcastLibrary = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const location = useLocation();
 
   useEffect(() => {
@@ -113,10 +117,10 @@ const PodcastLibrary = () => {
               <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">The Transformation Room Studio</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-              Podcast <span className="text-brand-secondary">Library.</span>
+              {t("pod.hero.title")}
             </h1>
             <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-light">
-              Conversations at the intersection of industrial systems, cognitive strategy, and workforce transformation.
+              {t("pod.hero.desc")}
             </p>
           </motion.div>
         </div>

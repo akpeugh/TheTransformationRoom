@@ -23,11 +23,15 @@ import {
 } from "lucide-react";
 import { ScorecardTool } from "../components/ScorecardTool";
 import { CORPORATE_PAYMENT, DISCOVERY_CALL_1HR } from "../constants";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 import { PODCASTS } from "../data/podcasts";
 import SEO from "../components/SEO";
 
 const Organizations = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const featuredPodcast = PODCASTS.find(p => p.featured) || PODCASTS[0];
   const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
   const location = useLocation();
@@ -47,22 +51,22 @@ const Organizations = () => {
 
   const challenges = [
     {
-      title: "Capacity & Throughput",
-      issue: "Operations hitting physical limits or seasonal bottlenecks.",
-      solution: "Space optimization through AS/RS and intelligent slotting strategies.",
-      outcome: "2.5x increase in vertical cube use."
+      title: t('org.challenge1.title'),
+      issue: t('org.challenge1.issue'),
+      solution: t('org.challenge1.solution'),
+      outcome: t('org.challenge1.outcome')
     },
     {
-      title: "Labor Instability",
-      issue: "High turnover and skill gaps in critical facility roles.",
-      solution: "Workforce enablement via AR/VR training and ergonomic robotics.",
-      outcome: "40% reduction in training ramp-up time."
+      title: t('org.challenge2.title'),
+      issue: t('org.challenge2.issue'),
+      solution: t('org.challenge2.solution'),
+      outcome: t('org.challenge2.outcome')
     },
     {
-      title: "Hidden Inefficiency",
-      issue: "Fragmented systems creating 'dark data' and blind spots.",
-      solution: "Unified digital visibility and predictive ROI dashboarding.",
-      outcome: "15% reduction in OpEx through data-driven decisions."
+      title: t('org.challenge3.title'),
+      issue: t('org.challenge3.issue'),
+      solution: t('org.challenge3.solution'),
+      outcome: t('org.challenge3.outcome')
     }
   ];
 
@@ -85,10 +89,10 @@ const Organizations = () => {
         {/* Floating Corporate Tech Nodes */}
         <motion.div style={{ y: yHero }} className="absolute inset-0 pointer-events-none z-20">
           {[
-            { icon: <Briefcase className="w-6 h-6" />, pos: "top-[15%] left-[10%]", label: "Strategy" },
-            { icon: <Database className="w-6 h-6" />, pos: "bottom-[20%] right-[15%]", label: "Data Architecture" },
-            { icon: <Settings className="w-6 h-6" />, pos: "top-[65%] left-[5%]", label: "Industrial Ops" },
-            { icon: <Sparkles className="w-6 h-6" />, pos: "top-[25%] right-[10%]", label: "AI Integration" }
+            { icon: <Briefcase className="w-6 h-6" />, pos: "top-[15%] left-[10%]", label: t('org.nodes.strategy') },
+            { icon: <Database className="w-6 h-6" />, pos: "bottom-[20%] right-[15%]", label: t('org.nodes.data') },
+            { icon: <Settings className="w-6 h-6" />, pos: "top-[65%] left-[5%]", label: t('org.nodes.ops') },
+            { icon: <Sparkles className="w-6 h-6" />, pos: "top-[25%] right-[10%]", label: t('org.nodes.ai') }
           ].map((node, i) => (
             <motion.div
               key={i}
@@ -117,27 +121,27 @@ const Organizations = () => {
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-secondary/10 border border-brand-secondary/30 rounded-full mb-6">
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Operational Intelligence Mode Active</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">{t('org.hero.mode')}</span>
               </div>
               <motion.h1 
                 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
                 whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
               >
-                Operational <br /><span className="text-brand-secondary">Excellence.</span>
+                {t('org.hero.title1')} <br /><span className="text-brand-secondary">{t('org.hero.title2')}</span>
               </motion.h1>
               <p className="text-xl text-slate-300 max-w-xl leading-relaxed font-light drop-shadow-lg">
-                We empower middle-market to enterprise leaders to outgrow operational complexity. Our approach merges industrial systems with cognitive strategy.
+                {t('org.hero.desc')}
               </p>
               
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                  <Link to="/contact" className="bg-white text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-brand-secondary hover:scale-105 transition-all shadow-xl shadow-white/10 flex items-center justify-center gap-2 cursor-pointer">
-                    Start Transformation <ArrowRight className="w-5 h-5" />
+                    {t('org.hero.start')} <ArrowRight className="w-5 h-5" />
                  </Link>
                  <Link 
                   to="/impact-simulator"
                   className="px-8 py-5 rounded-full font-bold text-lg border border-white/20 hover:bg-white/10 transition-all backdrop-blur-sm flex items-center justify-center gap-2 group cursor-pointer text-white"
                  >
-                    Try our Impact Simulator <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                    {t('org.hero.simulator')} <Activity className="w-5 h-5 text-brand-secondary group-hover:rotate-12 transition-transform" />
                  </Link>
               </div>
 
@@ -166,7 +170,7 @@ const Organizations = () => {
                className="bg-white/10 backdrop-blur-3xl border border-white/20 p-10 rounded-[3rem] shadow-[0_40px_80px_rgba(0,0,0,0.5)] transform-gpu hover:shadow-[0_60px_100px_rgba(0,0,0,0.6)]"
                style={{ transformStyle: "preserve-3d" }}
             >
-                <h3 className="text-2xl font-bold text-white mb-8" style={{ transform: "translateZ(30px)" }}>Identify Your Biggest Bottleneck</h3>
+                <h3 className="text-2xl font-bold text-white mb-8" style={{ transform: "translateZ(30px)" }}>{t('org.hero.bottleneck')}</h3>
                 <div className="space-y-4" style={{ transform: "translateZ(20px)" }}>
                   {challenges.map((challenge, i) => (
                     <button
@@ -199,12 +203,12 @@ const Organizations = () => {
                    ))}
                 </div>
                 <div className="mt-8 border-t border-white/10 pt-8" style={{ transform: "translateZ(30px)" }}>
-                   <p className="text-slate-300 text-sm mb-4 font-medium text-center">Ready to see where your operation stands?</p>
+                   <p className="text-slate-300 text-sm mb-4 font-medium text-center">{t('org.hero.assessment')}</p>
                    <button 
                      onClick={() => document.getElementById('strategic-scorecard-section')?.scrollIntoView({ behavior: 'smooth' })}
                      className="w-full bg-brand-secondary text-slate-900 hover:bg-white hover:text-brand-dark px-8 py-5 rounded-2xl font-bold transition-all shadow-[0_0_30px_rgba(20,184,166,0.3)] hover:shadow-[0_0_50px_rgba(20,184,166,0.6)] hover:-translate-y-1 flex items-center justify-center gap-3 text-lg leading-none group cursor-pointer"
                    >
-                     Take Assessment <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                     {t('org.hero.quiz')} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                    </button>
                 </div>
             </motion.div>
@@ -360,24 +364,24 @@ const Organizations = () => {
 
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16 relative z-10">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Service Integration Models</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">{t('org.services.title')}</h2>
             <div className="w-24 h-1.5 bg-brand-secondary mx-auto mb-12 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)]" />
             <p className="text-slate-300 max-w-2xl mx-auto text-lg leading-relaxed">
-              Scalable transformation paths designed to meet you where your operation is today, while preparing you for where it will be tomorrow.
+              {t('org.services.desc')}
             </p>
           </div>
 
           {/* New 3 Ways / Flow Section */}
           <div className="mb-32 relative z-10 bg-slate-800/80 border border-slate-700/50 rounded-[3rem] p-12 backdrop-blur-xl overflow-hidden">
             <div className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] pointer-events-none" />
-            <h3 className="text-4xl font-bold text-white mb-6 text-center tracking-tight">3 Ways We Work With You</h3>
-            <p className="text-slate-300 text-center mb-16 max-w-2xl mx-auto text-lg font-light">Our engagement models are designed to flex with your current organizational maturity.</p>
+            <h3 className="text-4xl font-bold text-white mb-6 text-center tracking-tight">{t('org.ways.title')}</h3>
+            <p className="text-slate-300 text-center mb-16 max-w-2xl mx-auto text-lg font-light">{t('org.ways.desc')}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 relative perspective-1000">
                {[
-                 { title: "Clarity", desc: "Identify gaps and opportunities before investing cap-ex.", detail: "Deep-dive assessments of current processes and bottlenecks.", icon: <Search className="w-6 h-6" /> },
-                 { title: "Strategy", desc: "Build a structured roadmap for technological integration.", detail: "A detailed blueprint mapping workforce, software, and hardware.", icon: <LucideMap className="w-6 h-6" /> },
-                 { title: "Execution", desc: "Drive implementation, adoption, and sustained results.", detail: "Hands-on project management to ensure successful go-live.", icon: <Rocket className="w-6 h-6" /> }
+                 { title: t('org.ways.clarity'), desc: t('org.ways.clarityDesc'), detail: t('org.ways.clarityDetail'), icon: <Search className="w-6 h-6" /> },
+                 { title: t('org.ways.strategy'), desc: t('org.ways.strategyDesc'), detail: t('org.ways.strategyDetail'), icon: <LucideMap className="w-6 h-6" /> },
+                 { title: t('org.ways.execution'), desc: t('org.ways.executionDesc'), detail: t('org.ways.executionDetail'), icon: <Rocket className="w-6 h-6" /> }
                ].map((way, idx) => (
                  <motion.div 
                     key={idx} 
@@ -402,18 +406,18 @@ const Organizations = () => {
             </div>
 
             <div className="text-center mb-16">
-              <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">The Transformation Flow</h3>
-              <p className="text-lg text-slate-400 font-light max-w-xl mx-auto">Our proven five-step methodology for driving lasting change.</p>
+              <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">{t('org.flow.title')}</h3>
+              <p className="text-lg text-slate-400 font-light max-w-xl mx-auto">{t('org.flow.desc')}</p>
             </div>
             
             <div className="flex flex-col lg:flex-row items-center justify-between gap-6 relative">
               <div className="absolute top-1/2 left-[10%] w-[80%] h-1 bg-slate-800 -translate-y-1/2 rounded-full hidden lg:block" />
               {[
-                { step: "Assess", icon: <Database className="w-6 h-6" /> },
-                { step: "Align", icon: <Users className="w-6 h-6" /> },
-                { step: "Build", icon: <Settings className="w-6 h-6" /> },
-                { step: "Execute", icon: <Zap className="w-6 h-6" /> },
-                { step: "Sustain", icon: <RefreshCcw className="w-6 h-6" /> }
+                { step: t('org.flow.s1'), icon: <Database className="w-6 h-6" /> },
+                { step: t('org.flow.s2'), icon: <Users className="w-6 h-6" /> },
+                { step: t('org.flow.s3'), icon: <Settings className="w-6 h-6" /> },
+                { step: t('org.flow.s4'), icon: <Zap className="w-6 h-6" /> },
+                { step: t('org.flow.s5'), icon: <RefreshCcw className="w-6 h-6" /> }
               ].map((flow, idx, arr) => (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
@@ -446,46 +450,46 @@ const Organizations = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10 perspective-1000">
           {[
             {
-              tier: "Tier 1: Foundation",
-              subtitle: "The Maturity Baseline",
-              price: "Assessment Focused",
+              tier: t('org.tier1.title'),
+              subtitle: t('org.tier1.sub'),
+              price: t('org.tier1.price'),
               icon: <Factory className="w-10 h-10" />,
               includes: [
-                "Technical Debt & Systems Audit",
-                "Workflow & Bottleneck Analysis",
-                "Data Visibility & KPI Health Check",
-                "Manual Work Identification Report"
+                t('org.tier1.item1'),
+                t('org.tier1.item2'),
+                t('org.tier1.item3'),
+                t('org.tier1.item4')
               ],
-              outcome: "Strategic Blueprint & Priority Roadmap",
-              cta: "Consult with NOVA"
+              outcome: t('org.tier1.out'),
+              cta: t('org.tier1.cta')
             },
             {
-              tier: "Tier 2: Strategy",
-              subtitle: "The Operational Blueprint",
-              price: "Design & Roadmap",
+              tier: t('org.tier2.title'),
+              subtitle: t('org.tier2.sub'),
+              price: t('org.tier2.price'),
               icon: <Layers className="w-10 h-10" />,
               includes: [
-                "Full Solution Architecture Design",
-                "Technology Selection & RFP Support",
-                "Labor Optimization Strategy",
-                "Financial Projection & ROI Modeling"
+                t('org.tier2.item1'),
+                t('org.tier2.item2'),
+                t('org.tier2.item3'),
+                t('org.tier2.item4')
               ],
-              outcome: "Validated Strategy with Defined ROI Metrics",
-              cta: "Build Your Roadmap"
+              outcome: t('org.tier2.out'),
+              cta: t('org.tier2.cta')
             },
             {
-              tier: "Tier 3: Premium",
-              subtitle: "Active Implementation",
-              price: "Execution Advisory",
+              tier: t('org.tier3.title'),
+              subtitle: t('org.tier3.sub'),
+              price: t('org.tier3.price'),
               icon: <Briefcase className="w-10 h-10" />,
               includes: [
-                "Program & Project Management",
-                "Vendor Management & Deployment",
-                "Change Management & Training",
-                "Continuous Optimization Advisory"
+                t('org.tier3.item1'),
+                t('org.tier3.item2'),
+                t('org.tier3.item3'),
+                t('org.tier3.item4')
               ],
-              outcome: "Lighthouse Facility with Scaling Model",
-              cta: "Execute at Scale"
+              outcome: t('org.tier3.out'),
+              cta: t('org.tier3.cta')
             }
           ].map((pkg, i) => (
             <motion.div 

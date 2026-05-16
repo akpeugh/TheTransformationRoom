@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones, Video, BarChart3 } from "lucide-react";
+import { ChevronDown, Sparkles, Bot, FileText, Zap, Headphones, Video, BarChart3, Globe } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const { language, setLanguage } = useLanguage();
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const t = (key: string) => translate(key, language);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,11 +26,11 @@ export const Navbar = () => {
 
   const toolGroups = [
     {
-      label: "Knowledge",
+      label: t("nav.knowledge"),
       items: [
         {
-          name: "Podcast Library",
-          desc: "Studio sessions & strategy",
+          name: t("footer.podcast"),
+          desc: t("nav.poddesc"),
           icon: <Headphones className="w-4 h-4" />,
           path: "/podcasts",
           highlight: true
@@ -33,51 +38,51 @@ export const Navbar = () => {
       ]
     },
     {
-      label: "Organizations",
+      label: t("nav.organizations"),
       items: [
         {
-          name: "Readiness Assessment",
-          desc: "Strategic operational audit",
+          name: t("nav.readiness"),
+          desc: t("nav.readinessdesc"),
           icon: <Sparkles className="w-4 h-4" />,
           path: "/organizations?tool=scorecard"
         },
         {
-          name: "Impact Simulator",
-          desc: "Interactive ROI command center",
+          name: t("sim.hero.title"),
+          desc: t("nav.simdesc"),
           icon: <BarChart3 className="w-4 h-4" />,
           path: "/impact-simulator"
         }
       ]
     },
     {
-      label: "Individuals",
+      label: t("nav.individuals"),
       items: [
         { 
-          name: "Career Hub", 
-          desc: "Simulation & Resume Optimization", 
+          name: t("career.hero.title"), 
+          desc: t("nav.careerdesc"), 
           icon: <Zap className="w-4 h-4" />,
           path: "/career-hub" 
         },
         { 
-          name: "Resume Optimizer", 
-          desc: "Reframing legacy experience", 
+          name: t("footer.resume"), 
+          desc: t("nav.resumedesc"), 
           icon: <FileText className="w-4 h-4" />,
           path: "/career-hub?path=resume" 
         }
       ]
     },
     {
-      label: "NOVA Strategic AI",
+      label: t("nav.nova"),
       items: [
         { 
-          name: "NOVA AI Chat", 
-          desc: "Expert operational guidance", 
+          name: t("nav.novaChat"), 
+          desc: t("nav.chatdesc"), 
           icon: <Bot className="w-4 h-4" />,
           action: () => window.dispatchEvent(new CustomEvent('ais:open-chat'))
         },
         {
-          name: "NOVA Video Sync",
-          desc: "Interactive video conduit",
+          name: t("nav.novaVideo"),
+          desc: t("nav.videodesc"),
           icon: <Video className="w-4 h-4" />,
           action: () => window.dispatchEvent(new CustomEvent('ais:open-video-call'))
         }
@@ -107,10 +112,10 @@ export const Navbar = () => {
           
           <div className="hidden md:flex space-x-8 items-center">
             {[
-              { name: 'Organizations', path: '/organizations' },
-              { name: 'Individuals', path: '/individuals' },
-              { name: 'About', path: '/about' },
-              { name: 'Contact', path: '/contact' }
+              { name: t('nav.organizations'), path: '/organizations' },
+              { name: t('nav.individuals'), path: '/individuals' },
+              { name: t('nav.about'), path: '/about' },
+              { name: t('nav.contact'), path: '/contact' }
             ].map((item) => (
               <Link 
                 key={item.name}
@@ -133,7 +138,7 @@ export const Navbar = () => {
                 onMouseLeave={() => setToolsOpen(false)}
                 className={`flex items-center gap-1 text-sm font-bold uppercase tracking-widest transition-all duration-300 py-2 ${toolsOpen ? activeColor : `${textColor} group-hover/tools:text-brand-secondary`}`}
               >
-                Tools <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${toolsOpen ? 'rotate-180' : ''}`} />
+                {t('nav.tools')} <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${toolsOpen ? 'rotate-180' : ''}`} />
               </button>
               
               <div 
@@ -197,8 +202,17 @@ export const Navbar = () => {
               to="/contact" 
               className="bg-brand-primary text-white px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-brand-dark transition-all shadow-lg active:scale-95 hover:shadow-brand-primary/20"
             >
-              Get Started
+              {t('nav.getStarted')}
             </Link>
+
+            <button 
+              onClick={() => setLanguage(lang => lang === "EN" ? "ES" : "EN")}
+              className={`flex items-center gap-1 text-sm font-bold uppercase tracking-widest transition-all duration-300 py-2 ${textColor} hover:text-brand-secondary ml-4`}
+              aria-label="Toggle Language"
+            >
+              <Globe className="w-4 h-4" />
+              <span>{language}</span>
+            </button>
           </div>
 
           <button 
@@ -217,7 +231,7 @@ export const Navbar = () => {
         <div className="md:hidden bg-white border-b border-slate-100 animate-in slide-in-from-top duration-300">
           <div className="px-4 pt-4 pb-8 space-y-4">
             <div className="border-b border-slate-100 pb-4 mb-4">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Systems & Tools</p>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">{t("footer.systems")}</p>
               <div className="space-y-3">
                 {(toolGroups as any).flatMap((g: any) => g.items).map((tool: any) => (
                   <button 
@@ -237,10 +251,10 @@ export const Navbar = () => {
             </div>
             {[
               { name: 'Home', path: '/' },
-              { name: 'Organizations', path: '/organizations' },
-              { name: 'Individuals', path: '/individuals' },
-              { name: 'About', path: '/about' },
-              { name: 'Contact', path: '/contact' }
+              { name: t('nav.organizations'), path: '/organizations' },
+              { name: t('nav.individuals'), path: '/individuals' },
+              { name: t('nav.about'), path: '/about' },
+              { name: t('nav.contact'), path: '/contact' }
             ].map((item) => (
               <Link
                 key={item.name}
@@ -251,6 +265,16 @@ export const Navbar = () => {
                 {item.name}
               </Link>
             ))}
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-lg font-bold text-slate-900">{t('nav.language')}</span>
+              <button 
+                onClick={() => setLanguage(language === "EN" ? "ES" : "EN")}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg text-sm font-bold uppercase tracking-widest text-slate-900"
+              >
+                <Globe className="w-4 h-4" />
+                {language === "EN" ? "English" : "Español"}
+              </button>
+            </div>
           </div>
         </div>
       )}

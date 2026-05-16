@@ -20,8 +20,12 @@ import {
 } from "lucide-react";
 import { SCHEDULING_30MIN, DISCOVERY_CALL_1HR, ADDRESS } from "../constants";
 import SEO from "../components/SEO";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: string; insights: string } | null }) => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const location = useLocation();
   const [formType, setFormType] = useState<"individual" | "organization">("organization");
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -80,10 +84,10 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
           <div className="w-20 h-20 bg-brand-secondary/20 rounded-full flex items-center justify-center mx-auto mb-8 border border-brand-secondary/30">
             <CheckCircle2 className="w-10 h-10 text-brand-secondary" />
           </div>
-          <h2 className="text-4xl font-bold mb-4">Message Sent!</h2>
-          <p className="text-slate-400 mb-8">Thank you for reaching out. We've received your inquiry and will be in touch shortly.</p>
+          <h2 className="text-4xl font-bold mb-4">{t("contact.sent.title")}</h2>
+          <p className="text-slate-400 mb-8">{t("contact.sent.desc")}</p>
           <Link to="/" className="inline-block bg-brand-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-dark transition-all">
-            Return Home
+            {t("contact.sent.return")}
           </Link>
         </div>
       </section>
@@ -99,9 +103,9 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
       <section className="bg-slate-900 pt-40 pb-24 text-white">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-20">
           <div>
-            <h1 className="text-5xl font-bold mb-8 tracking-tighter">Let's Build <br/>Something Better.</h1>
+            <h1 className="text-5xl font-bold mb-8 tracking-tighter" style={{ whiteSpace: "pre-line" }}>{t("contact.form.titleO")}</h1>
             <p className="text-xl text-slate-400 mb-12 leading-relaxed font-light">
-              Choose the path that fits your needs. Our forms are designed to help us understand your unique operational or career challenges from the start.
+              {t("contact.form.descO")}
             </p>
             
             <div className="space-y-8 mb-12">
@@ -110,10 +114,10 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                    <Calendar className="w-6 h-6 text-brand-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-2">Direct Scheduling</h4>
+                  <h4 className="font-bold text-lg mb-2">{t("contact.scheduler.subtitle")}</h4>
                   <div className="flex flex-col gap-2">
-                    <a href={SCHEDULING_30MIN} target="_blank" rel="noreferrer" className="text-slate-400 text-sm hover:text-brand-secondary transition-colors underline">30 Min Consultation</a>
-                    <a href={DISCOVERY_CALL_1HR} target="_blank" rel="noreferrer" className="text-slate-400 text-sm hover:text-brand-secondary transition-colors underline">1 Hour Discovery Call</a>
+                    <a href={SCHEDULING_30MIN} target="_blank" rel="noreferrer" className="text-slate-400 text-sm hover:text-brand-secondary transition-colors underline">{t("contact.scheduler.30")}</a>
+                    <a href={DISCOVERY_CALL_1HR} target="_blank" rel="noreferrer" className="text-slate-400 text-sm hover:text-brand-secondary transition-colors underline">{t("contact.scheduler.60")}</a>
                   </div>
                 </div>
               </div>
@@ -122,9 +126,9 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                    <Globe className="w-6 h-6 text-brand-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-2">Location</h4>
+                  <h4 className="font-bold text-lg mb-2">{t("contact.location")}</h4>
                   <p className="text-slate-400 text-sm">{ADDRESS}</p>
-                  <p className="text-slate-500 text-xs italic mt-1 pb-2">Remote to start w/ travel</p>
+                  <p className="text-slate-500 text-xs italic mt-1 pb-2">{t("contact.location.desc")}</p>
                 </div>
               </div>
             </div>
@@ -148,9 +152,9 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                     <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-white mb-2">Engage with NOVA?</h4>
+                    <h4 className="text-xl font-bold text-white mb-2">{t('contact.intel.title')}</h4>
                     <p className="text-slate-400 text-sm mb-6 font-light">
-                      NOVA is available for a real-time interstellar discovery session to help you identify your top priorities and map your specific transformation trajectory.
+                      {t('contact.intel.desc')}
                     </p>
                   </div>
                 </div>
@@ -160,7 +164,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   className="w-full py-4 bg-brand-secondary text-brand-dark rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-brand-secondary/10 hover:shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
-                  Initiate NOVA Chat
+                  {t('contact.intel.btn')}
                 </button>
               </div>
             </div>
@@ -170,7 +174,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl" />
             
             <div className="space-y-4 mb-10 relative z-10">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Transformation Domain</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.domain')}</label>
               <div className="grid grid-cols-2 gap-4">
                 <button 
                   type="button"
@@ -185,7 +189,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   }`}
                 >
                   <Briefcase className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "organization" ? 'text-brand-secondary' : 'text-slate-400'}`} />
-                  <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">Organization</span>
+                  <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">{t("contact.form.org")}</span>
                 </button>
                 <button 
                   type="button"
@@ -200,7 +204,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   }`}
                 >
                   <User className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "individual" ? 'text-brand-secondary' : 'text-slate-400'}`} />
-                  <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">Individual</span>
+                  <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">{t("contact.form.ind")}</span>
                 </button>
               </div>
             </div>
@@ -236,7 +240,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.name')}</label>
                   <input 
                     required
                     name="name"
@@ -247,7 +251,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                    {formType === 'organization' ? 'Company Name' : 'Current Title'}
+                    {formType === 'organization' ? t('contact.form.company') : t('contact.form.title')}
                   </label>
                   <input 
                     required
@@ -261,7 +265,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contact Email</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.email')}</label>
                   <input 
                     required
                     name="email"
@@ -271,31 +275,31 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current Urgency / Timeframe</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.timeframe')}</label>
                   <select 
                     name="timeframe"
                     className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all appearance-none"
                   >
-                    <option value="urgent">Immediate / Growth Mode (ASAP)</option>
-                    <option value="planning">Active Planning (Next 30-90 Days)</option>
-                    <option value="exploring">Just Exploring / Informational</option>
-                    <option value="future">Future Strategic Requirement</option>
+                    <option value="urgent">{t('contact.form.time1')}</option>
+                    <option value="planning">{t('contact.form.time2')}</option>
+                    <option value="exploring">{t('contact.form.time3')}</option>
+                    <option value="future">{t('contact.form.time4')}</option>
                   </select>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                  {formType === 'organization' ? 'Service Tier Interest' : 'Interstellar Package'}
+                  {formType === 'organization' ? t('contact.form.serviceOrg') : t('contact.form.serviceInd')}
                 </label>
                 <input type="hidden" name="service_interest" value={selectedService} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {formType === 'organization' ? (
                     <>
                       {[
-                        { id: 'foundation', label: 'Foundation', sub: 'Audit & Assessment', icon: <Factory className="w-5 h-5" /> },
-                        { id: 'strategy', label: 'Strategy', sub: 'Roadmap & Design', icon: <Layers className="w-5 h-5" /> },
-                        { id: 'premium', label: 'Premium', sub: 'Active Implementation', icon: <Briefcase className="w-5 h-5" /> }
+                        { id: 'foundation', label: 'Foundation', sub: t('contact.form.orgOption1'), icon: <Factory className="w-5 h-5" /> },
+                        { id: 'strategy', label: 'Strategy', sub: t('contact.form.orgOption2'), icon: <Layers className="w-5 h-5" /> },
+                        { id: 'premium', label: 'Premium', sub: t('contact.form.orgOption3'), icon: <Briefcase className="w-5 h-5" /> }
                       ].map((opt) => (
                         <button
                           key={opt.id}
@@ -324,10 +328,10 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   ) : (
                     <>
                       {[
-                        { id: 'foundation', label: 'Foundation', sub: 'Resume & Positioning', icon: <FileText className="w-5 h-5" /> },
-                        { id: 'strategy', label: 'Strategy', sub: 'Search Orchestration', icon: <Zap className="w-5 h-5" /> },
-                        { id: 'premium', label: 'Premium', sub: 'Authority & Negotiation', icon: <Briefcase className="w-5 h-5" /> },
-                        { id: 'ai101', label: 'AI 101 Labs', sub: 'Tech Literacy', icon: <Bot className="w-5 h-5" /> }
+                        { id: 'foundation', label: 'Foundation', sub: t('contact.form.indOption1'), icon: <FileText className="w-5 h-5" /> },
+                        { id: 'strategy', label: 'Strategy', sub: t('contact.form.indOption2'), icon: <Zap className="w-5 h-5" /> },
+                        { id: 'premium', label: 'Premium', sub: t('contact.form.indOption3'), icon: <Briefcase className="w-5 h-5" /> },
+                        { id: 'ai101', label: 'AI 101 Labs', sub: t('contact.form.indOption4'), icon: <Bot className="w-5 h-5" /> }
                        ].map((opt) => (
                         <button
                           key={opt.id}
@@ -358,13 +362,13 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Brief Description of Needs</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.descNeeds')}</label>
                 <textarea 
                   required
                   name="description"
                   rows={4}
                   defaultValue={assessmentData ? `[AUTO-ATTACHED ASSESSMENT RESULTS]\nArchetype: ${assessmentData.archetype}\nTraits/Details: ${assessmentData.traits}\n\nUser Notes: ` : ""}
-                  placeholder={formType === 'organization' ? "Tell us about your current bottlenecks, systems goals, or workforce challenges..." : "Tell us about your career transition goals, resume needs, or areas where you feel stuck..."}
+                  placeholder={formType === 'organization' ? t("contact.form.descPHOrg") : t("contact.form.descPHInd")}
                   className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all resize-none"
                 />
               </div>
@@ -387,13 +391,13 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                 type="submit"
                 className="w-full bg-brand-primary text-white py-5 rounded-2xl font-bold hover:bg-brand-dark transition-all shadow-lg shadow-brand-primary/20 flex items-center justify-center gap-3 active:scale-95"
               >
-                Send Inquiry <ArrowRight className="w-5 h-5" />
+                {t('contact.form.btn')} <ArrowRight className="w-5 h-5" />
               </button>
               
               <div className="flex items-center justify-center gap-2 text-brand-secondary">
                 <Clock className="w-3 h-3" />
                 <p className="text-[10px] uppercase tracking-widest font-black">
-                  We'll be in contact within 24 business hours
+                  {t('contact.form.resp')}
                 </p>
               </div>
             </form>

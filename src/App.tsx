@@ -10,6 +10,7 @@ import { VideoCompanionMode as AIVideoCall } from "./components/VideoCompanionMo
 import { NavigationTracker } from "./components/NavigationTracker";
 
 import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 // Pages (Lazy loaded)
 const Home = lazy(() => import("./pages/Home"));
@@ -49,46 +50,48 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
-      <ScrollToTop />
-      <NavigationTracker />
+    <LanguageProvider>
+      <Router>
+        <ScrollToTop />
+        <NavigationTracker />
 
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow">
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/organizations" element={<Organizations />} />
-              <Route path="/individuals" element={<Individuals />} />
-              <Route path="/career-hub" element={<CareerTool />} />
-              <Route path="/display" element={<Navigate to="/career-hub" replace />} />
-              <Route path="/tools" element={<Navigate to="/organizations" replace />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/testimonials" element={<Testimonials />} />
-              <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
-              <Route path="/podcasts" element={<PodcastLibrary />} />
-              <Route path="/impact-simulator" element={<ImpactSimulator />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Suspense>
-        </main>
-        <Footer />
-        <ChatBot />
-        
-        <AnimatePresence>
-          {isVideoCallOpen && (
-            <AIVideoCall onClose={(data) => {
-               // Ensure data is the aiConsultationData object, not a MouseEvent
-               if (data && typeof data === 'object' && 'summary' in data) {
-                 setAiConsultationData(data);
-               }
-               setIsVideoCallOpen(false);
-            }} />
-          )}
-        </AnimatePresence>
-        <GlobalPodcastPlayer />
-      </div>
-    </Router>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow">
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/organizations" element={<Organizations />} />
+                <Route path="/individuals" element={<Individuals />} />
+                <Route path="/career-hub" element={<CareerTool />} />
+                <Route path="/display" element={<Navigate to="/career-hub" replace />} />
+                <Route path="/tools" element={<Navigate to="/organizations" replace />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/testimonials" element={<Testimonials />} />
+                <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
+                <Route path="/podcasts" element={<PodcastLibrary />} />
+                <Route path="/impact-simulator" element={<ImpactSimulator />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
+          </main>
+          <Footer />
+          <ChatBot />
+          
+          <AnimatePresence>
+            {isVideoCallOpen && (
+              <AIVideoCall onClose={(data) => {
+                 // Ensure data is the aiConsultationData object, not a MouseEvent
+                 if (data && typeof data === 'object' && 'summary' in data) {
+                   setAiConsultationData(data);
+                 }
+                 setIsVideoCallOpen(false);
+              }} />
+            )}
+          </AnimatePresence>
+          <GlobalPodcastPlayer />
+        </div>
+      </Router>
+    </LanguageProvider>
   );
 }

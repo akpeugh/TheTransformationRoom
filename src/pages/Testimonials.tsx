@@ -1,7 +1,13 @@
 import { Briefcase, Quote } from "lucide-react";
 import SEO from "../components/SEO";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
-const Testimonials = () => (
+const Testimonials = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
+
+  return (
   <div className="pt-32 pb-24 bg-slate-50">
     <SEO 
       title="Testimonials"
@@ -9,15 +15,15 @@ const Testimonials = () => (
     />
     <div className="max-w-7xl mx-auto px-4">
       <div className="text-center mb-20">
-        <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline">IMPACT & EVIDENCE</span>
-        <h1 className="text-5xl font-bold mb-6">Proven Transformation.</h1>
-        <p className="text-slate-500 text-lg">Real results from the front lines of operations and technology integration.</p>
+        <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline">{t("test.hero.label")}</span>
+        <h1 className="text-5xl font-bold mb-6">{t("test.hero.title")}</h1>
+        <p className="text-slate-500 text-lg">{t("test.hero.desc")}</p>
       </div>
 
       <div className="mb-32">
         <h2 className="text-2xl font-bold mb-12 flex items-center gap-4">
           <Briefcase className="text-brand-secondary w-8 h-8" />
-          Selected Case Studies
+          {t("test.case.title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
@@ -56,7 +62,7 @@ const Testimonials = () => (
 
       <h2 className="text-2xl font-bold mb-12 flex items-center gap-4">
         <Quote className="text-brand-secondary w-8 h-8" />
-        Client Testimonials
+        {t("test.client.title")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {[
@@ -77,6 +83,7 @@ const Testimonials = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default Testimonials;

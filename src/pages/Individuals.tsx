@@ -19,10 +19,14 @@ import {
 import { ResumeOptimizer } from "../components/ResumeOptimizer";
 import { CareerPathSimulator } from "../components/CareerPathSimulator";
 import SEO from "../components/SEO";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 import { DISCOVERY_CALL_1HR } from "../constants";
 
 const Individuals = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [activeStage, setActiveStage] = useState(0);
   const [showOptimizer, setShowOptimizer] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
@@ -45,34 +49,34 @@ const Individuals = () => {
 
 const stageData = [
     {
-      title: "Resume & Positioning",
-      focus: "Narrative Architecture",
-      desc: "Turn your experience into a clear, compelling story that aligns with how companies actually evaluate candidates.",
+      title: t('ind.stage1.title'),
+      focus: t('ind.stage1.focus'),
+      desc: t('ind.stage1.desc'),
       icon: <FileText className="w-6 h-6" />
     },
     {
-      title: "Job Search Strategy",
-      focus: "Direction & Focus",
-      desc: "Define your direction and approach your job search with focus, intention, and agentic search tools.",
+      title: t('ind.stage2.title'),
+      focus: t('ind.stage2.focus'),
+      desc: t('ind.stage2.desc'),
       icon: <Zap className="w-6 h-6" />
     },
     {
-      title: "Interview & Offer Support",
-      focus: "Authority & Value",
-      desc: "Communicate your value clearly, perform with confidence, and navigate offers strategically with AI-driven prep.",
+      title: t('ind.stage3.title'),
+      focus: t('ind.stage3.focus'),
+      desc: t('ind.stage3.desc'),
       icon: <Briefcase className="w-6 h-6" />
     }
   ];
 
   const specializedServices = [
-    { title: "Career Transitions", desc: "Industry or role changes with zero friction.", icon: <RefreshCcw className="w-5 h-5" /> },
-    { title: "Exec Promotions", desc: "Positioning for senior leadership & board roles.", icon: <ShieldCheck className="w-5 h-5" /> },
-    { title: "Breaking In", desc: "Entering high-tech industries for the first time.", icon: <Sparkles className="w-5 h-5" /> },
-    { title: "Re-entry", desc: "Re-entering the workforce after a gap with authority.", icon: <ShieldCheck className="w-5 h-5" /> },
-    { title: "Visibility", desc: "Personal branding for LinkedIn and industry forums.", icon: <User className="w-5 h-5" /> },
-    { title: "Negotiation", desc: "Offer evaluation and total compensation strategy.", icon: <ArrowRight className="w-5 h-5" /> },
-    { title: "Communication", desc: "Strengthening confidence and interview presence.", icon: <Layers className="w-5 h-5" /> },
-    { title: "Non-Linear Paths", desc: "Narratives for professionals with diverse backgrounds.", icon: <Bot className="w-5 h-5" /> }
+    { title: t('ind.spec1.title'), desc: t('ind.spec1.desc'), icon: <RefreshCcw className="w-5 h-5" /> },
+    { title: t('ind.spec2.title'), desc: t('ind.spec2.desc'), icon: <ShieldCheck className="w-5 h-5" /> },
+    { title: t('ind.spec3.title'), desc: t('ind.spec3.desc'), icon: <Sparkles className="w-5 h-5" /> },
+    { title: t('ind.spec4.title'), desc: t('ind.spec4.desc'), icon: <ShieldCheck className="w-5 h-5" /> },
+    { title: t('ind.spec5.title'), desc: t('ind.spec5.desc'), icon: <User className="w-5 h-5" /> },
+    { title: t('ind.spec6.title'), desc: t('ind.spec6.desc'), icon: <ArrowRight className="w-5 h-5" /> },
+    { title: t('ind.spec7.title'), desc: t('ind.spec7.desc'), icon: <Layers className="w-5 h-5" /> },
+    { title: t('ind.spec8.title'), desc: t('ind.spec8.desc'), icon: <Bot className="w-5 h-5" /> }
   ];
 
   const [isServicesExpanded, setIsServicesExpanded] = useState(false);
@@ -108,14 +112,14 @@ const stageData = [
             >
               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-secondary/10 border border-brand-secondary/30 rounded-full text-brand-secondary text-[10px] uppercase font-bold tracking-[0.2em] mb-10 backdrop-blur-sm self-start drop-shadow-lg">
                 <Sparkles className="w-3.5 h-3.5" />
-                Explore your next transformation
+                {t('ind.hero.mode')}
               </div>
               <motion.h1 
                 className="text-5xl sm:text-6xl md:text-8xl font-bold mb-8 leading-[0.9] tracking-tighter drop-shadow-2xl"
                 whileHover={{ rotateX: 5, rotateY: -5, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
               >
-                Engineer Your <br />
-                <span className="text-brand-secondary font-mono tracking-tighter text-shine">Authority.</span>
+                {t('ind.hero.title1')} <br />
+                <span className="text-brand-secondary font-mono tracking-tighter text-shine">{t('ind.hero.title2')}</span>
               </motion.h1>
               <motion.div 
                 whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
@@ -124,21 +128,21 @@ const stageData = [
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-3xl group-hover:bg-brand-secondary/30 transition-all duration-700" />
                 <div className="flex gap-4 items-start relative z-10" style={{ transform: "translateZ(20px)" }}>
-                  <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-brand-secondary to-transparent rounded-full" />
-                  <div className="pl-6">
-                    <p className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight drop-shadow-md">
-                      <span className="text-brand-secondary">Positioning</span> is your competitive edge.
-                    </p>
-                    <p className="text-lg opacity-90 leading-relaxed text-slate-300 font-light">
-                      We synchronize elite executive coaching with <span className="text-white font-semibold px-2 py-0.5 bg-brand-secondary/20 rounded-md">NOVA Intelligence</span> to teach you how to leverage AI tools to master the modern room.
-                    </p>
-                  </div>
+                   <div className="w-1 absolute left-0 top-0 bottom-0 bg-gradient-to-b from-brand-secondary to-transparent rounded-full" />
+                   <div className="pl-6">
+                     <p className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tight drop-shadow-md">
+                       <span className="text-brand-secondary">Positioning</span> {t('ind.hero.desc1')}
+                     </p>
+                     <p className="text-lg opacity-90 leading-relaxed text-slate-300 font-light">
+                       {t('ind.hero.desc2A')} <span className="text-white font-semibold px-2 py-0.5 bg-brand-secondary/20 rounded-md">{t('ind.hero.desc2B')}</span> {t('ind.hero.desc2C')}
+                     </p>
+                   </div>
                 </div>
               </motion.div>
               
               <div className="flex flex-col sm:flex-row gap-4">
                  <Link to="/contact" className="bg-brand-secondary text-brand-dark px-10 py-5 rounded-full font-bold text-lg hover:bg-white hover:scale-105 transition-all shadow-xl shadow-brand-secondary/20 flex items-center justify-center gap-2 cursor-pointer">
-                    Start Transformation <ArrowRight className="w-5 h-5" />
+                    {t('ind.hero.start')} <ArrowRight className="w-5 h-5" />
                  </Link>
 
               </div>
@@ -191,17 +195,17 @@ const stageData = [
       {/* Package Section */}
       <section className="py-32 max-w-7xl mx-auto px-4 relative z-10">
         <div className="text-center mb-24">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Packages Offered</h2>
-          <p className="text-slate-500 text-lg">Tailored to you at a price you can afford.</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">{t('ind.packages.title')}</h2>
+          <p className="text-slate-500 text-lg">{t('ind.packages.desc')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {[
             {
-              tier: "Foundation",
-              subtitle: "Resume & Positioning",
-              price: "Package 1",
-              bestFor: "Professionals who need their resume and LinkedIn to sound stronger and more strategic.",
+              tier: t('ind.pkg1.title'),
+              subtitle: t('ind.pkg1.sub'),
+              price: t('ind.pkg1.price'),
+              bestFor: t('ind.pkg1.for'),
               includes: [
                 "Review of current resume & LinkedIn",
                 "Identification of experience gaps",
@@ -209,14 +213,14 @@ const stageData = [
                 "Keyword & AI role-alignment review",
                 "Positioning strategy documentation"
               ],
-              outcome: "Clear summary of what is/isn't working and prioritized updates for clarity.",
-              cta: "Launch Foundation"
+              outcome: t('ind.pkg1.out'),
+              cta: t('ind.pkg1.cta')
             },
             {
-              tier: "Strategy",
-              subtitle: "Job Search Orchestration",
-              price: "Package 2",
-              bestFor: "Career changers or anyone feeling stuck in the current job market.",
+              tier: t('ind.pkg2.title'),
+              subtitle: t('ind.pkg2.sub'),
+              price: t('ind.pkg2.price'),
+              bestFor: t('ind.pkg2.for'),
               includes: [
                 "All Foundation Services plus:",
                 "Review of target roles & industries",
@@ -224,14 +228,14 @@ const stageData = [
                 "Networking & AI outreach logic",
                 "Transferable skills mapping"
               ],
-              outcome: "A focused plan with prioritized targets instead of applying randomly.",
-              cta: "Build Strategy"
+              outcome: t('ind.pkg2.out'),
+              cta: t('ind.pkg2.cta')
             },
             {
-              tier: "Premium",
-              subtitle: "Authority & Negotiation",
-              price: "Package 3",
-              bestFor: "Candidates preparing for major opportunities or evaluating complex offers.",
+              tier: t('ind.pkg3.title'),
+              subtitle: t('ind.pkg3.sub'),
+              price: t('ind.pkg3.price'),
+              bestFor: t('ind.pkg3.for'),
               includes: [
                 "All of the Above plus:",
                 "Practical AI Interview Tools",
@@ -239,14 +243,14 @@ const stageData = [
                 "Compensation & Offer evaluation",
                 "Executive confidence & communication coaching"
               ],
-              outcome: "Increased confidence and support evaluating offers, pay, and next steps.",
-              cta: "Master Premium"
+              outcome: t('ind.pkg3.out'),
+              cta: t('ind.pkg3.cta')
             },
             {
-              tier: "AI 101 Labs",
-              subtitle: "Tech Literacy Journey",
-              price: "On-Demand",
-              bestFor: "Professionals wanting to better understand tech and how to get started easily.",
+              tier: t('ind.pkg4.title'),
+              subtitle: t('ind.pkg4.sub'),
+              price: t('ind.pkg4.price'),
+              bestFor: t('ind.pkg4.for'),
               includes: [
                 "Intro to modern AI tools (ChatGPT, etc.)",
                 "Automating daily tasks & productivity",
@@ -254,8 +258,8 @@ const stageData = [
                 "Building simple generative workflows",
                 "Overcoming technology anxiety"
               ],
-              outcome: "Confidence integrating tech into your daily life and career to save time.",
-              cta: "Start AI Journey"
+              outcome: t('ind.pkg4.out'),
+              cta: t('ind.pkg4.cta')
             }
           ].map((pkg, i) => (
             <motion.div 
@@ -320,16 +324,16 @@ const stageData = [
            <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
               <div className="max-w-xl">
                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
-                   <Activity className="w-3 h-3" /> Specialized Expertise
+                   <Activity className="w-3 h-3" /> {t('ind.spec.label')}
                  </div>
-                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tighter">Navigating Complexity.</h2>
-                 <p className="text-slate-500 font-light leading-relaxed">Where we thrive: engineered narratives for non-linear careers and high-velocity transitions.</p>
+                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tighter">{t('ind.spec.title')}</h2>
+                 <p className="text-slate-500 font-light leading-relaxed">{t('ind.spec.desc')}</p>
               </div>
               <button 
                 onClick={() => setIsServicesExpanded(!isServicesExpanded)}
                 className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-brand-primary transition-all shadow-xl active:scale-95"
               >
-                {isServicesExpanded ? 'Collapse Solutions' : 'View Specialized Solutions'}
+                {isServicesExpanded ? t('ind.spec.btnCol') : t('ind.spec.btnMain')}
                 <motion.div
                   animate={{ rotate: isServicesExpanded ? 180 : 0 }}
                 >
@@ -391,14 +395,14 @@ const stageData = [
              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
                 <div className="lg:col-span-6">
                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-secondary/10 text-brand-secondary rounded-full text-xs font-bold uppercase tracking-widest mb-8">
-                     <Sparkles className="w-4 h-4" /> Integrated Career Intelligence
+                     <Sparkles className="w-4 h-4" /> {t('ind.hub.label')}
                    </div>
                    <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mb-8 leading-[0.95] tracking-tighter">
-                     NOVA Career <br />
-                     <span className="text-brand-primary font-mono tracking-tighter">Transformation Hub.</span>
+                     {t('ind.hub.title1')} <br />
+                     <span className="text-brand-primary font-mono tracking-tighter">{t('ind.hub.title2')}</span>
                    </h2>
                    <p className="text-xl text-slate-500 mb-12 leading-relaxed font-light max-w-xl">
-                      Unify your trajectory. From simulate growth paths to optimizing your professional narrative—our integrated suite of tools uses NOVA Intelligence to ensure you are positioned for high-velocity career moves.
+                      {t('ind.hub.desc')}
                    </p>
                    
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-12">
@@ -407,8 +411,8 @@ const stageData = [
                             <LucideMap className="w-5 h-5 text-brand-secondary" />
                          </div>
                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm">Path Simulation</h4>
-                            <p className="text-xs text-slate-500">Map your next transition.</p>
+                            <h4 className="font-bold text-slate-900 text-sm">{t('ind.hub.feat1Title')}</h4>
+                            <p className="text-xs text-slate-500">{t('ind.hub.feat1Desc')}</p>
                          </div>
                       </div>
                       <div className="flex gap-4">
@@ -416,8 +420,8 @@ const stageData = [
                             <FileText className="w-5 h-5 text-brand-secondary" />
                          </div>
                          <div>
-                            <h4 className="font-bold text-slate-900 text-sm">Resume Optimization</h4>
-                            <p className="text-xs text-slate-500">Reframing legacy experience.</p>
+                            <h4 className="font-bold text-slate-900 text-sm">{t('ind.hub.feat2Title')}</h4>
+                            <p className="text-xs text-slate-500">{t('ind.hub.feat2Desc')}</p>
                          </div>
                       </div>
                    </div>
@@ -427,7 +431,7 @@ const stageData = [
                         to="/career-hub"
                         className="bg-brand-primary text-white px-10 py-6 rounded-2xl font-bold text-xl hover:bg-brand-dark transition-all shadow-2xl shadow-brand-primary/30 flex items-center justify-center gap-3 group hover:scale-[1.02] active:scale-95 cursor-pointer"
                       >
-                         Launch Hub <Zap className="w-6 h-6 text-brand-secondary group-hover:rotate-12 transition-transform" />
+                         {t('ind.hub.cta')} <Zap className="w-6 h-6 text-brand-secondary group-hover:rotate-12 transition-transform" />
                       </Link>
                       <div className="flex -space-x-3 items-center">
                          {[1,2,3,4].map(i => (

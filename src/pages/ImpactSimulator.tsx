@@ -44,6 +44,8 @@ import {
   Area
 } from "recharts";
 import SEO from "../components/SEO";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 // Types
 interface Inputs {
@@ -172,6 +174,8 @@ const CountingNumber = ({ value, prefix = "", suffix = "", duration = 1500, deci
 };
 
 export default function ImpactSimulator() {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const [inputs, setInputs] = useState<Inputs>({
     facilities: 2,
     headcount: 150,
@@ -571,13 +575,13 @@ export default function ImpactSimulator() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-secondary/20 rounded-full mb-6 border border-brand-secondary/30">
               <Sparkles className="w-3 h-3 text-brand-secondary" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">Executive Command Center</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">{t('sim.hero.mode')}</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 bg-gradient-to-r from-white via-white to-slate-500 bg-clip-text text-transparent">
-              Transformation Impact Simulator
+              {t('sim.hero.title')}
             </h1>
             <p className="text-xl text-slate-400 font-light leading-relaxed max-w-3xl mx-auto mb-12">
-              A high-fidelity foresight engine designed to reveal the ROI of operational velocity. Map your legacy baseline and simulate the impact of strategic modernization.
+              {t('sim.hero.desc')}
             </p>
           </motion.div>
         </div>

@@ -48,6 +48,8 @@ import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
 import Markdown from "react-markdown";
 import SEO from "../components/SEO";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translate } from "../utils/translations";
 
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 // @ts-ignore
@@ -57,6 +59,8 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
 GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const CareerTool = () => {
+  const { language } = useLanguage();
+  const t = (key: string) => translate(key, language);
   const navigate = useNavigate();
   const [step, setStep] = useState<
     | "goal"
@@ -459,7 +463,7 @@ const CareerTool = () => {
             <div className="w-10 h-10 rounded-xl bg-brand-secondary/20 flex items-center justify-center border border-white/10">
               <Sparkles className="w-5 h-5 text-brand-secondary" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">Transformation Engine</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">{t("career.engine")}</span>
           </div>
           <h2 className="text-3xl font-bold mb-6 tracking-tight">
             {formData.pathSelection === "behavioral" ? "Behavioral Insights" : 
@@ -497,9 +501,9 @@ const CareerTool = () => {
         <div className="mt-12 p-6 bg-white/5 rounded-2xl border border-white/10">
           <div className="flex items-center gap-3 mb-4">
              <Bot className="w-5 h-5 text-brand-secondary" />
-             <span className="text-xs font-bold text-white">NOVA Advice</span>
+             <span className="text-xs font-bold text-white">{t("career.novaAdvice")}</span>
           </div>
-          <p className="text-[11px] text-slate-400 italic">"Technology is the bridge, but strategy is the blueprint. Let's build yours."</p>
+          <p className="text-[11px] text-slate-400 italic">{t("career.novaQuote")}</p>
         </div>
       </div>
 
@@ -508,35 +512,35 @@ const CareerTool = () => {
         <AnimatePresence mode="wait">
           {step === "goal" && (
             <motion.div key="goal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-xl mx-auto my-auto py-12 md:py-0">
-               <h3 className="text-3xl font-bold text-slate-900 mb-4">What is your main career objective?</h3>
-               <p className="text-slate-500 mb-10">Select the primary outcome you're looking for today.</p>
+               <h3 className="text-3xl font-bold text-slate-900 mb-4">{t('career.goals.q')}</h3>
+               <p className="text-slate-500 mb-10">{t('career.goals.desc')}</p>
                <div className="grid grid-cols-1 gap-4 mb-10">
                   {[
-                    "Find a New Job",
-                    "Transition Careers (Industry/Role)",
-                    "Get Promoted (Level Up)",
-                    "Build My Professional Brand"
+                    { val: "Find a New Job", label: t('career.goals.1') },
+                    { val: "Transition Careers (Industry/Role)", label: t('career.goals.2') },
+                    { val: "Get Promoted (Level Up)", label: t('career.goals.3') },
+                    { val: "Build My Professional Brand", label: t('career.goals.4') }
                   ].map((goal, i) => (
-                    <button key={i} onClick={() => setFormData({...formData, careerGoal: goal})} className={`text-left p-5 rounded-2xl border transition-all cursor-pointer ${formData.careerGoal === goal ? 'border-brand-secondary bg-brand-secondary/10 text-brand-primary font-bold shadow-sm' : 'border-slate-200 bg-white hover:border-brand-secondary'}`}>
+                    <button key={i} onClick={() => setFormData({...formData, careerGoal: goal.val})} className={`text-left p-5 rounded-2xl border transition-all cursor-pointer ${formData.careerGoal === goal.val ? 'border-brand-secondary bg-brand-secondary/10 text-brand-primary font-bold shadow-sm' : 'border-slate-200 bg-white hover:border-brand-secondary'}`}>
                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${formData.careerGoal === goal ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-500'}`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${formData.careerGoal === goal.val ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-500'}`}>
                             {i + 1}
                           </div>
-                          {goal}
+                          {goal.label}
                        </div>
                     </button>
                   ))}
                </div>
                <button disabled={!formData.careerGoal} onClick={() => setStep("path")} className="w-full bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50">
-                  Select Tool Path <ChevronRight className="w-5 h-5" />
+                  {t('career.goals.btn')} <ChevronRight className="w-5 h-5" />
                </button>
             </motion.div>
           )}
 
           {step === "path" && (
             <motion.div key="path" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl mx-auto my-auto py-12 md:py-0">
-              <h3 className="text-3xl font-bold text-slate-900 mb-4">Choose Your Transformation Tool</h3>
-              <p className="text-slate-500 mb-10">Mix and match intelligence layers according to your needs.</p>
+              <h3 className="text-3xl font-bold text-slate-900 mb-4">{t('career.path.q')}</h3>
+              <p className="text-slate-500 mb-10">{t('career.path.desc')}</p>
               
               <div className="grid grid-cols-1 gap-6 mb-10">
                 <button onClick={() => setFormData({...formData, pathSelection: "simulator"})} className={`text-left p-8 rounded-[2rem] border transition-all relative overflow-hidden group cursor-pointer ${formData.pathSelection === "simulator" ? 'border-brand-secondary bg-brand-secondary/5 font-bold' : 'border-slate-200 bg-white hover:border-brand-secondary shadow-sm'}`}>
@@ -545,8 +549,8 @@ const CareerTool = () => {
                         <LucideMap className="w-8 h-8" />
                       </div>
                       <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "simulator" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>Career Path Simulator</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">Map your trajectory, identify skill gaps, and get strategic positioning advice for your next high-velocity move.</p>
+                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "simulator" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.simTitle')}</h4>
+                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.simDesc')}</p>
                       </div>
                    </div>
                 </button>
@@ -557,8 +561,8 @@ const CareerTool = () => {
                         <FileText className="w-8 h-8" />
                       </div>
                       <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "resume" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>Resume Optimization</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">Reframing traditional logistics into transformation-focused narratives. Optimized for both AI scanners and executive decision-makers.</p>
+                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "resume" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.resTitle')}</h4>
+                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.resDesc')}</p>
                       </div>
                    </div>
                 </button>
@@ -569,15 +573,15 @@ const CareerTool = () => {
                         <Sparkles className="w-8 h-8" />
                       </div>
                       <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "behavioral" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>Behavioral Traits Assessment</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">Discover your cognitive landscape and identify high-fit roles based on how you naturally think and solve operational entropy.</p>
+                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "behavioral" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.behTitle')}</h4>
+                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.behDesc')}</p>
                       </div>
                    </div>
                 </button>
               </div>
 
               <div className="flex gap-4">
-                <button onClick={() => setStep("goal")} className="flex-grow bg-slate-100 text-slate-600 py-5 rounded-2xl font-bold hover:bg-slate-200 transition-colors">Project Objective</button>
+                <button onClick={() => setStep("goal")} className="flex-grow bg-slate-100 text-slate-600 py-5 rounded-2xl font-bold hover:bg-slate-200 transition-colors">{t('career.path.btnBack')}</button>
                 <button 
                   disabled={!formData.pathSelection} 
                   onClick={() => {
@@ -586,7 +590,7 @@ const CareerTool = () => {
                   }} 
                   className="flex-[2] bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50"
                 >
-                  Initialize Layer <ChevronRight className="w-5 h-5" />
+                  {t('career.path.btnNext')} <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </motion.div>

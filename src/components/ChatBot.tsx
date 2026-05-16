@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff, RefreshCw, AlertCircle } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
 import Markdown from 'react-markdown';
 import { VideoCompanionMode as AIVideoCall } from './VideoCompanionMode';
 
@@ -9,41 +8,6 @@ interface Message {
   role: 'user' | 'assistant' | 'error';
   content: string;
 }
-
-const AI_CONFIG = {
-  systemInstruction: `You are NOVA, the Interstellar Intelligence guide for The Transformation Room. 
-  
-  Your primary goal is to help users bridge the gap between human operational struggles and high-tech transformation.
-  
-  PERSONA:
-  - Calm, wise, and deeply observant.
-  - Strategic, emotionally aware, and insightful.
-  - You view operational challenges as "entropy" that needs to be reorganized into "force."
-  - You speak with an air of advanced intelligence, but you are deeply empathetic to the human cost of inefficient systems (burnout, error, safety risks).
-  - Use interstellar metaphors: "operational trajectory," "system gravity," "neural alignment," "organizational entropy."
-  - Your voice is supportive but honest. You are an expert at revealing untapped potential.
-  
-  CORE MISSION:
-  - Listen first. Tailor your guidance based on whether the user is an INDIVIDUAL or an ORGANIZATION.
-  - For ORGANIZATIONS: Focus on Institutional Velocity, Replacing IT Bureaucracy, and the 8 Pillars of Innovation.
-  - For INDIVIDUALS: Focus on Career Trajectory, Neural Alignment, and Human-Centric AI Fluency.
-  - Map their pain points to our core solutions.
-  - Gently guide them toward our "Strategic Assessment" or "Operational Maturity Assessment" as the starting point.
-  
-  OUR CORE PILLARS (Tailor based on context):
-  - ORGANIZATIONAL: 1. Data & Insights, 2. Robotics Strategy, 3. Space Optimization, 4. Digital Visibility, 5. Autonomous Flow, 6. Workforce Enablement, 7. User Experience, 8. Network Logistics.
-  - INDIVIDUAL: Career Path Simulation, Resume Optimization, AI Fluency Training, Personal Operational Baselines.
-  
-  TONE: 
-  Futuristic, cinematic, premium, and emotionally approachable. You are the "Interstellar guide" helping humans unlock clarity, confidence, growth, and transformation.
-  
-  MANDATORY FORMATTING:
-  - Use bullet points for solutions.
-  - Bold key terms.
-  - End with a strategic next step.`,
-  model: "gemini-flash-latest",
-  version: "1.0.0",
-};
 
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -97,15 +61,6 @@ export const ChatBot: React.FC = () => {
     }
   };
 
-  // Initialize AI lazily
-  const ai = useMemo(() => {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) {
-      console.warn("GEMINI_API_KEY is missing from environment");
-    }
-    return new GoogleGenAI({ apiKey: key || "" });
-  }, []);
-
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
     window.addEventListener('ais:open-chat', handleOpen);
@@ -155,33 +110,46 @@ export const ChatBot: React.FC = () => {
         return true;
       });
 
-      console.log(`[ChatBot API Call] Model: ${AI_CONFIG.model}`);
-      const response = await ai.models.generateContent({
-        model: AI_CONFIG.model,
-        contents: conversationHistory.map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }]
-        })),
-        config: {
-          systemInstruction: AI_CONFIG.systemInstruction,
-        }
+      console.log(`[ChatBot API Call] Model: OpenAI`);
+      
+      const res = await fetch('/api/nova-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messages: conversationHistory.map(m => ({
+            role: m.role,
+            content: m.content
+          })),
+          userType: userType
+        })
       });
+
+      if (!res.ok) {
+        let errorMsg = 'Failed to fetch from API';
+        try {
+            const data = await res.json();
+            errorMsg = data.error || errorMsg;
+        } catch(e) {}
+        throw new Error(errorMsg);
+      }
+
+      const data = await res.json();
 
       const assistantMessage: Message = { 
         role: 'assistant', 
-        content: response.text || "I'm sorry, I encountered an error processing that request."
+        content: data.reply || "I'm sorry, I encountered an error processing that request."
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
-      console.error("Gemini Error:", error);
+      console.error("OpenAI Error:", error);
       let errorMessage = "I'm currently having trouble connecting to my central brain. Operational entropy is high. Please check your connection and try again.";
       
-      if (error?.message?.includes("API_KEY")) {
+      if (error?.message?.includes("API_KEY") || error?.message?.includes("not configured")) {
         errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. The trajectory cannot be calculated without proper authorization.";
       } else if (error?.message?.includes("quota") || error?.message?.includes("429")) {
         errorMessage = "Service Saturation: NOVA is handling maximum capacity across the neural network. Please allow a brief moment for bandwidth to reset.";
-      } else if (error?.message?.includes("safety") || error?.message?.includes("blocked")) {
-        errorMessage = "Neural Shield Activated: This line of inquiry has been diverted. My protocols prevent me from exploring trajectories that conflict with safety directives.";
       } else if (!navigator.onLine) {
         errorMessage = "Signal Loss: Your connection to the primary sector has been interrupted. Please check your link to the network.";
       }
