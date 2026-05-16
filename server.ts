@@ -15,15 +15,18 @@ async function startServer() {
   // Initialize OpenAI (Ensure OPENAI_API_KEY is in your environment)
   let openai: OpenAI | null = null;
   const isStreamingEnabled = true; // Streaming active true/false
-  console.log(`[Server] Checking OpenAI Environment vars... OPENAI_API_KEY present: ${!!process.env.OPENAI_API_KEY}`);
+  
+  // Support variations if the user renamed it (e.g., in Vercel)
+  const openAIKey = process.env.OPENAI_API_KEY || process.env.OPEN_AI_API_KEY;
+  
+  console.log(`[Server] Environment Check: OPENAI_API_KEY present: ${!!process.env.OPENAI_API_KEY}, OPEN_AI_API_KEY present: ${!!process.env.OPEN_AI_API_KEY}`);
   
   try {
-    if (process.env.OPENAI_API_KEY) {
-      const key = process.env.OPENAI_API_KEY;
-      openai = new OpenAI({ apiKey: key });
-      console.log(`[Server] OpenAI initialized successfully. Key length: ${key.length}, Starts with: ${key.substring(0, 3)}...`);
+    if (openAIKey) {
+      openai = new OpenAI({ apiKey: openAIKey });
+      console.log(`[Server] OpenAI initialized successfully. Key length: ${openAIKey.length}, Starts with: ${openAIKey.substring(0, 3)}...`);
     } else {
-      console.log("[Server] OpenAI initialization skipped: No API key found.");
+      console.log("[Server] OpenAI initialization skipped: No API key found in OPENAI_API_KEY or OPEN_AI_API_KEY.");
     }
   } catch (error) {
     console.error("[Server] OpenAI initialization error:", error);
@@ -42,7 +45,7 @@ async function startServer() {
     try {
       if (!openai) {
         console.error("[Server] Error: OpenAI client is not configured.");
-        return res.status(500).json({ error: "OpenAI client is not configured (missing OPENAI_API_KEY)." });
+        return res.status(500).json({ error: "OpenAI client is not configured (missing API key)." });
       }
 
       const { messages, userType } = req.body;
@@ -165,7 +168,7 @@ MANDATORY FORMATTING:
   app.post("/api/generate", async (req, res) => {
     try {
       if (!openai) {
-        return res.status(500).json({ error: "OpenAI client is not configured (missing OPENAI_API_KEY)." });
+        return res.status(500).json({ error: "OpenAI client is not configured (missing API key)." });
       }
 
       const { messages, systemInstruction } = req.body;
