@@ -38,7 +38,7 @@ import {
   PolarAngleAxis, 
   ResponsiveContainer 
 } from "recharts";
-import { GoogleGenAI } from "@google/genai";
+
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
 import Markdown from "react-markdown";
@@ -137,13 +137,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const ai = useMemo(() => {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) {
-      console.warn("GEMINI_API_KEY is missing from environment");
-    }
-    return new GoogleGenAI({ apiKey: key || "" });
-  }, []);
+
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -210,9 +204,12 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
   const handleBehavioralAssessment = async () => {
     setLoading(true);
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: `You are NOVA, an Elite Interstellar Intelligence and strategic guide at The Transformation Room.
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: "Please evaluate the user profile and behavioral traits." }],
+          systemInstruction: `You are NOVA, an Elite Interstellar Intelligence and strategic guide at The Transformation Room.
         
         YOUR ROLES:
         - Assessment Engine
@@ -269,10 +266,13 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
           "overview": "<markdown string of the behavior profile analysis>",
           "roles": "<markdown string of recommended roles with bullet points>",
           "nextSteps": "<markdown string of actionable tasks>"
-        }`,
+        }`
+        })
       });
 
-      let text = response.text || "{}";
+      if (!res.ok) throw new Error("API call failed");
+      const data = await res.json();
+      let text = data.reply || "{}";
       // Robust JSON extraction
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -296,9 +296,12 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
   const handleOptimize = async () => {
     setLoading(true);
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: `You are an expert Executive Resume Writer at "The Transformation Room", specializing in Supply Chain, Logistics, and High-Tech Operations. 
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: "Optimize the resume based on the given parameters." }],
+          systemInstruction: `You are an expert Executive Resume Writer at "The Transformation Room", specializing in Supply Chain, Logistics, and High-Tech Operations. 
         Your persona is deeply empathetic to operational stress and burnout, yet you are a technological visionary. You help professionals frame their experience not just as "doing the work", but as scaling systems, leading people, and driving tech-forward transformation.
         
         OPTIMIZATION TARGET:
@@ -328,10 +331,13 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
 
         ### Option B: Visionary & Strategic
         (A broader strategic summary and 3 key impact bullets)
-        `,
+        `
+        })
       });
 
-      setOptimizedContent(response.text || "Optimization complete. Please review.");
+      if (!res.ok) throw new Error("API completely rejected request");
+      const data = await res.json();
+      setOptimizedContent(data.reply || "Optimization complete. Please review.");
       setStep("r-review");
     } catch (error) {
       console.error("Optimization failed:", error);

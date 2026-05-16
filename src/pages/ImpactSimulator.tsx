@@ -426,17 +426,18 @@ export default function ImpactSimulator() {
   };
 
   const waterfallData = [
-    { name: "Uptime", value: results.uptimeSavings + results.absenteeismSavings },
-    { name: "Volume", value: results.annualVolumeValue * 0.35 },
-    { name: "Overtime", value: results.otSavings },
-    { name: "Admin", value: results.adminSavings },
-    { name: "Retention", value: results.turnoverSavings },
+    { name: t("sim.phase3.comp.uptime") || "Uptime", value: results.uptimeSavings + results.absenteeismSavings },
+    { name: t("sim.phase3.gain")?.replace("Baseline ", "") || "Volume", value: results.annualVolumeValue * 0.35 },
+    { name: t("sim.phase3.comp.overtime") || "Overtime", value: results.otSavings },
+    { name: t("sim.phase3.comp.admin") || "Admin", value: results.adminSavings },
+    { name: t("sim.phase3.comp.retention") || "Retention", value: results.turnoverSavings },
   ].sort((a, b) => b.value - a.value);
 
   const cumulativeData = useMemo(() => {
     const months = [];
     for (let i = 1; i <= 60; i++) {
-      months.push(i % 12 === 0 ? `Y${i/12}` : `M${i}`);
+        const yr = language === 'es' ? 'A' : 'Y';
+        months.push(i % 12 === 0 ? `${yr}${i/12}` : `M${i}`);
     }
     
     let accumulated = 0;
@@ -599,24 +600,24 @@ export default function ImpactSimulator() {
               <Building2 className="w-6 h-6 text-brand-primary" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Phase 01</span>
-              <h3 className="text-2xl font-bold tracking-tight">Establish Legacy Baseline</h3>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary block mb-1">{t("sim.phase1.title") || "Phase 01"}</span>
+              <h3 className="text-2xl font-bold tracking-tight">{t("sim.phase1.subtitle") || "Establish Legacy Baseline"}</h3>
             </div>
           </div>
 
           <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-10 shadow-2xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-10">
               {[
-                { label: "Number of Facilities", key: "facilities", min: 1, max: 50, step: 1, unit: "", icon: Building2 },
-                { label: "Headcount per Facility", key: "headcount", min: 1, max: 2000, step: 5, unit: "", icon: Users },
-                { label: "Average Hourly Wage", key: "avgWage", min: 10, max: 75, step: 0.5, unit: "$", icon: DollarSign },
-                { label: "Overtime Rate", key: "otRate", min: 0, max: 50, step: 0.5, unit: "%", icon: Clock },
-                { label: "Weekly Volume", key: "avgVolume", min: 100, max: 1000000, step: 500, unit: "u", icon: Layers },
-                { label: "Unit Margin", key: "unitMargin", min: 0.01, max: 5, step: 0.01, unit: "$", icon: TrendingUp },
-                { label: "Annual Turnover", key: "turnover", min: 0, max: 200, step: 1, unit: "%", icon: RefreshCcw },
-                { label: "Weekly Admin/Reporting", key: "adminHours", min: 0, max: 160, step: 1, unit: "h", icon: MousePointer2 },
-                { label: "Current Uptime %", key: "currentUptime", min: 50, max: 95, step: 1, unit: "%", icon: Zap },
-                { label: "Admin Surcharge / Extra CAPEX", key: "investment", min: 0, max: 2000000, step: 10000, unit: "$", icon: Target },
+                { label: t("sim.phase1.facilities") || "Number of Facilities", key: "facilities", min: 1, max: 50, step: 1, unit: "", icon: Building2 },
+                { label: t("sim.phase1.headcount") || "Headcount per Facility", key: "headcount", min: 1, max: 2000, step: 5, unit: "", icon: Users },
+                { label: t("sim.phase1.wage") || "Average Hourly Wage", key: "avgWage", min: 10, max: 75, step: 0.5, unit: "$", icon: DollarSign },
+                { label: t("sim.phase1.overtime") || "Overtime Rate", key: "otRate", min: 0, max: 50, step: 0.5, unit: "%", icon: Clock },
+                { label: t("sim.phase1.volume") || "Weekly Volume", key: "avgVolume", min: 100, max: 1000000, step: 500, unit: "u", icon: Layers },
+                { label: t("sim.phase1.margin") || "Unit Margin", key: "unitMargin", min: 0.01, max: 5, step: 0.01, unit: "$", icon: TrendingUp },
+                { label: t("sim.phase1.turnover") || "Annual Turnover", key: "turnover", min: 0, max: 200, step: 1, unit: "%", icon: RefreshCcw },
+                { label: t("sim.phase1.admin") || "Weekly Admin/Reporting", key: "adminHours", min: 0, max: 160, step: 1, unit: "h", icon: MousePointer2 },
+                { label: t("sim.phase1.uptime") || "Current Uptime %", key: "currentUptime", min: 50, max: 95, step: 1, unit: "%", icon: Zap },
+                { label: t("sim.phase1.surcharge") || "Admin Surcharge / Extra CAPEX", key: "investment", min: 0, max: 2000000, step: 10000, unit: "$", icon: Target },
               ].map((input) => (
                 <div key={input.key} className="space-y-4 group">
                   <div className="flex justify-between items-center mb-1">
@@ -668,8 +669,8 @@ export default function ImpactSimulator() {
                 <Target className="w-7 h-7 text-brand-secondary" />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-secondary mb-1 block">Phase 02</span>
-                <h3 className="text-3xl font-bold tracking-tight text-white">Deploy Strategic Levers</h3>
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-secondary mb-1 block">{t("sim.phase2.title") || "Phase 02"}</span>
+                <h3 className="text-3xl font-bold tracking-tight text-white">{t("sim.phase2.subtitle") || "Deploy Strategic Levers"}</h3>
               </div>
             </div>
 
@@ -679,17 +680,17 @@ export default function ImpactSimulator() {
                 const variants = {
                   conservative: {
                     active: "bg-slate-300 text-slate-900 shadow-[0_10px_20px_rgba(255,255,255,0.1)]",
-                    label: "Low Impact",
+                    label: t("sim.phase2.impactLow") || "Low Impact",
                     indicator: "bg-slate-400"
                   },
                   realistic: {
                     active: "bg-brand-secondary text-brand-dark shadow-[0_10px_20px_rgba(0,242,255,0.2)]",
-                    label: "Mid Impact",
+                    label: t("sim.phase2.impactMid") || "Mid Impact",
                     indicator: "bg-brand-secondary"
                   },
                   aggressive: {
                     active: "bg-brand-primary text-white shadow-[0_10px_20px_rgba(66,85,255,0.2)]",
-                    label: "Max Impact",
+                    label: t("sim.phase2.impactHigh") || "Max Impact",
                     indicator: "bg-brand-primary"
                   }
                 };
@@ -704,7 +705,7 @@ export default function ImpactSimulator() {
                         : "bg-white/5 border-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"
                     }`}
                   >
-                    <span className="text-[11px] font-black uppercase tracking-[0.25em] mb-1">{s}</span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.25em] mb-1">{t(`sim.phase2.${s}`) || s}</span>
                     <div className="flex items-center gap-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-current animate-pulse" : variants[s].indicator} opacity-50`} />
                       <span className={`text-[9px] font-bold uppercase tracking-widest opacity-60 ${isActive ? "text-inherit" : "text-slate-500"}`}>
@@ -751,15 +752,15 @@ export default function ImpactSimulator() {
                   </div>
                   
                   <div className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-[0.15em] leading-tight block text-white/90">{spec.label}</span>
+                    <span className="text-xs font-black uppercase tracking-[0.15em] leading-tight block text-white/90">{t(`sim.lever.${sol.key}.title`) || spec.label}</span>
                     <p className={`text-[11px] leading-relaxed transition-colors ${isSelected ? "text-slate-300" : "text-slate-600 group-hover:text-slate-500"}`}>
-                      {spec.description}
+                      {t(`sim.lever.${sol.key}.desc`) || spec.description}
                     </p>
                   </div>
 
                   <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/5">
                     <span className={`text-[10px] font-mono font-bold ${isSelected ? "text-brand-secondary" : "text-slate-700"}`}>
-                      Est. ${((spec.baseCost + (spec.perFacilityCost * inputs.facilities)) / 1000).toFixed(0)}k
+                      {t("sim.lever.est") || "Est."} ${((spec.baseCost + (spec.perFacilityCost * inputs.facilities)) / 1000).toFixed(0)}k
                     </span>
                     <div className={`w-5 h-5 rounded-full border transition-all flex items-center justify-center ${
                       isSelected 
@@ -799,8 +800,8 @@ export default function ImpactSimulator() {
               <LayoutDashboard className="w-6 h-6 text-brand-primary" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Phase 03</span>
-              <h3 className="text-2xl font-bold tracking-tight">Projected Operational Impact</h3>
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{t("sim.phase3.title") || "Phase 03"}</span>
+              <h3 className="text-2xl font-bold tracking-tight">{t("sim.phase3.subtitle") || "Projected Operational Impact"}</h3>
             </div>
           </div>
 
@@ -817,13 +818,13 @@ export default function ImpactSimulator() {
                     <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:scale-125 transition-transform duration-1000">
                       <TrendingUp className="w-48 h-48" />
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-primary mb-4">5-Year Value Potential</div>
+                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-primary mb-4">{t("sim.phase3.pot5y") || "5-Year Value Potential"}</div>
                     <div className="text-5xl font-black tracking-tighter text-white mb-6">
                       <CountingNumber value={results.fiveYearTotalValue} prefix="$" />
                     </div>
                     <div className="flex items-center gap-3 text-sm text-brand-primary font-bold">
                       <div className="w-8 h-px bg-brand-primary/30" />
-                      <span><CountingNumber value={results.fiveYearRoi} suffix="%" /> 5-Year Net ROI</span>
+                      <span><CountingNumber value={results.fiveYearRoi} suffix="%" /> {t("sim.phase3.roi5y") || "5-Year Net ROI"}</span>
                     </div>
                   </motion.div>
 
@@ -836,7 +837,7 @@ export default function ImpactSimulator() {
                     <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:scale-125 transition-transform duration-1000">
                       <Zap className="w-48 h-48 text-brand-secondary" />
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-secondary mb-4">Baseline Volume Gain</div>
+                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-brand-secondary mb-4">{t("sim.phase3.gain") || "Baseline Volume Gain"}</div>
                     <div className="text-5xl font-black tracking-tighter text-white mb-6">
                       +<CountingNumber value={Math.round(results.weeklyVolumeGain)} /> 
                       <span className="text-sm font-bold text-slate-500 ml-2">Units/Week</span>
@@ -866,16 +867,16 @@ export default function ImpactSimulator() {
                         <RadialBar background dataKey="value" />
                       </RadialBarChart>
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-slate-400 mb-4">Total Implementation CAPEX</div>
+                    <div className="text-[10px] font-black uppercase tracking-[.25em] text-slate-400 mb-4">{t("sim.phase3.capex") || "Total Implementation CAPEX"}</div>
                     <div className="flex flex-col gap-4">
                       <div className="text-5xl font-black tracking-tighter text-white">
                         <CountingNumber value={results.calculatedInvestment} prefix="$" />
                       </div>
                       <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        Incl. 20% Contingency Buffer
+                        {t("sim.phase3.buffer") || "Incl. 20% Contingency Buffer"}
                       </div>
                     </div>
-                    <div className="text-[10px] font-bold text-brand-secondary uppercase tracking-widest mt-4">Calculated from Strategic Selection</div>
+                    <div className="text-[10px] font-bold text-brand-secondary uppercase tracking-widest mt-4">{t("sim.phase3.calcFrom") || "Calculated from Strategic Selection"}</div>
                   </motion.div>
                 </div>
             </div>
@@ -888,7 +889,7 @@ export default function ImpactSimulator() {
                     <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
                       <PieChartIcon className="w-4 h-4 text-brand-primary" />
                     </div>
-                    <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">Opportunity Composition</h4>
+                    <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">{t("sim.phase3.comp") || "Opportunity Composition"}</h4>
                   </div>
                 </div>
                 <div className="flex-grow">
@@ -937,7 +938,7 @@ export default function ImpactSimulator() {
                     <div className="w-8 h-8 rounded-lg bg-brand-secondary/10 flex items-center justify-center border border-brand-secondary/20">
                       <Activity className="w-4 h-4 text-brand-secondary" />
                     </div>
-                    <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">Cumulative Value Projection</h4>
+                    <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">{t("sim.phase3.cum") || "Cumulative Value Projection"}</h4>
                   </div>
                 </div>
                 <div className="flex-grow relative z-10">
@@ -961,7 +962,7 @@ export default function ImpactSimulator() {
                       />
                       <Tooltip 
                         contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
-                        formatter={(value: number) => [formatCurrency(value), 'Net Cumulative Value']}
+                        formatter={(value: number) => [formatCurrency(value), t("sim.phase3.netval") || 'Net Cumulative Value']}
                       />
                       <Area 
                         type="monotone" 
@@ -975,7 +976,7 @@ export default function ImpactSimulator() {
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest text-center mt-6 relative z-10">36-Month Strategic Value Realization</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest text-center mt-6 relative z-10">{t("sim.phase3.month36") || "36-Month Strategic Value Realization"}</p>
               </div>
             </div>
           </div>
@@ -990,15 +991,19 @@ export default function ImpactSimulator() {
               <div>
                 <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8">
                   <ShieldCheck className="w-5 h-5 text-brand-secondary" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white">Advisory Recommendation</span>
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white">{t("sim.adv.title") || "Advisory Recommendation"}</span>
                 </div>
                 <h3 className="text-4xl md:text-5xl font-black tracking-tighter mb-8 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-                  Your Strategic Roadmap: <br className="hidden md:block" /> {results.recommendation} Level Integration
+                  {language === 'es' ? "Tu Hoja de Ruta Estratégica:" : "Your Strategic Roadmap:"} <br className="hidden md:block" /> {language === 'es' ? `Integración Nivel ${results.recommendation}` : `${results.recommendation} Level Integration`}
                 </h3>
                 
                 <div className="space-y-6 max-w-2xl">
                   <p className="text-xl text-slate-300 leading-relaxed font-light">
-                    Your assessment reveals a high-leverage opportunity in <span className="text-brand-secondary font-bold">{results.opportunities[0].name}</span>. By consolidating fragmented workflows and manual reporting, you can unlock <span className="text-white font-bold">{formatCurrency(results.totalAnnualValue)}</span> in latent organizational value.
+                    {language === 'es' ? (
+                      <>Tu evaluación revela una oportunidad de alto apalancamiento en <span className="text-brand-secondary font-bold">{results.opportunities[0].name}</span>. Al consolidar flujos de trabajo fragmentados y reportes manuales, puedes desbloquear <span className="text-white font-bold">{formatCurrency(results.totalAnnualValue)}</span> en valor organizacional latente.</>
+                    ) : (
+                      <>Your assessment reveals a high-leverage opportunity in <span className="text-brand-secondary font-bold">{results.opportunities[0].name}</span>. By consolidating fragmented workflows and manual reporting, you can unlock <span className="text-white font-bold">{formatCurrency(results.totalAnnualValue)}</span> in latent organizational value.</>
+                    )}
                   </p>
                   
                   <div className="p-8 bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 relative group-hover:border-brand-secondary/30 transition-colors">
@@ -1006,10 +1011,14 @@ export default function ImpactSimulator() {
                       <div className="w-10 h-10 rounded-full bg-brand-secondary flex items-center justify-center">
                         <Zap className="w-5 h-5 text-brand-dark" />
                       </div>
-                      <span className="text-sm font-black uppercase tracking-widest text-brand-secondary">Performance Insight</span>
+                      <span className="text-sm font-black uppercase tracking-widest text-brand-secondary">{t("sim.adv.insight.title") || "Performance Insight"}</span>
                     </div>
                     <p className="text-lg text-slate-400 leading-relaxed italic font-light">
-                      "By recapturing operational uptime, your volume gain alone supports a {results.payback.toFixed(0)}-month ROI, effectively rendering your modernization self-funding."
+                      {language === 'es' ? (
+                        `"Al recapturar el tiempo de actividad operativo, solo tu ganancia de volumen apoya un ROI de ${results.payback.toFixed(0)} meses, haciendo efectivamente que tu modernización se autofinancie."`
+                      ) : (
+                        `"By recapturing operational uptime, your volume gain alone supports a ${results.payback.toFixed(0)}-month ROI, effectively rendering your modernization self-funding."`
+                      )}
                     </p>
                   </div>
                 </div>
@@ -1017,10 +1026,10 @@ export default function ImpactSimulator() {
 
               <div className="grid grid-cols-2 gap-6">
                 {[
-                  { label: "Annual Value", val: formatCurrency(results.totalAnnualValue), icon: DollarSign, color: "text-brand-secondary" },
-                  { label: "Payback Period", val: `${results.payback.toFixed(1)} Months`, icon: Clock, color: "text-brand-primary" },
-                  { label: "OpEx Reduction", val: `${Math.round(results.totalAnnualValue / (inputs.headcount * inputs.facilities * inputs.avgWage * 20.8))}%`, icon: TrendingUp, color: "text-emerald-500" },
-                  { label: "Admin Recovery", val: `${Math.round(results.adminSavings / inputs.avgWage).toLocaleString()} Hours`, icon: MousePointer2, color: "text-amber-500" },
+                  { label: t("sim.adv.metrics.annual") || "Annual Value", val: formatCurrency(results.totalAnnualValue), icon: DollarSign, color: "text-brand-secondary" },
+                  { label: t("sim.adv.metrics.payback") || "Payback Period", val: `${results.payback.toFixed(1)} ${t("sim.adv.metrics.months")}`, icon: Clock, color: "text-brand-primary" },
+                  { label: t("sim.adv.metrics.opex") || "OpEx Reduction", val: `${Math.round(results.totalAnnualValue / (inputs.headcount * inputs.facilities * inputs.avgWage * 20.8))}%`, icon: TrendingUp, color: "text-emerald-500" },
+                  { label: t("sim.adv.metrics.admin") || "Admin Recovery", val: `${Math.round(results.adminSavings / inputs.avgWage).toLocaleString()} ${t("sim.adv.metrics.hours")}`, icon: MousePointer2, color: "text-amber-500" },
                 ].map((item, i) => (
                   <motion.div 
                     key={i}
@@ -1047,10 +1056,10 @@ export default function ImpactSimulator() {
           
           <div className="relative z-10 max-w-3xl">
             <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-8">
-              Want to validate this with your real operational data?
+              {t("sim.conv.title")}
             </h2>
             <p className="text-xl text-brand-secondary font-medium mb-12 leading-relaxed">
-              We help you move from simulation to reality. Our assessments reveal the hidden friction in your systems and provide a surgically precise roadmap for modernization.
+              {t("sim.conv.desc")}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6">
@@ -1058,7 +1067,7 @@ export default function ImpactSimulator() {
                  onClick={() => window.location.href = '/contact'}
                  className="bg-brand-secondary text-brand-dark px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest hover:bg-white transition-all text-center flex-1"
               >
-                Ready to Start Your Transformation
+                {t("sim.conv.cta")}
               </button>
             </div>
           </div>

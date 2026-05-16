@@ -13,25 +13,37 @@ async function startServer() {
 
   // Initialize OpenAI (Ensure OPENAI_API_KEY is in your environment)
   let openai: OpenAI | null = null;
+  const isStreamingEnabled = true; // Streaming active true/false
+  console.log(`[Server] Checking OpenAI Environment vars... OPENAI_API_KEY present: ${!!process.env.OPENAI_API_KEY}`);
+  
   try {
     if (process.env.OPENAI_API_KEY) {
       openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      console.log("[Server] OpenAI initialized successfully.");
+    } else {
+      console.log("[Server] OpenAI initialization skipped: No API key found.");
     }
   } catch (error) {
-    console.error("OpenAI initialization error:", error);
+    console.error("[Server] OpenAI initialization error:", error);
   }
 
   // --- /api/nova-chat route ---
   app.post("/api/nova-chat", async (req, res) => {
+    console.log(`[Server] POST /api/nova-chat route reached.`);
     try {
       if (!openai) {
+        console.error("[Server] Error: OpenAI client is not configured.");
         return res.status(500).json({ error: "OpenAI client is not configured (missing OPENAI_API_KEY)." });
       }
 
       const { messages, userType } = req.body;
       if (!messages || !Array.isArray(messages)) {
+        console.error("[Server] Error: Invalid messages array received.");
         return res.status(400).json({ error: "Invalid messages array." });
       }
+
+      console.log(`[Server] Request received for userType: ${userType}, conversation length: ${messages.length}`);
+      console.log(`[Server] Streaming active: ${isStreamingEnabled}`);
 
       // Company knowledge snippet (could be expanded)
       const companyKnowledge = `
@@ -96,18 +108,78 @@ MANDATORY FORMATTING:
         ...messages
       ];
 
+      if (isStreamingEnabled) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        const stream = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: apiMessages,
+          stream: true,
+        });
+
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || "";
+          if (content) {
+            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+          }
+        }
+        res.write('data: [DONE]\n\n');
+        res.end();
+        console.log(`[Server] Streaming response completed.`);
+      } else {
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o-mini", // or gpt-4o depending on preference
+          messages: apiMessages,
+        });
+        
+        console.log(`[Server] Response returned to client successfully.`);
+        res.json({ reply: completion.choices[0].message.content });
+      }
+
+    } catch (error: any) {
+      console.error("[Server] Error in /api/nova-chat:", error.message || error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || "Failed to generate chat response." });
+      } else {
+        res.write(`data: ${JSON.stringify({ error: error.message || "Streaming failed." })}\n\n`);
+        res.end();
+      }
+    }
+  });
+  // --- End /api/nova-chat route ---
+
+  // --- /api/generate route ---
+  app.post("/api/generate", async (req, res) => {
+    try {
+      if (!openai) {
+        return res.status(500).json({ error: "OpenAI client is not configured (missing OPENAI_API_KEY)." });
+      }
+
+      const { messages, systemInstruction } = req.body;
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ error: "Invalid messages array." });
+      }
+
+      const apiMessages = [];
+      if (systemInstruction) {
+        apiMessages.push({ role: "system", content: systemInstruction });
+      }
+      apiMessages.push(...messages);
+
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini", // or gpt-4o depending on preference
+        model: "gpt-4o-mini",
         messages: apiMessages,
       });
 
       res.json({ reply: completion.choices[0].message.content });
     } catch (error: any) {
-      console.error("OpenAI Error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate chat response." });
+      console.error("[Server] OpenAI Error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate text response." });
     }
   });
-  // --- End /api/nova-chat route ---
+  // --- End /api/generate route ---
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

@@ -93,6 +93,8 @@ export const ChatBot: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
+    let finalErrorMessage = '';
+
     try {
       // Clear any previous error message if retrying
       setMessages(prev => {
@@ -103,14 +105,16 @@ export const ChatBot: React.FC = () => {
       });
 
       // The API expects the conversation to start with a 'user' message.
-      // We skip the initial assistant welcome message and any error messages.
       const conversationHistory = currentMessages.filter((msg, index) => {
         if (index === 0 && msg.role === 'assistant') return false;
         if (msg.role === 'error') return false;
         return true;
       });
 
-      console.log(`[ChatBot API Call] Model: OpenAI`);
+      console.log(`[ChatBot API] Initializing request. Model: OpenAI`);
+      console.log(`[ChatBot API] Route: /api/nova-chat`);
+      console.log(`[ChatBot API] Messages count: ${conversationHistory.length}`);
+      console.log(`[ChatBot API] Streaming: active true`);
       
       const res = await fetch('/api/nova-chat', {
         method: 'POST',
@@ -126,6 +130,8 @@ export const ChatBot: React.FC = () => {
         })
       });
 
+      console.log(`[ChatBot API] Response received. Status: ${res.status}`);
+
       if (!res.ok) {
         let errorMsg = 'Failed to fetch from API';
         try {
@@ -135,26 +141,83 @@ export const ChatBot: React.FC = () => {
         throw new Error(errorMsg);
       }
 
-      const data = await res.json();
+      // Handle server-sent events for streaming
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      
+      if (!reader) {
+        throw new Error("No response body to read.");
+      }
 
-      const assistantMessage: Message = { 
-        role: 'assistant', 
-        content: data.reply || "I'm sorry, I encountered an error processing that request."
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+      // Add a placeholder message for the assistant stream
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      let assistantContext = '';
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') {
+              console.log("[ChatBot API] Streaming [DONE] received");
+              break;
+            }
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.error) {
+                console.error("[ChatBot API] Error from stream:", parsed.error);
+                finalErrorMessage = parsed.error;
+                throw new Error(parsed.error);
+              }
+              if (parsed.content) {
+                assistantContext += parsed.content;
+                // Update the last message (the assistant one we just added) with new content
+                setMessages(prev => {
+                  const newMsgs = [...prev];
+                  newMsgs[newMsgs.length - 1] = { role: 'assistant', content: assistantContext };
+                  return newMsgs;
+                });
+              }
+            } catch (e) {
+              console.warn("Could not parse chunk", e, dataStr);
+            }
+          }
+        }
+      }
+
     } catch (error: any) {
-      console.error("OpenAI Error:", error);
+      console.error("[ChatBot API] OpenAI Error:", error);
       let errorMessage = "I'm currently having trouble connecting to my central brain. Operational entropy is high. Please check your connection and try again.";
       
-      if (error?.message?.includes("API_KEY") || error?.message?.includes("not configured")) {
+      const errorStr = (error?.message || finalErrorMessage || "");
+      
+      if (errorStr.includes("API_KEY") || errorStr.includes("not configured") || errorStr.includes("api_key")) {
         errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. The trajectory cannot be calculated without proper authorization.";
-      } else if (error?.message?.includes("quota") || error?.message?.includes("429")) {
+      } else if (errorStr.includes("quota") || errorStr.includes("429")) {
         errorMessage = "Service Saturation: NOVA is handling maximum capacity across the neural network. Please allow a brief moment for bandwidth to reset.";
       } else if (!navigator.onLine) {
         errorMessage = "Signal Loss: Your connection to the primary sector has been interrupted. Please check your link to the network.";
+      } else if (errorStr) {
+        errorMessage = `Operational anomaly detected: ${errorStr}`;
       }
 
-      setMessages(prev => [...prev, { role: 'error', content: errorMessage }]);
+      console.error("[ChatBot API] Fallback error message generated:", errorMessage);
+
+      setMessages(prev => {
+        // if the last message was a blank assistant message, replace it, otherwise append error
+        const newMsgs = [...prev];
+        if (newMsgs[newMsgs.length - 1].role === 'assistant' && !newMsgs[newMsgs.length - 1].content) {
+          newMsgs[newMsgs.length - 1] = { role: 'error', content: errorMessage };
+          return newMsgs;
+        }
+        return [...newMsgs, { role: 'error', content: errorMessage }];
+      });
     } finally {
       setIsLoading(false);
     }

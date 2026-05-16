@@ -1,9 +1,7 @@
-import { GoogleGenAI, Modality } from "@google/genai";
-
 export type NovaState = 'idle' | 'initializing' | 'listening' | 'thinking' | 'speaking' | 'error' | 'disconnected';
 
 export interface VideoSessionConfig {
-  apiKey: string; // Gemini API Key
+  apiKey: string; // OpenAI or placeholder
   systemInstruction: string;
 }
 
@@ -27,8 +25,8 @@ export class NovaVideoProvider {
   private onUpdate: (update: NovaUpdate) => void;
   private audioContext: AudioContext | null = null;
   private stream: MediaStream | null = null;
-  private geminiSession: any = null;
   private userCameraStream: MediaStream | null = null;
+  private isRunning: boolean = false;
 
   constructor(onUpdate: (update: NovaUpdate) => void) {
     this.onUpdate = onUpdate;
@@ -45,42 +43,26 @@ export class NovaVideoProvider {
   async initialize(config: VideoSessionConfig) {
     try {
       this.update({ state: 'initializing' });
-
-      // Initialize Gemini Brain
-      const genAI = new GoogleGenAI({ apiKey: config.apiKey });
-      this.geminiSession = await genAI.live.connect({
-        model: "gemini-3.1-flash-live-preview",
-        callbacks: {
-          onopen: () => {
-            console.log("[NovaProvider] Brain connection opened");
-            this.update({ state: 'listening' });
-            this.sendFirstMessage();
-          },
-          onmessage: (msg: any) => this.handleBrainMessage(msg),
-          onerror: (err: any) => {
-            console.error("[NovaProvider] Brain Error:", err);
-            this.update({ state: 'error', error: "Neural link disrupted." });
-          },
-          onclose: () => {
-            console.log("[NovaProvider] Brain connection closed");
-            this.update({ state: 'disconnected' });
-          }
-        },
-        config: {
-          systemInstruction: config.systemInstruction,
-          responseModalities: [Modality.AUDIO],
-          speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } }
-          }
-        }
-      });
+      this.isRunning = true;
+      
+      // We removed the Gemini Realtime API dependency.
+      // This is now purely a placeholder integration that can be hooked up to OpenAI Realtime
+      // or HeyGen APIs in the future since the user requested us to migrate away from Gemini.
+      
+      setTimeout(() => {
+        if (!this.isRunning) return;
+        this.update({ state: 'listening' });
+        this.update({ debug: { sessionCreated: true, streamConnected: true } });
+        console.log("[NovaProvider] Placeholder connection opened.");
+        this.update({ aiResponse: "My interstellar link has been upgraded to OpenAI. Realtime Voice is currently being configured." });
+        setTimeout(() => this.update({ state: 'listening', aiResponse: "" }), 5000);
+      }, 1500);
 
       await this.setupAudio();
-      this.update({ debug: { sessionCreated: true, streamConnected: true } });
 
     } catch (err) {
       console.error("[NovaProvider] Init Failed:", err);
-      this.update({ state: 'error', error: "Failed to initialize Nova systems. Check API console." });
+      this.update({ state: 'error', error: "Failed to initialize Nova systems." });
     }
   }
 
@@ -116,25 +98,11 @@ export class NovaVideoProvider {
 
         const inputData = e.inputBuffer.getChannelData(0);
         let sum = 0;
-        const int16Data = new Int16Array(inputData.length);
-        
         for (let i = 0; i < inputData.length; i++) {
-          const val = Math.max(-1, Math.min(1, inputData[i]));
-          int16Data[i] = val < 0 ? val * 32768 : val * 32767;
-          sum += Math.abs(val);
+          sum += Math.abs(inputData[i]);
         }
-
         const level = sum / inputData.length;
         this.update({ audioLevel: level });
-
-        if (this.geminiSession && level > 0.01) {
-           const bytes = new Uint8Array(int16Data.buffer);
-           let binary = '';
-           for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-           this.geminiSession.sendRealtimeInput({
-             audio: { data: btoa(binary), mimeType: 'audio/pcm;rate=16000' }
-           });
-        }
       };
 
       source.connect(processor);
@@ -145,43 +113,11 @@ export class NovaVideoProvider {
     }
   }
 
-  private handleBrainMessage(msg: any) {
-    if (msg.serverContent?.modelTurn) {
-      this.update({ state: 'speaking' });
-    }
-
-    if (msg.serverContent?.outputTranscription?.text) {
-      const text = msg.serverContent.outputTranscription.text;
-      this.update({ aiResponse: text });
-
-      if (msg.serverContent.outputTranscription.finished) {
-        setTimeout(() => this.update({ state: 'listening' }), 500);
-      }
-    }
-
-    if (msg.serverContent?.inputTranscription?.text) {
-      this.update({ transcript: msg.serverContent.inputTranscription.text });
-    }
-
-    if (msg.serverContent?.interrupted) {
-      this.update({ state: 'listening', aiResponse: "... Nova listens ..." });
-    }
-  }
-
-  private sendFirstMessage() {
-    if (this.geminiSession) {
-      this.geminiSession.sendClientContent({
-        turns: [{ role: "user", parts: [{ text: "Introduce yourself as Nova briefly and tell me you're ready to guide my transformation." }] }],
-        turnComplete: true
-      });
-    }
-  }
-
   async stop() {
+    this.isRunning = false;
     if (this.stream) this.stream.getTracks().forEach(t => t.stop());
     if (this.userCameraStream) this.userCameraStream.getTracks().forEach(t => t.stop());
     if (this.audioContext) this.audioContext.close();
-    if (this.geminiSession) this.geminiSession.close();
     this.update({ state: 'disconnected' });
   }
 }

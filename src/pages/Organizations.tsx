@@ -28,6 +28,7 @@ import { translate } from "../utils/translations";
 
 import { PODCASTS } from "../data/podcasts";
 import SEO from "../components/SEO";
+import Markdown from "react-markdown";
 
 const Organizations = () => {
   const { language } = useLanguage();
@@ -250,7 +251,7 @@ const Organizations = () => {
                   <span className="text-brand-secondary">{t("org.podcast.title2")}</span>
                 </h2>
                 <div className="w-20 h-1.5 bg-brand-secondary mb-8 rounded-full" />
-                <p className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
+                <div className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
                   <Markdown components={{
                      span({children}) {
                         return <span className="text-white font-bold">{children}</span>;
@@ -258,8 +259,8 @@ const Organizations = () => {
                   }}>
                     {t("org.podcast.desc1").replace("{title}", featuredPodcast.title).replace(/"(.*?)"/g, "<span>\"$1\"</span>")}
                   </Markdown>
-                </p>
-                <p className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
+                </div>
+                <div className="text-lg text-slate-300 mb-8 leading-relaxed font-light">
                   <Markdown components={{
                      strong({children}) {
                         return <span className="font-bold text-white">{children}</span>;
@@ -267,7 +268,7 @@ const Organizations = () => {
                   }}>
                     {t("org.podcast.desc2")}
                   </Markdown>
-                </p>
+                </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                   {[
