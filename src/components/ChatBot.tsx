@@ -200,7 +200,7 @@ export const ChatBot: React.FC = () => {
       if (errorStr.includes("API_KEY") || errorStr.includes("not configured") || errorStr.includes("api_key")) {
         errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. The trajectory cannot be calculated without proper authorization.";
       } else if (errorStr.includes("quota") || errorStr.includes("429")) {
-        errorMessage = "Service Saturation: NOVA is handling maximum capacity across the neural network. Please allow a brief moment for bandwidth to reset.";
+        errorMessage = `Service Saturation (OpenAI Quota/Rate Limit): NOVA is handling maximum capacity. This usually means your OpenAI account has insufficient funds, billing is not set up, or you hit a rate limit. Please check your OpenAI Developer Platform dashboard. (Error details: ${errorStr})`;
       } else if (!navigator.onLine) {
         errorMessage = "Signal Loss: Your connection to the primary sector has been interrupted. Please check your link to the network.";
       } else if (errorStr) {
