@@ -68,7 +68,7 @@ const videoMap: Record<string, string> = {
   "AMR / AGV": "https://storage.googleapis.com/thetransformationroomassets/AMR.mp4",
   "Auxiliary / AR / VR": "https://storage.googleapis.com/thetransformationroomassets/AR%20Glasses.mp4",
   "Employee Facing Tools": "https://storage.googleapis.com/thetransformationroomassets/Employee%20Phone.mp4",
-  "Transportation & Logistics": "https://storage.googleapis.com/thetransformationroomassets/ROute.mp4"
+  "Transportation & Logistics": "https://storage.googleapis.com/thetransformationroomassets/Route.mp4"
 };
 
 const Home = () => {
@@ -200,7 +200,7 @@ const Home = () => {
             preload="auto"
             poster="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png"
             className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
-            onError={(e) => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"], e)}
+            onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
           >
             <source src={videoMap["Hero/Header"]} type="video/mp4" />
           </video>

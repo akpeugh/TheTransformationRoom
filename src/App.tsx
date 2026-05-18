@@ -22,6 +22,7 @@ const Testimonials = lazy(() => import("./pages/Testimonials"));
 const Contact = lazy(() => import("./pages/Contact"));
 const PodcastLibrary = lazy(() => import("./pages/PodcastLibrary"));
 const ImpactSimulator = lazy(() => import("./pages/ImpactSimulator"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -71,6 +72,7 @@ export default function App() {
                 <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
                 <Route path="/podcasts" element={<PodcastLibrary />} />
                 <Route path="/impact-simulator" element={<ImpactSimulator />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>

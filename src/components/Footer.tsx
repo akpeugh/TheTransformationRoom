@@ -127,7 +127,8 @@ export const Footer = () => {
           © {new Date().getFullYear()} {LEGAL_NAME} | {t("footer.rights")}
         </p>
         <div className="flex gap-8">
-          {['Privacy Policy', 'Terms of Service', 'Cookie Policy'].map((item) => (
+          <Link to="/privacy-policy" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Privacy Policy</Link>
+          {['Terms of Service', 'Cookie Policy'].map((item) => (
             <a key={item} href="#" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">{item}</a>
           ))}
         </div>
