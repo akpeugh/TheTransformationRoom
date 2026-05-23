@@ -9,6 +9,31 @@ interface Message {
   content: string;
 }
 
+const chatContainerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.05,
+    },
+  },
+} as const;
+
+const chatItemVariants = {
+  hidden: { opacity: 0, y: 15, scale: 0.97 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 140,
+      damping: 18,
+    },
+  },
+} as const;
+
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'organization' | null>(null);
@@ -389,46 +414,52 @@ export const ChatBot: React.FC = () => {
                 )}
               </AnimatePresence>
 
-              {messages.map((msg, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-[85%] flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <div className={`w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative ${
-                      msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : 
-                      msg.role === 'error' ? 'bg-red-100 text-red-600 flex items-center justify-center' : ''
-                    }`}>
-                      {msg.role === 'user' ? <User className="w-4 h-4" /> : 
-                       msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
-                        <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
-                      )}
-                    </div>
-                    <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                      msg.role === 'user' 
-                        ? 'bg-brand-primary text-white rounded-tr-none' 
-                        : msg.role === 'error'
-                          ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-none'
-                          : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
-                    }`}>
-                      <div className="markdown-body prose prose-sm max-w-none">
-                        <Markdown>{msg.content}</Markdown>
+              <motion.div
+                variants={chatContainerVariants}
+                initial="hidden"
+                animate="show"
+                className="space-y-6"
+              >
+                {messages.map((msg, i) => (
+                  <motion.div
+                    key={i}
+                    variants={chatItemVariants}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className={`max-w-[85%] flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div className={`w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative ${
+                        msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : 
+                        msg.role === 'error' ? 'bg-red-100 text-red-600 flex items-center justify-center' : ''
+                      }`}>
+                        {msg.role === 'user' ? <User className="w-4 h-4" /> : 
+                         msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
+                          <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                        )}
                       </div>
-                      {msg.role === 'error' && (
-                        <button 
-                          onClick={handleRetry}
-                          className="mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-800 transition-colors group/retry"
-                        >
-                          <RefreshCw className="w-3 h-3 group-hover/retry:rotate-180 transition-transform duration-500" />
-                          Reconnect to Trajectory
-                        </button>
-                      )}
+                      <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                        msg.role === 'user' 
+                          ? 'bg-brand-primary text-white rounded-tr-none' 
+                          : msg.role === 'error'
+                            ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-none'
+                            : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
+                      }`}>
+                        <div className="markdown-body prose prose-sm max-w-none">
+                          <Markdown>{msg.content}</Markdown>
+                        </div>
+                        {msg.role === 'error' && (
+                          <button 
+                            onClick={handleRetry}
+                            className="mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-800 transition-colors group/retry"
+                          >
+                            <RefreshCw className="w-3 h-3 group-hover/retry:rotate-180 transition-transform duration-500" />
+                            Reconnect to Trajectory
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </motion.div>
               {isLoading && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}

@@ -96,13 +96,18 @@ export const ScorecardTool = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const triggerNovaUnmuted = () => {
-    if (localStorage.getItem('nova_readiness_intro_seen')) return;
+    if (sessionStorage.getItem('nova_readiness_intro_seen')) return;
 
     // Direct interaction allows sound
     setIsNovaVisible(true);
     setIsNovaMuted(false);
-    localStorage.setItem('nova_readiness_intro_seen', 'true');
+    sessionStorage.setItem('nova_readiness_intro_seen', 'true');
   };
+
+  useEffect(() => {
+    // Migrate off of localStorage to sessionStorage so they can see the video again upon clicking
+    localStorage.removeItem('nova_readiness_intro_seen');
+  }, []);
 
   useEffect(() => {
     // Volume control
@@ -168,6 +173,7 @@ export const ScorecardTool = () => {
     setStep("intro");
     setCurrentQ(0);
     setAnswers({});
+    sessionStorage.removeItem('nova_readiness_intro_seen');
   };
 
   return (
@@ -194,7 +200,7 @@ export const ScorecardTool = () => {
                 muted={isNovaMuted}
                 playsInline
                 onEnded={() => {
-                  localStorage.setItem('nova_readiness_intro_seen', 'true');
+                  sessionStorage.setItem('nova_readiness_intro_seen', 'true');
                   setTimeout(() => setIsNovaVisible(false), 1000);
                 }}
                 className="w-full h-full object-contain aspect-video transition-all duration-1000"
