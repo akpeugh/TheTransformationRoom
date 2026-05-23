@@ -354,7 +354,8 @@ const stageData = [
                      initial={{ opacity: 0 }}
                      animate={{ opacity: 1 }}
                      transition={{ delay: i * 0.05 }}
-                     className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-brand-secondary/50 hover:shadow-lg transition-all group flex items-start gap-4"
+                     whileHover={{ y: -5 }}
+                     className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-brand-secondary/50 hover:shadow-lg transition-all group flex items-start gap-4 cursor-default"
                    >
                       <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-secondary group-hover:bg-brand-secondary/10 transition-all shrink-0">
                          {item.icon}

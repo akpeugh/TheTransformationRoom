@@ -159,17 +159,29 @@ export const ChatBot: React.FC = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
       let assistantContext = '';
+      let buffer = '';
 
       while (true) {
         const { value, done } = await reader.read();
-        if (done) break;
         
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+        }
         
+        const lines = buffer.split('\n');
+        // The last element of lines might be an incomplete line (without a trailing newline).
+        if (!done) {
+          buffer = lines.pop() || '';
+        } else {
+          buffer = '';
+        }
+
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataStr = line.slice(6);
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          
+          if (trimmed.startsWith('data: ')) {
+            const dataStr = trimmed.slice(6).trim();
             if (dataStr === '[DONE]') {
               console.log("[ChatBot API] Streaming [DONE] received");
               break;
@@ -195,6 +207,8 @@ export const ChatBot: React.FC = () => {
             }
           }
         }
+
+        if (done) break;
       }
 
     } catch (error: any) {

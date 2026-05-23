@@ -297,21 +297,20 @@ const Home = () => {
               }
             ].map((item, i) => (
               <motion.div 
-                initial={{ opacity: 0, y: 20, rotateX: -5 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.6 }}
                 viewport={{ once: true, margin: "-100px" }}
-                whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
+                whileHover={{ y: -5 }}
                 key={i} 
-                className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
-                style={{ transformStyle: "preserve-3d" }}
+                className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] hover:shadow-[0_30px_60px_rgba(45,212,191,0.1)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none rounded-3xl" />
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-2xl group-hover:bg-brand-secondary/30 transition-all duration-500" />
-                <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 shadow-sm relative z-20" style={{ transform: "translateZ(20px)" }}>
+                <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 flex-shrink-0 relative z-20">
                   {item.icon}
                 </div>
-                <div style={{ transform: "translateZ(10px)" }}>
+                <div className="relative z-20">
                   <p className="text-[10px] font-black uppercase tracking-widest text-brand-secondary/80 mb-2">{item.title}</p>
                   <h3 className="text-xl font-bold text-white mb-3">{item.issue}</h3>
                   <p className="text-slate-300 font-light text-sm leading-relaxed">{item.desc}</p>

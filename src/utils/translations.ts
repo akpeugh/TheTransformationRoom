@@ -9,6 +9,7 @@ export const translations: TranslationsList = {
     "nav.individuals": "Individuals",
     "nav.about": "About",
     "nav.contact": "Contact",
+    "nav.testimonials": "Testimonials",
     "nav.getStarted": "Get Started",
     "nav.tools": "Tools",
     "nav.language": "Language",
@@ -548,7 +549,20 @@ export const translations: TranslationsList = {
     "contact.form.descPHOrg": "Tell us about your current bottlenecks, systems goals, or workforce challenges...",
     "contact.form.descPHInd": "Tell us about your career transition goals, resume needs, or areas where you feel stuck...",
     "contact.form.btn": "Send Inquiry",
-    "contact.form.resp": "We'll be in contact within 24 business hours"
+    "contact.form.resp": "We'll be in contact within 24 business hours",
+    "sim.phase3.cum": "Cumulative Value Projection",
+    "sim.phase3.month36": "36-Month Strategic Value Realization",
+    "sim.phase3.netval": "Net Cumulative Value",
+    "sim.adv.insight.title": "Performance Insight",
+    "sim.adv.metrics.annual": "Annual Value",
+    "sim.adv.metrics.payback": "Payback Period",
+    "sim.adv.metrics.months": "Months",
+    "sim.adv.metrics.opex": "OpEx Reduction",
+    "sim.adv.metrics.admin": "Admin Recovery",
+    "sim.adv.metrics.hours": "Hours",
+    "sim.conv.title": "Don't leave margin on the table.",
+    "sim.conv.desc": "Take the first step toward reclaiming operational uptime. Our strategic discovery calls are designed to align your technology investments with measurable output.",
+    "sim.conv.cta": "Schedule Strategy Session"
   },
   ES: {
     // Navigation
@@ -557,6 +571,7 @@ export const translations: TranslationsList = {
     "nav.individuals": "Individuos",
     "nav.about": "Nosotros",
     "nav.contact": "Contacto",
+    "nav.testimonials": "Testimonios",
     "nav.getStarted": "Empezar",
     "nav.tools": "Herramientas",
     "nav.language": "Idioma",
@@ -1095,7 +1110,20 @@ export const translations: TranslationsList = {
     "contact.form.descPHOrg": "Cuéntanos sobre tus cuellos de botella, metas o desafíos laborales...",
     "contact.form.descPHInd": "Cuéntanos sobre tus objetivos de carrera, necesidades de CV o dónde te sientes estancado...",
     "contact.form.btn": "Enviar Consulta",
-    "contact.form.resp": "Nos pondremos en contacto dentro de 24 horas hábiles"
+    "contact.form.resp": "Nos pondremos en contacto dentro de 24 horas hábiles",
+    "sim.phase3.cum": "Proyección de Valor Acumulado",
+    "sim.phase3.month36": "Realización de Valor Estratégico a 36 Meses",
+    "sim.phase3.netval": "Valor Acumulado Neto",
+    "sim.adv.insight.title": "Información de Rendimiento",
+    "sim.adv.metrics.annual": "Valor Anual",
+    "sim.adv.metrics.payback": "Período de Recuperación",
+    "sim.adv.metrics.months": "Meses",
+    "sim.adv.metrics.opex": "Reducción OpEx",
+    "sim.adv.metrics.admin": "Recuperación de Admin",
+    "sim.adv.metrics.hours": "Horas",
+    "sim.conv.title": "No dejes margen sobre la mesa.",
+    "sim.conv.desc": "Da el primer paso hacia la recuperación del tiempo operativo. Nuestras llamadas de descubrimiento estratégico están diseñadas para alinear tus inversiones tecnológicas con resultados medibles.",
+    "sim.conv.cta": "Programar Sesión de Estrategia"
   }
 };
 
