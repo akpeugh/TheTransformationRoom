@@ -14,6 +14,8 @@ import SEO from "../components/SEO";
 import { useLanguage } from "../contexts/LanguageContext";
 import { translate } from "../utils/translations";
 
+const SHOW_FAWN_AND_VALERIA = false;
+
 const About = () => {
   const { language } = useLanguage();
   const t = (key: string) => translate(key, language);
@@ -172,15 +174,15 @@ const About = () => {
              </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16">
+          <div className={SHOW_FAWN_AND_VALERIA ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-16" : "max-w-2xl mx-auto"}>
             {/* Katie Peugh */}
-            <div className="flex flex-col items-center md:items-start gap-8">
+            <div className={`flex flex-col gap-8 ${SHOW_FAWN_AND_VALERIA ? "items-center md:items-start" : "items-center text-center"}`}>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 className="w-full"
               >
-                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                <div className={`aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm ${SHOW_FAWN_AND_VALERIA ? "mx-auto md:mx-0" : "mx-auto"}`}>
                   <img 
                     src="https://storage.googleapis.com/thetransformationroomassets/Katie.jpg" 
                     alt="Katie Peugh" 
@@ -195,7 +197,7 @@ const About = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="space-y-6 text-center md:text-left"
+                className={`space-y-6 ${SHOW_FAWN_AND_VALERIA ? "text-center md:text-left" : "text-center"}`}
               >
                 <h3 className="text-3xl font-bold text-slate-900">Katie Peugh</h3>
                 <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">{t("about.katie.role")}</p>
@@ -208,77 +210,81 @@ const About = () => {
               </motion.div>
             </div>
 
-            {/* Fawn Cook */}
-            <div className="flex flex-col items-center md:items-start gap-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="w-full"
-              >
-                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
-                  <img 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Fawn.JPG" 
-                    alt="Fawn Cook" 
-                    className="w-full h-full object-cover" 
-                    width="400" height="500" loading="lazy"
-                    referrerPolicy="no-referrer" 
-                  />
+            {SHOW_FAWN_AND_VALERIA && (
+              <>
+                {/* Fawn Cook */}
+                <div className="flex flex-col items-center md:items-start gap-8">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="w-full"
+                  >
+                    <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                      <img 
+                        src="https://storage.googleapis.com/thetransformationroomassets/Fawn.JPG" 
+                        alt="Fawn Cook" 
+                        className="w-full h-full object-cover" 
+                        width="400" height="500" loading="lazy"
+                        referrerPolicy="no-referrer" 
+                      />
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="space-y-6 text-center md:text-left"
+                  >
+                    <h3 className="text-3xl font-bold text-slate-900">Fawn Cook</h3>
+                    <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">{t("about.fawn.role")}</p>
+                    <p className="text-slate-600 text-lg leading-relaxed italic">
+                      {t("about.fawn.quote")}
+                    </p>
+                    <p className="text-slate-600 leading-relaxed">
+                      {t("about.fawn.bio")}
+                    </p>
+                  </motion.div>
                 </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="space-y-6 text-center md:text-left"
-              >
-                <h3 className="text-3xl font-bold text-slate-900">Fawn Cook</h3>
-                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">{t("about.fawn.role")}</p>
-                <p className="text-slate-600 text-lg leading-relaxed italic">
-                  {t("about.fawn.quote")}
-                </p>
-                <p className="text-slate-600 leading-relaxed">
-                  {t("about.fawn.bio")}
-                </p>
-              </motion.div>
-            </div>
 
-            {/* Valeria Mazo */}
-            <div className="flex flex-col items-center md:items-start gap-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="w-full"
-              >
-                <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
-                  <img 
-                    src="https://storage.googleapis.com/thetransformationroomassets/Valeria%20Mazo.jpg" 
-                    alt="Valeria Mazo" 
-                    className="w-full h-full object-cover" 
-                    width="400" height="500" loading="lazy"
-                    referrerPolicy="no-referrer" 
-                  />
+                {/* Valeria Mazo */}
+                <div className="flex flex-col items-center md:items-start gap-8">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="w-full"
+                  >
+                    <div className="aspect-[4/5] bg-slate-100 rounded-[2.5rem] overflow-hidden relative shadow-xl max-w-sm mx-auto md:mx-0">
+                      <img 
+                        src="https://storage.googleapis.com/thetransformationroomassets/Valeria%20Mazo.jpg" 
+                        alt="Valeria Mazo" 
+                        className="w-full h-full object-cover" 
+                        width="400" height="500" loading="lazy"
+                        referrerPolicy="no-referrer" 
+                      />
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="space-y-6 text-center md:text-left"
+                  >
+                    <h3 className="text-3xl font-bold text-slate-900">Valeria Mazo</h3>
+                    <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">{t("about.valeria.role")}</p>
+                    <p className="text-slate-600 text-lg leading-relaxed italic">
+                      {t("about.valeria.quote")}
+                    </p>
+                    <p className="text-slate-600 leading-relaxed">
+                      {t("about.valeria.bio")}
+                    </p>
+                  </motion.div>
                 </div>
-              </motion.div>
-              
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="space-y-6 text-center md:text-left"
-              >
-                <h3 className="text-3xl font-bold text-slate-900">Valeria Mazo</h3>
-                <p className="text-brand-primary text-sm font-bold uppercase tracking-widest inline-block bg-brand-primary/5 px-3 py-1.5 rounded">{t("about.valeria.role")}</p>
-                <p className="text-slate-600 text-lg leading-relaxed italic">
-                  {t("about.valeria.quote")}
-                </p>
-                <p className="text-slate-600 leading-relaxed">
-                  {t("about.valeria.bio")}
-                </p>
-              </motion.div>
-            </div>
+              </>
+            )}
           </div>
         </div>
       </section>
