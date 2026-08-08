@@ -128,9 +128,8 @@ export const Footer = () => {
         </p>
         <div className="flex gap-8">
           <Link to="/privacy-policy" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Privacy Policy</Link>
-          {['Terms of Service', 'Cookie Policy'].map((item) => (
-            <a key={item} href="#" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">{item}</a>
-          ))}
+          <Link to="/terms-of-service" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Terms of Service</Link>
+          <a href="#" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Cookie Policy</a>
         </div>
       </div>
     </div>

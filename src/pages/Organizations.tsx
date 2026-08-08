@@ -253,11 +253,11 @@ const Organizations = () => {
                 <div className="w-20 h-1.5 bg-brand-secondary mb-8 rounded-full" />
                 <div className="text-lg text-slate-300 mb-6 leading-relaxed font-light">
                   <Markdown components={{
-                     span({children}) {
+                     strong({children}) {
                         return <span className="text-white font-bold">{children}</span>;
                      }
                   }}>
-                    {t("org.podcast.desc1").replace("{title}", featuredPodcast.title).replace(/"(.*?)"/g, "<span>\"$1\"</span>")}
+                    {t("org.podcast.desc1").replace("{title}", featuredPodcast.title).replace(/"(.*?)"/g, '**"$1"**')}
                   </Markdown>
                 </div>
                 <div className="text-lg text-slate-300 mb-8 leading-relaxed font-light">

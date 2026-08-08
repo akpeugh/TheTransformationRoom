@@ -15,6 +15,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { translate } from "../utils/translations";
 
 const SHOW_FAWN_AND_VALERIA = false;
+const SHOW_IMPACT_AND_EVIDENCE = false;
 
 const About = () => {
   const { language } = useLanguage();
@@ -123,46 +124,48 @@ const About = () => {
         </div>
       </section>
 
-      <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-primary/20 via-slate-900 to-slate-900" />
-        <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
-          <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline decoration-brand-primary underline-offset-4">{t("about.impact")}</span>
-          <h2 className="text-4xl font-bold mb-16">{t("about.proven")}</h2>
-          
-          <div className="relative h-64 md:h-56">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="absolute inset-0 flex flex-col items-center justify-center"
-              >
-                <Quote className="w-12 h-12 text-brand-secondary/40 mb-6" />
-                <p className="text-xl md:text-2xl font-light text-slate-200 mb-8 italic leading-relaxed">
-                  "{testimonials[activeTestimonial].quote}"
-                </p>
-                <div>
-                  <p className="font-bold text-brand-secondary tracking-wide uppercase text-sm mb-1">{testimonials[activeTestimonial].author}</p>
-                  <p className="text-slate-400 text-xs font-semibold">{testimonials[activeTestimonial].client}</p>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+      {SHOW_IMPACT_AND_EVIDENCE && (
+        <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-primary/20 via-slate-900 to-slate-900" />
+          <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
+            <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline decoration-brand-primary underline-offset-4">{t("about.impact")}</span>
+            <h2 className="text-4xl font-bold mb-16">{t("about.proven")}</h2>
+            
+            <div className="relative h-64 md:h-56">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTestimonial}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                >
+                  <Quote className="w-12 h-12 text-brand-secondary/40 mb-6" />
+                  <p className="text-xl md:text-2xl font-light text-slate-200 mb-8 italic leading-relaxed">
+                    "{testimonials[activeTestimonial].quote}"
+                  </p>
+                  <div>
+                    <p className="font-bold text-brand-secondary tracking-wide uppercase text-sm mb-1">{testimonials[activeTestimonial].author}</p>
+                    <p className="text-slate-400 text-xs font-semibold">{testimonials[activeTestimonial].client}</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            
+            <div className="flex justify-center gap-3 mt-12">
+              {testimonials.map((_, i) => (
+                <button 
+                  key={i}
+                  onClick={() => setActiveTestimonial(i)}
+                  className={`transition-all duration-300 rounded-full ${i === activeTestimonial ? 'w-8 h-2 bg-brand-secondary' : 'w-2 h-2 bg-slate-700 hover:bg-slate-500'}`}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                />
+              ))}
+            </div>
           </div>
-          
-          <div className="flex justify-center gap-3 mt-12">
-            {testimonials.map((_, i) => (
-              <button 
-                key={i}
-                onClick={() => setActiveTestimonial(i)}
-                className={`transition-all duration-300 rounded-full ${i === activeTestimonial ? 'w-8 h-2 bg-brand-secondary' : 'w-2 h-2 bg-slate-700 hover:bg-slate-500'}`}
-                aria-label={`Go to testimonial ${i + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4">
