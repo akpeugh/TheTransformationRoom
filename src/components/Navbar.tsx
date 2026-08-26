@@ -105,7 +105,7 @@ export const Navbar = () => {
                     className="h-8 md:h-10 w-auto transition-all duration-300" 
                     width="160" height="40" 
                     loading="eager"
-                    {...({ fetchpriority: "high" } as any)}
+                    fetchPriority="high"
                     referrerPolicy="no-referrer"
                   />
             </div>
