@@ -49,22 +49,30 @@ export async function generateAIContent({
 
   // 1. Try Gemini if available
   if (genAIClient && process.env.GEMINI_API_KEY) {
-    try {
-      const response = await genAIClient.models.generateContent({
-        model: "gemini-3.7-flash",
-        contents: prompt,
-        config: {
-          systemInstruction: systemInstruction || "You are an expert executive resume and career coach.",
-          responseMimeType: jsonMode ? "application/json" : "text/plain",
-          temperature: 0.3,
-        },
-      });
+    const modelsToTry = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-flash-latest"];
+    for (const modelName of modelsToTry) {
+      try {
+        const response = await genAIClient.models.generateContent({
+          model: modelName,
+          contents: prompt,
+          config: {
+            systemInstruction: systemInstruction || "You are an expert executive resume and career coach.",
+            responseMimeType: jsonMode ? "application/json" : "text/plain",
+            temperature: 0.2,
+          },
+        });
 
-      if (response.text) {
-        return response.text;
+        if (response.text && response.text.trim().length > 0) {
+          let text = response.text.trim();
+          if (jsonMode) {
+            // Strip any markdown code fences if model included them
+            text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+          }
+          return text;
+        }
+      } catch (err: any) {
+        console.warn(`[AI Server] Gemini model ${modelName} call failed:`, err.message);
       }
-    } catch (err: any) {
-      console.warn("[AI Server] Gemini call failed, trying fallback:", err.message);
     }
   }
 
@@ -81,10 +89,14 @@ export async function generateAIContent({
         model: "gpt-4o-mini",
         messages,
         response_format: jsonMode ? { type: "json_object" } : undefined,
-        temperature: 0.3,
+        temperature: 0.2,
       });
 
-      return completion.choices[0]?.message?.content || "";
+      let content = completion.choices[0]?.message?.content || "";
+      if (jsonMode) {
+        content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+      }
+      return content;
     } catch (err: any) {
       console.error("[AI Server] OpenAI call failed:", err.message);
       throw err;

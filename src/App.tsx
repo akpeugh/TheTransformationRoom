@@ -33,8 +33,8 @@ import { NavigationTracker } from "./components/NavigationTracker";
 import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
-// Pages (Lazy loaded with retry)
-const Home = lazyWithRetry(() => import("./pages/Home"));
+// Pages (Home is eagerly loaded for instant landing page speed; subpages are lazy loaded)
+import Home from "./pages/Home";
 const Organizations = lazyWithRetry(() => import("./pages/Organizations"));
 const Individuals = lazyWithRetry(() => import("./pages/Individuals"));
 const CareerTool = lazyWithRetry(() => import("./pages/CareerTool"));

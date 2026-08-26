@@ -20,6 +20,7 @@ import {
 import { ResumeData } from "../../types/resume";
 import { sampleExecutiveProfiles } from "../../data/sampleResume";
 import { extractTextFromFile } from "../../utils/documentParser";
+import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
 
 interface AiImportModalProps {
   isOpen: boolean;
@@ -49,36 +50,49 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
   if (!isOpen) return null;
 
   const parseRawTextWithAI = async (text: string) => {
-    if (!text.trim()) {
+    if (!text || !text.trim()) {
       setErrorMsg("Please provide text or upload a document to import.");
       return;
     }
 
     setIsProcessing(true);
     setErrorMsg(null);
-    setParsingProgress("AI is extracting executive roles, metrics, and technical competencies...");
+    setParsingProgress("Extracting executive roles, metrics, and technical competencies...");
 
     try {
-      const res = await fetch("/api/resume/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawText: text })
-      });
+      let structuredResume: ResumeData | null = null;
 
-      if (!res.ok) {
-        throw new Error("Failed to parse resume via AI service.");
+      try {
+        const res = await fetch("/api/resume/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rawText: text })
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.personalInfo) {
+            structuredResume = json.data;
+          }
+        }
+      } catch (netErr) {
+        console.warn("Network parse error, utilizing fallback:", netErr);
       }
 
-      const json = await res.json();
-      if (json.data) {
-        setExtractedPreview(json.data);
+      if (!structuredResume) {
+        structuredResume = fallbackParseResumeText(text);
+      }
+
+      if (structuredResume) {
+        setExtractedPreview(structuredResume);
         setParsingProgress(null);
       } else {
         throw new Error("Could not structure resume data.");
       }
     } catch (err: any) {
       console.error("AI Import parsing error:", err);
-      setErrorMsg(err.message || "Failed to process text. Please verify formatting.");
+      const fallbackData = fallbackParseResumeText(text);
+      setExtractedPreview(fallbackData);
       setParsingProgress(null);
     } finally {
       setIsProcessing(false);

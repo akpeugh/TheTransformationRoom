@@ -29,6 +29,7 @@ import {
 import { ResumeData, CoverLetterData } from "../../types/resume";
 import { defaultResumeData, defaultCoverLetterData, sampleExecutiveProfiles } from "../../data/sampleResume";
 import { extractTextFromFile } from "../../utils/documentParser";
+import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
 import { 
   getSharedCareerProfile, 
   updateSharedCareerProfile, 
@@ -178,7 +179,7 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
 
   // Handler: Parse raw text or file
   const handleParseRawText = async (text: string, sourceName = "Pasted text") => {
-    if (!text.trim()) {
+    if (!text || !text.trim()) {
       alert("Please provide resume text to import.");
       return;
     }
@@ -188,18 +189,36 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
     setViewMode("generating");
 
     try {
-      const res = await fetch("/api/resume/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawText: text })
-      });
+      let structuredResume: ResumeData | null = null;
 
-      if (!res.ok) throw new Error("Parsing request failed");
-      const json = await res.json();
+      try {
+        const res = await fetch("/api/resume/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rawText: text })
+        });
 
-      if (json.data) {
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.personalInfo) {
+            structuredResume = json.data;
+          }
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.warn("Server parse returned non-ok status:", errData);
+        }
+      } catch (networkErr) {
+        console.warn("Network request to /api/resume/parse failed, using client-side structural parser:", networkErr);
+      }
+
+      // If server returned no data or failed, execute deterministic client-side parser
+      if (!structuredResume) {
+        structuredResume = fallbackParseResumeText(text);
+      }
+
+      if (structuredResume) {
         onComplete({
-          resumeData: json.data,
+          resumeData: structuredResume,
           source: sourceName
         });
       } else {
@@ -207,8 +226,11 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
       }
     } catch (err: any) {
       console.error("Parse error:", err);
-      alert(`Error parsing resume: ${err.message || "Please check format"}`);
-      setViewMode("upload-import");
+      const fallbackData = fallbackParseResumeText(text);
+      onComplete({
+        resumeData: fallbackData,
+        source: sourceName
+      });
     } finally {
       setIsProcessingFile(false);
       setStatusMessage(null);

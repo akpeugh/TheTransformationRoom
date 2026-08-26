@@ -76,21 +76,38 @@ const Home = () => {
   const t = (key: string) => translate(key, language);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [isLocked, setIsLocked] = useState(false);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
   const location = useLocation();
 
   const { scrollY, scrollYProgress } = useScroll();
-  const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
+  const y1 = useTransform(scrollY, [0, 1000], [0, 120]);
   
-  const yBg1 = useTransform(scrollYProgress, [0, 1], [0, 500]);
-  const yBg2 = useTransform(scrollYProgress, [0, 1], [0, -500]);
+  const yBg1 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const yBg2 = useTransform(scrollYProgress, [0, 1], [0, -300]);
 
   const solutionRef1 = useRef(null);
   const { scrollYProgress: scrollYProgress1 } = useScroll({ target: solutionRef1, offset: ["start end", "end start"] });
-  const yImage1 = useTransform(scrollYProgress1, [0, 1], [150, -150]);
+  const yImage1 = useTransform(scrollYProgress1, [0, 1], [80, -80]);
 
   const solutionRef2 = useRef(null);
   const { scrollYProgress: scrollYProgress2 } = useScroll({ target: solutionRef2, offset: ["start end", "end start"] });
-  const yImage2 = useTransform(scrollYProgress2, [0, 1], [150, -150]);
+  const yImage2 = useTransform(scrollYProgress2, [0, 1], [80, -80]);
+
+  useEffect(() => {
+    // Attempt immediate eager playback of the critical header video
+    if (heroVideoRef.current) {
+      const playPromise = heroVideoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setHeroVideoReady(true))
+          .catch(() => {
+            // Autoplay policies handled; mark ready so gradient isn't stuck
+            setHeroVideoReady(true);
+          });
+      }
+    }
+  }, []);
 
 
 
@@ -188,19 +205,35 @@ const Home = () => {
         }}
       />
       {/* Hero Content */}
-      <section className="relative min-h-screen flex items-center perspective-1000 pb-20">
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/50 to-slate-900 z-10" />
-          <video aria-label="Video presentation"  
-            key={videoMap["Hero/Header"]}
+      <section className="relative min-h-[92vh] flex items-center pb-20 overflow-hidden bg-slate-950">
+        {/* Background Ambient Glow & Video Layer */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
+          {/* Subtle Ambient Teal Atmosphere behind video */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-brand-secondary/15 rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-brand-primary/20 rounded-full blur-[120px] pointer-events-none" />
+          
+          {/* Dark Overlay Gradients for Optimal Contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/50 to-slate-950 z-10" />
+          
+          {/* Header Video - Prioritized and Smoothly Faded In */}
+          <video 
+            ref={heroVideoRef}
+            aria-label="The Transformation Room Hero Video"  
             autoPlay 
             muted 
             loop 
             playsInline 
             preload="auto"
-            poster="https://storage.googleapis.com/thetransformationroomassets/TR%20Logo.png"
-            className="w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_60%,transparent_100%)] object-center transform scale-105"
-            onError={() => console.error("Error loading video: Hero/Header", videoMap["Hero/Header"])}
+            onPlaying={() => setHeroVideoReady(true)}
+            onLoadedData={() => setHeroVideoReady(true)}
+            onCanPlay={() => setHeroVideoReady(true)}
+            className={`w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_65%,transparent_100%)] object-center transform scale-105 transition-opacity duration-1000 ease-out ${
+              heroVideoReady ? "opacity-100" : "opacity-0"
+            }`}
+            onError={(e) => {
+              console.error("Hero video error:", e);
+              setHeroVideoReady(true);
+            }}
           >
             <source src={videoMap["Hero/Header"]} type="video/mp4" />
           </video>
@@ -208,39 +241,38 @@ const Home = () => {
         
         <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center px-4 pt-20">
           <motion.div 
-            initial={{ opacity: 0, y: 50, rotateX: 10 }}
-            animate={{ opacity: 1, y: 0, rotateX: 0 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             style={{ y: y1 }}
             className="max-w-4xl"
           >
             <motion.h1 
               className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold text-white leading-[1.1] mb-6 tracking-tighter cursor-default drop-shadow-2xl z-20 relative break-words"
-              whileHover={{ scale: 1.01, rotateX: -2, rotateY: 1, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
+              whileHover={{ scale: 1.01, textShadow: "0px 10px 30px rgba(255,255,255,0.2)" }}
             >
               {t("home.title")}
             </motion.h1>
-              <motion.span 
-                whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
-                className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300 drop-shadow-md"
-              >
-                {t("home.subtitle")}
-              </motion.span>
-              <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-3xl mx-auto font-light drop-shadow-lg">
-                {t("home.desc")}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                <Link to="/contact" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer text-center">
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
-                  {t("home.start")} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-          
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
-
-        </section>
+            <motion.span 
+              whileHover={{ scale: 1.02, filter: "brightness(1.2)" }}
+              className="text-brand-secondary font-bold tracking-widest text-lg md:text-2xl uppercase mb-8 block cursor-default transition-all duration-300 drop-shadow-md"
+            >
+              {t("home.subtitle")}
+            </motion.span>
+            <p className="text-xl md:text-2xl text-slate-200 mb-10 leading-relaxed max-w-3xl mx-auto font-light drop-shadow-lg">
+              {t("home.desc")}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link to="/contact" className="bg-brand-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-xl shadow-brand-primary/40 relative overflow-hidden group cursor-pointer text-center">
+                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                {t("home.start")} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+        
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
+      </section>
 
         {/* WHO WE WORK WITH */}
       <section className="pt-24 pb-32 relative overflow-hidden perspective-1000 bg-transparent">
