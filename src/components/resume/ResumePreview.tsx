@@ -204,12 +204,17 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({
         {/* Top Key Metrics Banner (if present) */}
         {data.metrics && data.metrics.length > 0 && (
           <div className={`grid grid-cols-2 sm:grid-cols-4 gap-3 ${theme.lightBg} p-4 rounded-xl border border-slate-100 mb-6 print:border-slate-200`}>
-            {data.metrics.map((metric, i) => (
-              <div key={i} className="text-center">
-                <div className={`text-xl font-extrabold ${theme.primary}`}>{metric.value}</div>
-                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mt-0.5">{metric.label}</div>
-              </div>
-            ))}
+            {data.metrics.map((metric, i) => {
+              const val = typeof metric === "object" && metric ? (metric.value || "") : String(metric || "");
+              const lbl = typeof metric === "object" && metric ? (metric.label || "Metric") : `Metric ${i + 1}`;
+              if (!val) return null;
+              return (
+                <div key={i} className="text-center">
+                  <div className={`text-xl font-extrabold ${theme.primary}`}>{val}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 font-medium mt-0.5">{lbl}</div>
+                </div>
+              );
+            })}
           </div>
         )}
 

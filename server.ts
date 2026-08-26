@@ -6,6 +6,7 @@ import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
 import { generateAIContent } from "./server/ai";
 import { fallbackParseResumeText } from "./src/utils/resumeParserFallback";
+import { normalizeExtractedText } from "./src/utils/textNormalizer";
 
 async function startServer() {
   const app = express();
@@ -83,6 +84,9 @@ async function startServer() {
 
       console.log(`[Server] Parsing resume text (${rawText.length} chars)...`);
 
+      // Pre-normalize text (collapse spaces like "K A R E E M", OCR kerning, broken lines)
+      const cleanText = normalizeExtractedText(rawText);
+
       let parsedJSON: any = null;
 
       try {
@@ -90,19 +94,30 @@ async function startServer() {
 Your task is to parse unstructured or semi-structured resume text and convert it into a strictly valid, comprehensive JSON object matching the ResumeData schema.
 
 Extract all details meticulously:
-1. personalInfo: fullName, targetTitle (or most prominent current title), email, phone, location, linkedin, portfolio (or website).
-2. summary: Comprehensive 2-4 sentence executive summary.
-3. metrics: Top 3-5 quantifiable metrics or impact highlights if present (e.g., "$14M savings", "+38% throughput", "350+ team size"). If not explicitly present, synthesize from their greatest achievements.
-4. experiences: Array of jobs. Each job must have: id (e.g. "exp-1"), company, role, location, startDate, endDate, current (boolean), highlights (array of high-impact action bullets).
-5. education: Array of degrees/schools. id, institution, degree, field, location, graduationDate, gpa, honors.
-6. skills: Grouped into 2-4 logical categories (e.g. "Core Competencies", "Automation & Technology", "Leadership & Operations", "Tools & Methodologies"). Each category has id, category name, and skills array.
-7. certifications: Array of certifications with id, name, issuer, date.
-8. projects: Array of significant projects with id, name, role, description, highlights.
-9. awards: Array of string honors/awards if present.
+1. personalInfo: { fullName, targetTitle, email, phone, location, linkedin, portfolio }
+   - Ensure fullName is the real candidate name (clean up spaced letters like "K A R E E M A L S H O M A L Y" to "Kareem Alshomaly").
+   - Extract targetTitle or most senior engineering/executive leadership role.
+2. summary: A compelling 2-4 sentence executive summary highlighting leadership scope, revenue/budget supported, and strategic value.
+3. metrics: Array of 3-4 objects, each with { label: string, value: string } (e.g. [{"label": "Annual Revenue Supported", "value": "$10M"}, {"label": "On-Time Delivery", "value": "99.7%"}, {"label": "Cross-Functional Scale", "value": "5G & IoT"}]).
+4. experiences: Array of jobs. Each job must have:
+   - id: string (e.g. "exp-1")
+   - company: string
+   - role: string
+   - location: string
+   - startDate: string
+   - endDate: string
+   - current: boolean
+   - highlights: Array of high-impact action bullets starting with strong past/present verbs.
+   CRITICAL: Do NOT include cover letter text (e.g. "Dear Hiring Manager...", "Kind regards...") in experience highlights. Extract only real work achievements.
+5. education: Array of degrees/institutions with id, institution, degree, field, location, graduationDate.
+6. skills: Array of 3-4 categorized objects with id, category, skills: string[] (e.g. "Engineering & Solutions", "Technical Operations", "Leadership & Strategic Partnerships").
+7. certifications: Array of objects with id, name, issuer, date.
+8. projects: Array of projects with id, name, description, highlights.
+9. awards: Array of strings.
 
 Return ONLY valid JSON matching this schema without markdown code fences.`;
 
-        const prompt = `Here is the raw resume text to parse into JSON:\n\n${rawText.slice(0, 15000)}`;
+        const prompt = `Here is the resume text to parse into JSON:\n\n${cleanText.slice(0, 15000)}`;
 
         const aiResponse = await generateAIContent({
           systemInstruction,
@@ -113,13 +128,54 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
         parsedJSON = extractJSON(aiResponse);
       } catch (aiErr: any) {
         console.warn("[Server] AI parsing encountered an issue, deploying intelligent heuristic parser fallback:", aiErr.message || aiErr);
-        parsedJSON = fallbackParseResumeText(rawText);
+        parsedJSON = fallbackParseResumeText(cleanText);
       }
 
       // If parsedJSON is somehow missing or empty, apply fallback parser
       if (!parsedJSON || !parsedJSON.personalInfo) {
-        parsedJSON = fallbackParseResumeText(rawText);
+        parsedJSON = fallbackParseResumeText(cleanText);
       }
+
+      // Helper to sanitize metrics to { label: string, value: string }
+      const formatMetrics = (rawMetrics: any[]): { label: string; value: string }[] => {
+        if (!Array.isArray(rawMetrics) || rawMetrics.length === 0) {
+          return fallbackParseResumeText(cleanText).metrics;
+        }
+        return rawMetrics.map((m, i) => {
+          if (typeof m === "object" && m !== null) {
+            return {
+              label: m.label || (i === 0 ? "Revenue Impact" : i === 1 ? "Service SLA" : "Scale"),
+              value: String(m.value || m.val || "$10M+")
+            };
+          }
+          if (typeof m === "string") {
+            const moneyMatch = m.match(/\$\d+(?:\.\d+)?(?:M|K|B|\+)?/i);
+            const pctMatch = m.match(/\+?\d{1,3}%/);
+            if (moneyMatch) {
+              const label = m.replace(moneyMatch[0], "").replace(/in\s+|annual\s+|impact/gi, "").trim() || "Annual Impact";
+              return { label: label.slice(0, 24), value: moneyMatch[0] };
+            }
+            if (pctMatch) {
+              const label = m.replace(pctMatch[0], "").trim() || "Improvement";
+              return { label: label.slice(0, 24), value: pctMatch[0] };
+            }
+            return { label: `Impact Metric ${i + 1}`, value: m.slice(0, 20) };
+          }
+          return { label: "Performance", value: "99%+" };
+        });
+      };
+
+      // Helper to filter out cover letter boilerplate from bullets
+      const cleanBulletText = (bullets: string[]): string[] => {
+        if (!Array.isArray(bullets)) return [];
+        return bullets
+          .map(b => typeof b === "string" ? b.trim() : "")
+          .filter(b => {
+            if (b.length < 5) return false;
+            if (/^(Dear Hiring Manager|Kind regards|Enclosure:|Thank you for your consideration|I am excited to apply)/i.test(b)) return false;
+            return true;
+          });
+      };
 
       // Sanitize and ensure all required fields are present
       const sanitizedData = {
@@ -134,19 +190,23 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
         },
         summary: parsedJSON.summary || "Experienced leader specializing in operational excellence and systems transformation.",
         experiences: Array.isArray(parsedJSON.experiences) && parsedJSON.experiences.length > 0
-          ? parsedJSON.experiences.map((exp: any, i: number) => ({
-              id: exp.id || `exp-${i + 1}`,
-              company: exp.company || "Enterprise Organization",
-              role: exp.role || "Operations Leader",
-              location: exp.location || "United States",
-              startDate: exp.startDate || "2020",
-              endDate: exp.endDate || "Present",
-              current: exp.current ?? (exp.endDate ? /present|current/i.test(exp.endDate) : true),
-              highlights: Array.isArray(exp.highlights) && exp.highlights.length > 0 
-                ? exp.highlights 
-                : ["Led operational strategy, systems optimization, and cross-functional teams."]
-            }))
-          : fallbackParseResumeText(rawText).experiences,
+          ? parsedJSON.experiences.map((exp: any, i: number) => {
+              const rawHighlights = Array.isArray(exp.highlights) ? exp.highlights : [];
+              const cleanedHighlights = cleanBulletText(rawHighlights);
+              return {
+                id: exp.id || `exp-${i + 1}`,
+                company: exp.company || "Enterprise Organization",
+                role: exp.role || "Operations Leader",
+                location: exp.location || "United States",
+                startDate: exp.startDate || "2020",
+                endDate: exp.endDate || "Present",
+                current: exp.current ?? (exp.endDate ? /present|current/i.test(exp.endDate) : true),
+                highlights: cleanedHighlights.length > 0
+                  ? cleanedHighlights
+                  : ["Led operational strategy, systems optimization, and cross-functional teams."]
+              };
+            })
+          : fallbackParseResumeText(cleanText).experiences,
         education: Array.isArray(parsedJSON.education) && parsedJSON.education.length > 0
           ? parsedJSON.education.map((edu: any, i: number) => ({
               id: edu.id || `edu-${i + 1}`,
@@ -156,26 +216,29 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
               location: edu.location || "",
               graduationDate: edu.graduationDate || "2018"
             }))
-          : fallbackParseResumeText(rawText).education,
+          : fallbackParseResumeText(cleanText).education,
         skills: Array.isArray(parsedJSON.skills) && parsedJSON.skills.length > 0
           ? parsedJSON.skills.map((s: any, i: number) => ({
               id: s.id || `skill-${i + 1}`,
               category: s.category || (i === 0 ? "Core Competencies" : i === 1 ? "Technology & Automation" : "Leadership & Operations"),
               skills: Array.isArray(s.skills) ? s.skills : ["Operations Management", "Process Optimization", "Leadership"]
             }))
-          : fallbackParseResumeText(rawText).skills,
-        certifications: Array.isArray(parsedJSON.certifications)
-          ? parsedJSON.certifications
-          : [],
+          : fallbackParseResumeText(cleanText).skills,
+        certifications: Array.isArray(parsedJSON.certifications) && parsedJSON.certifications.length > 0
+          ? parsedJSON.certifications.map((c: any, i: number) => ({
+              id: c.id || `cert-${i + 1}`,
+              name: typeof c === "string" ? c : (c.name || "Professional Certification"),
+              issuer: (typeof c === "object" && c.issuer) ? String(c.issuer) : "Accredited Body",
+              date: (typeof c === "object" && c.date) ? String(c.date) : "Active"
+            }))
+          : fallbackParseResumeText(cleanText).certifications,
         projects: Array.isArray(parsedJSON.projects)
           ? parsedJSON.projects
           : [],
         awards: Array.isArray(parsedJSON.awards)
           ? parsedJSON.awards
           : [],
-        metrics: Array.isArray(parsedJSON.metrics) && parsedJSON.metrics.length > 0
-          ? parsedJSON.metrics
-          : fallbackParseResumeText(rawText).metrics
+        metrics: formatMetrics(parsedJSON.metrics)
       };
 
       res.json({ success: true, data: sanitizedData });
