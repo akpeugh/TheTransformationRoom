@@ -151,7 +151,7 @@ export const Navbar = () => {
                   <div className="grid grid-cols-2 gap-8">
                     {toolGroups.map((group) => (
                       <div key={group.label} className={group.label === "Knowledge" || group.label === "NOVA Strategic AI" ? "col-span-2" : "col-span-1"}>
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 px-3 flex items-center gap-2">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mb-4 px-3 flex items-center gap-2">
                           {group.label}
                           <div className="h-px bg-slate-100 flex-1" />
                         </h4>
@@ -166,13 +166,13 @@ export const Navbar = () => {
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
                                   tool.highlight
                                     ? "bg-brand-secondary/20 border-brand-secondary/30 text-brand-secondary shadow-lg shadow-brand-secondary/10"
-                                    : "bg-slate-100 border-slate-200 text-slate-500 group-hover/item:border-brand-secondary/30 group-hover/item:text-brand-secondary group-hover/item:bg-white"
+                                    : "bg-slate-100 border-slate-200 text-slate-600 group-hover/item:border-brand-secondary/30 group-hover/item:text-brand-secondary group-hover/item:bg-white"
                                 }`}>
                                   {tool.icon}
                                 </div>
                                 <div>
                                   <p className="text-sm font-bold text-slate-900 leading-none mb-1 group-hover/item:text-brand-secondary transition-colors">{tool.name}</p>
-                                  <p className="text-[10px] text-slate-400 font-medium">{tool.desc}</p>
+                                  <p className="text-[10px] text-slate-600 font-medium">{tool.desc}</p>
                                 </div>
                               </div>
                             );
@@ -232,7 +232,7 @@ export const Navbar = () => {
         <div className="md:hidden bg-white border-b border-slate-100 animate-in slide-in-from-top duration-300">
           <div className="px-4 pt-4 pb-8 space-y-4">
             <div className="border-b border-slate-100 pb-4 mb-4">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">{t("footer.systems")}</p>
+              <p className="text-[10px] font-black uppercase text-slate-600 tracking-widest mb-4">{t("footer.systems")}</p>
               <div className="space-y-3">
                 {(toolGroups as any).flatMap((g: any) => g.items).map((tool: any) => (
                   <button 

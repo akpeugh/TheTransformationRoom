@@ -148,6 +148,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     ]
   });
   const [isAtsModalOpen, setIsAtsModalOpen] = useState(false);
+  const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
 
   // Storage key for auto-saving resume and cover letter drafts
   const AUTOSAVE_STORAGE_KEY = "ttr_resume_studio_autosave_v2";
@@ -581,7 +582,23 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
           letterRendering: true,
           logging: false
         },
-        jsPDF: { unit: 'in', format: formatValue, orientation: 'portrait' as const }
+        jsPDF: { unit: 'in', format: formatValue, orientation: 'portrait' as const },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'],
+          avoid: [
+            '.break-inside-avoid',
+            '.resume-section',
+            '.experience-item',
+            '.skill-category-card',
+            '.education-item',
+            '.certification-item',
+            '.metrics-banner',
+            '.resume-header',
+            'h2',
+            'h3',
+            '.section-heading'
+          ]
+        }
       };
 
       await html2pdf().from(element).set(opt).save();
@@ -1072,6 +1089,18 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
             {isCompact ? "Dense Mode (ON)" : "Dense Mode (OFF)"}
           </button>
 
+          {activeTab === "resume" && (
+            <button
+              onClick={() => setShowPageBreakGuides(!showPageBreakGuides)}
+              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                showPageBreakGuides ? "bg-teal-600 text-white" : "bg-slate-800 text-slate-400 hover:text-white"
+              }`}
+              title="Show estimated page break lines on the preview"
+            >
+              {showPageBreakGuides ? "Page Guides (ON)" : "Page Guides (OFF)"}
+            </button>
+          )}
+
           <div className="hidden lg:flex items-center bg-slate-800 p-0.5 rounded-lg border border-slate-700">
             <button
               onClick={() => setViewMode("split")}
@@ -1139,6 +1168,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
                   colorTheme={selectedColor}
                   typography={selectedTypography}
                   isCompact={isCompact}
+                  showPageBreakGuides={showPageBreakGuides}
                 />
               ) : activeTab === "cover-letter" ? (
                 <CoverLetterPreview

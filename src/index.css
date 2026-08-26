@@ -85,3 +85,60 @@
     @apply text-slate-800 bg-slate-50 font-sans;
   }
 }
+
+/* Print and Multi-Page Document Styling */
+@page {
+  size: auto;
+  margin: 12mm 12mm 14mm 12mm;
+}
+
+@media print {
+  html, body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide app navigation and studio toolbars when printing */
+  header, nav, footer, button, .no-print, [role="dialog"], .print-hidden {
+    display: none !important;
+  }
+
+  #resume-printable-area, #cover-letter-printable-area {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Prevent page cuts inside atomic blocks */
+  .break-inside-avoid,
+  .resume-section,
+  .experience-item,
+  .skill-category-card,
+  .education-item,
+  .certification-item,
+  .metrics-banner,
+  .resume-header {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Avoid orphan section headings at the bottom of pages */
+  h1, h2, h3, .section-heading, .break-after-avoid {
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .break-before-page {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+}

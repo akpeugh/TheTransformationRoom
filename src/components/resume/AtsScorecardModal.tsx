@@ -42,12 +42,12 @@ export const AtsScorecardModal: React.FC<AtsScorecardModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">ATS & Impact Diagnostic Scorecard</h2>
-              <p className="text-xs text-slate-500">The Transformation Room Executive Audit</p>
+              <p className="text-xs text-slate-600 font-medium">The Transformation Room Executive Audit</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

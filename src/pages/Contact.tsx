@@ -174,7 +174,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-full blur-3xl" />
             
             <div className="space-y-4 mb-10 relative z-10">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.domain')}</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">{t('contact.form.domain')}</label>
               <div className="grid grid-cols-2 gap-4">
                 <button 
                   type="button"
@@ -185,10 +185,10 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   className={`p-6 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
                     formType === "organization" 
                       ? 'bg-brand-primary border-brand-primary text-white shadow-xl scale-[1.02]' 
-                      : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  <Briefcase className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "organization" ? 'text-brand-secondary' : 'text-slate-400'}`} />
+                  <Briefcase className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "organization" ? 'text-brand-secondary' : 'text-slate-600'}`} />
                   <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">{t("contact.form.org")}</span>
                 </button>
                 <button 
@@ -200,10 +200,10 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   className={`p-6 rounded-2xl border transition-all flex flex-col items-center gap-3 group ${
                     formType === "individual" 
                       ? 'bg-brand-primary border-brand-primary text-white shadow-xl scale-[1.02]' 
-                      : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
-                  <User className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "individual" ? 'text-brand-secondary' : 'text-slate-400'}`} />
+                  <User className={`w-6 h-6 transition-transform group-hover:scale-110 ${formType === "individual" ? 'text-brand-secondary' : 'text-slate-600'}`} />
                   <span className="font-black text-[10px] uppercase tracking-[0.2em] leading-none">{t("contact.form.ind")}</span>
                 </button>
               </div>
@@ -226,7 +226,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-800">NOVA Session Intelligence Integrated</p>
-                    <p className="text-[10px] text-slate-500">Your specific trajectory mapping from NOVA has been seamlessly attached to this request.</p>
+                    <p className="text-[10px] text-slate-600 font-medium">Your specific trajectory mapping from NOVA has been seamlessly attached to this request.</p>
                   </div>
                 </div>
               )}
@@ -240,17 +240,17 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.name')}</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">{t('contact.form.name')}</label>
                   <input 
                     required
                     name="name"
                     type="text" 
                     placeholder="Jane Doe"
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">
                     {formType === 'organization' ? t('contact.form.company') : t('contact.form.title')}
                   </label>
                   <input 
@@ -258,27 +258,27 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                     name="company_or_title"
                     type="text" 
                     placeholder={formType === 'organization' ? "Acme Corp" : "Operations Manager"}
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.email')}</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">{t('contact.form.email')}</label>
                   <input 
                     required
                     name="email"
                     type="email" 
                     placeholder="jane@example.com"
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-brand-primary/50 focus:bg-white outline-none transition-all"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.timeframe')}</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">{t('contact.form.timeframe')}</label>
                   <select 
                     name="timeframe"
-                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all appearance-none"
+                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 focus:border-brand-primary/50 focus:bg-white outline-none transition-all appearance-none"
                   >
                     <option value="urgent">{t('contact.form.time1')}</option>
                     <option value="planning">{t('contact.form.time2')}</option>
@@ -289,7 +289,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               </div>
 
               <div className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">
                   {formType === 'organization' ? t('contact.form.serviceOrg') : t('contact.form.serviceInd')}
                 </label>
                 <input type="hidden" name="service_interest" value={selectedService} />
@@ -308,7 +308,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                           className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group ${
                             selectedService === opt.label 
                               ? 'bg-brand-primary border-brand-primary text-white shadow-lg' 
-                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-brand-primary/30'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-brand-primary/30'
                           }`}
                         >
                           <div className={`p-2.5 rounded-xl transition-colors ${
@@ -318,8 +318,8 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                           </div>
                           <div>
                             <p className="font-bold text-sm leading-none mb-1">{opt.label}</p>
-                            <p className={`text-[10px] uppercase tracking-wider font-medium ${
-                              selectedService === opt.label ? 'text-white/70' : 'text-slate-400'
+                            <p className={`text-[10px] uppercase tracking-wider font-semibold ${
+                              selectedService === opt.label ? 'text-white/80' : 'text-slate-600'
                             }`}>{opt.sub}</p>
                           </div>
                         </button>
@@ -340,7 +340,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                           className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group ${
                             selectedService === opt.label 
                               ? 'bg-brand-primary border-brand-primary text-white shadow-lg' 
-                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-brand-primary/30'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-brand-primary/30'
                           }`}
                         >
                           <div className={`p-2.5 rounded-xl transition-colors ${
@@ -350,8 +350,8 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                           </div>
                           <div>
                             <p className="font-bold text-sm leading-none mb-1">{opt.label}</p>
-                            <p className={`text-[10px] uppercase tracking-wider font-medium ${
-                              selectedService === opt.label ? 'text-white/70' : 'text-slate-400'
+                            <p className={`text-[10px] uppercase tracking-wider font-semibold ${
+                              selectedService === opt.label ? 'text-white/80' : 'text-slate-600'
                             }`}>{opt.sub}</p>
                           </div>
                         </button>
@@ -362,14 +362,14 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{t('contact.form.descNeeds')}</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-700 ml-1">{t('contact.form.descNeeds')}</label>
                 <textarea 
                   required
                   name="description"
                   rows={4}
                   defaultValue={assessmentData ? `[AUTO-ATTACHED ASSESSMENT RESULTS]\nArchetype: ${assessmentData.archetype}\nTraits/Details: ${assessmentData.traits}\n\nUser Notes: ` : ""}
                   placeholder={formType === 'organization' ? t("contact.form.descPHOrg") : t("contact.form.descPHInd")}
-                  className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl focus:border-brand-primary/50 focus:bg-white outline-none transition-all resize-none"
+                  className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 placeholder:text-slate-400 focus:border-brand-primary/50 focus:bg-white outline-none transition-all resize-none"
                 />
               </div>
 
@@ -379,7 +379,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                     <CheckCircle2 className="w-4 h-4" />
                     <p className="text-[10px] font-black uppercase tracking-widest">Assessment Data Attached</p>
                   </div>
-                  <p className="text-[10px] text-slate-500 font-medium">
+                  <p className="text-[10px] text-slate-700 font-medium">
                     Your <span className="text-slate-900 font-bold">{assessmentData.archetype}</span> results have been automatically mapped to your inquiry to help our strategists prepare for your session.
                   </p>
                   <input type="hidden" name="archetype_result" value={assessmentData.archetype} />

@@ -16,12 +16,12 @@ const Testimonials = () => {
     <div className="max-w-7xl mx-auto px-4">
       <div className="text-center mb-20">
         <span className="text-brand-secondary font-bold tracking-widest text-xs uppercase mb-4 block underline">{t("test.hero.label")}</span>
-        <h1 className="text-5xl font-bold mb-6">{t("test.hero.title")}</h1>
-        <p className="text-slate-500 text-lg">{t("test.hero.desc")}</p>
+        <h1 className="text-5xl font-bold mb-6 text-slate-900">{t("test.hero.title")}</h1>
+        <p className="text-slate-700 text-lg font-medium">{t("test.hero.desc")}</p>
       </div>
 
       <div className="mb-32">
-        <h2 className="text-2xl font-bold mb-12 flex items-center gap-4">
+        <h2 className="text-2xl font-bold mb-12 flex items-center gap-4 text-slate-900">
           <Briefcase className="text-brand-secondary w-8 h-8" />
           {t("test.case.title")}
         </h2>
@@ -52,15 +52,15 @@ const Testimonials = () => {
               </div>
               <div className="p-8">
                 <p className="text-xs font-bold text-brand-secondary uppercase mb-2">{caseStudy.client}</p>
-                <h3 className="text-xl font-bold mb-4">{caseStudy.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{caseStudy.result}</p>
+                <h3 className="text-xl font-bold mb-4 text-slate-900">{caseStudy.title}</h3>
+                <p className="text-sm text-slate-700 leading-relaxed">{caseStudy.result}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold mb-12 flex items-center gap-4">
+      <h2 className="text-2xl font-bold mb-12 flex items-center gap-4 text-slate-900">
         <Quote className="text-brand-secondary w-8 h-8" />
         {t("test.client.title")}
       </h2>

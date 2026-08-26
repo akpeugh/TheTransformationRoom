@@ -1,5 +1,6 @@
 import { ResumeData, ExperienceItem, EducationItem, SkillCategory, CertificationItem, ResumeMetric } from "../types/resume";
 import { sanitizeAndNormalizeResumeText } from "./textNormalizer";
+import { enforceResumeSectionLimits } from "./resumeSectionLimits";
 
 /**
  * Deterministic, intelligent heuristic resume parser.
@@ -502,7 +503,7 @@ export function fallbackParseResumeText(rawText: string): ResumeData {
     value: "+35%"
   });
 
-  return {
+  return enforceResumeSectionLimits({
     personalInfo,
     summary,
     experiences,
@@ -512,6 +513,6 @@ export function fallbackParseResumeText(rawText: string): ResumeData {
     projects: [],
     awards: [],
     metrics
-  };
+  });
 }
 

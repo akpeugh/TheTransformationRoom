@@ -121,3 +121,5 @@ export function sanitizeResumeText(input: string | null | undefined): string {
 
   return resultLines.join("\n").trim();
 }
+
+export * from "./resumeSectionLimits";

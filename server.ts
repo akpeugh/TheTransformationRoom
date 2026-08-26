@@ -8,6 +8,7 @@ import { generateAIContent } from "./server/ai";
 import { fallbackParseResumeText } from "./src/utils/resumeParserFallback";
 import { normalizeExtractedText, sanitizeAndNormalizeResumeText } from "./src/utils/textNormalizer";
 import { sanitizeResumeText } from "./src/utils/resumeSanitizer";
+import { enforceResumeSectionLimits } from "./src/utils/resumeSectionLimits";
 
 async function startServer() {
   const app = express();
@@ -95,27 +96,16 @@ async function startServer() {
         const systemInstruction = `You are an elite Executive Resume Parser and Data Structuring Engine for The Transformation Room.
 Your task is to parse unstructured or semi-structured resume text and convert it into a strictly valid, comprehensive JSON object matching the ResumeData schema.
 
-Extract all details meticulously:
-1. personalInfo: { fullName, targetTitle, email, phone, location, linkedin, portfolio }
-   - Ensure fullName is the real candidate name (clean up spaced letters like "K A R E E M A L S H O M A L Y" to "Kareem Alshomaly").
-   - Extract targetTitle or most senior engineering/executive leadership role.
-2. summary: A compelling 2-4 sentence executive summary highlighting leadership scope, revenue/budget supported, and strategic value.
-3. metrics: Array of 3-4 objects, each with { label: string, value: string } (e.g. [{"label": "Annual Revenue Supported", "value": "$10M"}, {"label": "On-Time Delivery", "value": "99.7%"}, {"label": "Cross-Functional Scale", "value": "5G & IoT"}]).
-4. experiences: Array of jobs. Each job must have:
-   - id: string (e.g. "exp-1")
-   - company: string
-   - role: string
-   - location: string
-   - startDate: string
-   - endDate: string
-   - current: boolean
-   - highlights: Array of high-impact action bullets starting with strong past/present verbs.
-   CRITICAL: Do NOT include cover letter text (e.g. "Dear Hiring Manager...", "Kind regards...") in experience highlights. Extract only real work achievements.
-5. education: Array of degrees/institutions with id, institution, degree, field, location, graduationDate.
-6. skills: Array of 3-4 categorized objects with id, category, skills: string[] (e.g. "Engineering & Solutions", "Technical Operations", "Leadership & Strategic Partnerships").
-7. certifications: Array of objects with id, name, issuer, date.
-8. projects: Array of projects with id, name, description, highlights.
-9. awards: Array of strings.
+CRITICAL CONSTRAINTS & MAXIMUMS (Prevent Repetitive or Bloated Content):
+- Personal Info: fullName, targetTitle, email, phone, location, linkedin, portfolio. Clean up spaced letters.
+- Summary: Maximum 2-4 concise sentences (under 100 words). Focus on leadership scope, revenue/budget supported, and strategic value. No repetitive phrases.
+- Metrics: Maximum 3-4 distinct quantifiable metrics [{ "label": string, "value": string }].
+- Experiences: Maximum 5-6 most relevant roles. For each role, provide 3-5 high-impact bullet points (max 35 words per bullet). Deduplicate bullets; strictly DO NOT repeat identical bullets across or within jobs. Filter out cover letter text ("Dear Hiring...", "Kind regards...").
+- Skills: Maximum 3-4 categorized groups (e.g. "Engineering & Solutions", "Technical Operations", "Leadership & Systems"). Limit to 5-8 distinct, concise skill names per category (under 30 chars each). DO NOT include full sentences or paragraphs as skills. Deduplicate all skill tags.
+- Education: Maximum 3-4 degrees/institutions.
+- Certifications: Maximum 5-6 credentials.
+- Projects: Maximum 2-3 projects.
+- Awards: Maximum 3-4 awards.
 
 Return ONLY valid JSON matching this schema without markdown code fences.`;
 
@@ -143,11 +133,11 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
         if (!Array.isArray(rawMetrics) || rawMetrics.length === 0) {
           return fallbackParseResumeText(cleanText).metrics;
         }
-        return rawMetrics.map((m, i) => {
+        return rawMetrics.slice(0, 4).map((m, i) => {
           if (typeof m === "object" && m !== null) {
             return {
-              label: m.label || (i === 0 ? "Revenue Impact" : i === 1 ? "Service SLA" : "Scale"),
-              value: String(m.value || m.val || "$10M+")
+              label: (m.label || (i === 0 ? "Revenue Impact" : i === 1 ? "Service SLA" : "Scale")).slice(0, 28),
+              value: String(m.value || m.val || "$10M+").slice(0, 16)
             };
           }
           if (typeof m === "string") {
@@ -155,13 +145,13 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
             const pctMatch = m.match(/\+?\d{1,3}%/);
             if (moneyMatch) {
               const label = m.replace(moneyMatch[0], "").replace(/in\s+|annual\s+|impact/gi, "").trim() || "Annual Impact";
-              return { label: label.slice(0, 24), value: moneyMatch[0] };
+              return { label: label.slice(0, 24), value: moneyMatch[0].slice(0, 16) };
             }
             if (pctMatch) {
               const label = m.replace(pctMatch[0], "").trim() || "Improvement";
-              return { label: label.slice(0, 24), value: pctMatch[0] };
+              return { label: label.slice(0, 24), value: pctMatch[0].slice(0, 16) };
             }
-            return { label: `Impact Metric ${i + 1}`, value: m.slice(0, 20) };
+            return { label: `Impact Metric ${i + 1}`, value: m.slice(0, 16) };
           }
           return { label: "Performance", value: "99%+" };
         });
@@ -180,7 +170,7 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
       };
 
       // Sanitize and ensure all required fields are present
-      const sanitizedData = {
+      const rawConstructedData = {
         personalInfo: {
           fullName: parsedJSON.personalInfo?.fullName || "Executive Candidate",
           targetTitle: parsedJSON.personalInfo?.targetTitle || "Operations & Transformation Leader",
@@ -243,12 +233,15 @@ Return ONLY valid JSON matching this schema without markdown code fences.`;
         metrics: formatMetrics(parsedJSON.metrics)
       };
 
+      // Strictly clamp and deduplicate all sections, words, and skills
+      const sanitizedData = enforceResumeSectionLimits(rawConstructedData as any);
+
       res.json({ success: true, data: sanitizedData });
     } catch (err: any) {
       console.error("[Server] Critical error in /api/resume/parse:", err.message || err);
       // Even in the worst case, return the fallback parse so the user is never blocked
       try {
-        const fallbackData = fallbackParseResumeText(req.body?.rawText || "");
+        const fallbackData = enforceResumeSectionLimits(fallbackParseResumeText(req.body?.rawText || ""));
         res.json({ success: true, data: fallbackData });
       } catch (fatalErr: any) {
         res.status(500).json({ error: fatalErr.message || "Failed to parse resume text" });
@@ -301,6 +294,9 @@ Target Goal:
       });
 
       const parsedResult = extractJSON(aiResponse);
+      if (parsedResult && parsedResult.enhancedResume) {
+        parsedResult.enhancedResume = enforceResumeSectionLimits(parsedResult.enhancedResume);
+      }
       res.json({ success: true, ...parsedResult });
     } catch (err: any) {
       console.error("[Server] Error in /api/resume/enhance:", err.message || err);
