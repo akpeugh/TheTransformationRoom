@@ -230,8 +230,8 @@ const Home = () => {
             className={`w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_65%,transparent_100%)] object-center transform scale-105 transition-opacity duration-1000 ease-out ${
               heroVideoReady ? "opacity-100" : "opacity-0"
             }`}
-            onError={(e) => {
-              console.error("Hero video error:", e);
+            onError={() => {
+              console.warn("Hero video failed to load or autoplay.");
               setHeroVideoReady(true);
             }}
           >
@@ -442,7 +442,7 @@ const Home = () => {
                       playsInline 
                       preload="none"
                       className="w-full h-auto object-cover transform scale-105 group-hover:scale-110 transition-transform duration-1000"
-                      onError={() => console.error("Error loading video: Connecting People & AI", videoMap["Connecting People & AI"])}
+                      onError={() => console.warn("Video failed to load: Connecting People & AI")}
                     />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/60 via-brand-secondary/5 to-transparent pointer-events-none mix-blend-overlay" />
                   </div>
@@ -508,7 +508,7 @@ const Home = () => {
                       playsInline 
                       preload="none"
                       className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-500 scale-105"
-                      onError={() => console.error("Error loading video: Modernizing Manufacturing / Warehousing", videoMap["Modernizing Manufacturing / Warehousing"])}
+                      onError={() => console.warn("Video failed to load: Modernizing Manufacturing / Warehousing")}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-brand-secondary/10 pointer-events-none mix-blend-overlay" />
                   </motion.div>
@@ -595,7 +595,7 @@ const Home = () => {
                               playsInline 
                               preload="none"
                               className="w-full h-full object-cover"
-                              onError={() => console.error(`Error loading video: ${cat.videoKey}`, videoMap[cat.videoKey])}
+                              onError={() => console.warn(`Video failed to load: ${cat.videoKey}`)}
                             />
                           </div>
                         </div>

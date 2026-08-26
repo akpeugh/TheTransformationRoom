@@ -6,7 +6,8 @@ import { createServer as createViteServer } from "vite";
 import OpenAI from "openai";
 import { generateAIContent } from "./server/ai";
 import { fallbackParseResumeText } from "./src/utils/resumeParserFallback";
-import { normalizeExtractedText } from "./src/utils/textNormalizer";
+import { normalizeExtractedText, sanitizeAndNormalizeResumeText } from "./src/utils/textNormalizer";
+import { sanitizeResumeText } from "./src/utils/resumeSanitizer";
 
 async function startServer() {
   const app = express();
@@ -84,8 +85,9 @@ async function startServer() {
 
       console.log(`[Server] Parsing resume text (${rawText.length} chars)...`);
 
-      // Pre-normalize text (collapse spaces like "K A R E E M", OCR kerning, broken lines)
-      const cleanText = normalizeExtractedText(rawText);
+      // Pre-normalize and sanitize text (strip non-printable chars, normalize whitespace, fix encoding artifacts, and collapse OCR kerning)
+      const sanitized = sanitizeResumeText(rawText);
+      const cleanText = sanitizeAndNormalizeResumeText(sanitized);
 
       let parsedJSON: any = null;
 

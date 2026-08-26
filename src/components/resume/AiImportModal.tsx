@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import { ResumeData } from "../../types/resume";
 import { sampleExecutiveProfiles } from "../../data/sampleResume";
-import { extractTextFromFile } from "../../utils/documentParser";
+import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../../utils/documentParser";
+import { sanitizeResumeText } from "../../utils/resumeSanitizer";
 import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
 
 interface AiImportModalProps {
@@ -50,8 +51,11 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
   if (!isOpen) return null;
 
   const parseRawTextWithAI = async (text: string) => {
-    if (!text || !text.trim()) {
+    const sanitized = sanitizeResumeText(text || "");
+    const cleanText = sanitizeAndNormalizeResumeText(sanitized);
+    if (!cleanText || !cleanText.trim()) {
       setErrorMsg("Please provide text or upload a document to import.");
+      setActiveTab("paste");
       return;
     }
 
@@ -66,7 +70,7 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
         const res = await fetch("/api/resume/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rawText: text })
+          body: JSON.stringify({ rawText: cleanText })
         });
 
         if (res.ok) {
@@ -74,13 +78,15 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
           if (json.data && json.data.personalInfo) {
             structuredResume = json.data;
           }
+        } else {
+          console.warn("[AiImportModal] Server parse returned status:", res.status);
         }
       } catch (netErr) {
-        console.warn("Network parse error, utilizing fallback:", netErr);
+        console.warn("[AiImportModal] Network parse error, utilizing deterministic fallback:", netErr);
       }
 
       if (!structuredResume) {
-        structuredResume = fallbackParseResumeText(text);
+        structuredResume = fallbackParseResumeText(cleanText);
       }
 
       if (structuredResume) {
@@ -90,8 +96,8 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
         throw new Error("Could not structure resume data.");
       }
     } catch (err: any) {
-      console.error("AI Import parsing error:", err);
-      const fallbackData = fallbackParseResumeText(text);
+      console.error("[AiImportModal] AI Import parsing error:", err);
+      const fallbackData = fallbackParseResumeText(cleanText);
       setExtractedPreview(fallbackData);
       setParsingProgress(null);
     } finally {
@@ -100,9 +106,20 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
   };
 
   const handleFileProcess = async (file: File) => {
+    // Validate file input
+    const validation = validateResumeFile(file);
+    if (!validation.isValid) {
+      setErrorMsg(
+        (validation.error || "Invalid file.") + " Please paste your resume text directly into the text editor below for manual cleanup."
+      );
+      setActiveTab("paste");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setIsProcessing(true);
     setErrorMsg(null);
-    setParsingProgress(`Reading ${file.name}...`);
+    setParsingProgress(`Reading and sanitizing ${file.name}...`);
 
     try {
       let extractedText = "";
@@ -120,15 +137,27 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
         extractedText = await extractTextFromFile(file);
       }
 
+      const sanitized = sanitizeResumeText(extractedText);
+      extractedText = sanitizeAndNormalizeResumeText(sanitized);
+
       if (!extractedText.trim()) {
-        throw new Error("No readable text found in this file.");
+        throw new Error("No readable text found in this file. The document may be empty, image-only, or encrypted.");
       }
 
       setRawText(extractedText);
       await parseRawTextWithAI(extractedText);
     } catch (err: any) {
-      console.error("File extraction error:", err);
-      setErrorMsg(err.message || "Could not read file. Try pasting raw text instead.");
+      console.error("[AiImportModal] File extraction error:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        error: err.message || err
+      });
+      // Detect error and prompt user to paste content into simple textarea for manual cleanup
+      setErrorMsg(
+        `Automated extraction failed for "${file.name}" (${err.message || "Unreadable structure"}). Please paste your resume content into the textarea below for manual cleanup and instant formatting.`
+      );
+      setActiveTab("paste");
       setIsProcessing(false);
       setParsingProgress(null);
     }
@@ -354,12 +383,17 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-xs font-black uppercase tracking-wider text-slate-300">
-                    Paste Resume / LinkedIn Bio Text:
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                    <FileText className="w-3.5 h-3.5 text-teal-400" />
+                    Paste Resume Content for Manual Cleanup:
                   </label>
-                  <button
-                    onClick={() => {
-                      setRawText(`Alex Rivera
+                  <div className="flex items-center gap-3">
+                    <div className="text-[11px] text-slate-400">
+                      <span>{rawText.trim().split(/\s+/).filter(Boolean).length} words</span> • <span>{rawText.length} chars</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setRawText(`Alex Rivera
 Director of Operations & Systems Strategy
 Richmond, VA | (555) 349-8201 | alex.rivera@example.com
 
@@ -375,30 +409,64 @@ Apex Global Logistics - Senior Director of Operations (2022 - Present)
 Vanguard Distribution - Operations Manager (2018 - 2022)
 - Implemented Lean Six Sigma error reductions, raising on-time deliveries from 89% to 99.2%.
 - Expanded storage capacity by 22% via computational slotting algorithms.`);
-                    }}
-                    className="text-[11px] text-teal-400 hover:text-teal-300 font-semibold cursor-pointer"
-                  >
-                    Paste Sample Unstructured Text
-                  </button>
+                        setErrorMsg(null);
+                      }}
+                      className="text-[11px] text-teal-400 hover:text-teal-300 font-semibold cursor-pointer"
+                    >
+                      Paste Sample
+                    </button>
+                  </div>
                 </div>
                 <textarea
                   value={rawText}
-                  onChange={(e) => setRawText(e.target.value)}
-                  rows={8}
-                  placeholder="Paste your unformatted resume, raw bullet points, or LinkedIn 'About' and 'Experience' sections here..."
-                  className="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-teal-500 resize-none font-mono"
+                  onChange={(e) => {
+                    setRawText(e.target.value);
+                  }}
+                  rows={9}
+                  placeholder="Paste your unformatted resume, raw bullet points, or LinkedIn 'About' and 'Experience' sections here for manual cleanup..."
+                  className="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-teal-500 resize-y font-mono"
                 />
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  onClick={() => parseRawTextWithAI(rawText)}
-                  disabled={!rawText.trim()}
-                  className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-teal-500/20 cursor-pointer disabled:opacity-40"
-                >
-                  <Sparkles className="w-4 h-4 fill-slate-950" />
-                  Parse & Structure Document
-                </button>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!rawText.trim()}
+                    onClick={() => {
+                      const cleaned = sanitizeResumeText(rawText);
+                      setRawText(cleaned);
+                    }}
+                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-teal-300 border border-teal-500/30 rounded-xl text-xs font-bold transition-colors disabled:opacity-40 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                    Sanitize Text
+                  </button>
+
+                  {rawText.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRawText("");
+                        setErrorMsg(null);
+                      }}
+                      className="px-3 py-2 text-slate-400 hover:text-slate-200 rounded-xl text-xs transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => parseRawTextWithAI(rawText)}
+                    disabled={!rawText.trim()}
+                    className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-teal-500/20 cursor-pointer disabled:opacity-40"
+                  >
+                    <Sparkles className="w-4 h-4 fill-slate-950" />
+                    Parse & Structure Document
+                  </button>
+                </div>
               </div>
             </div>
           )}

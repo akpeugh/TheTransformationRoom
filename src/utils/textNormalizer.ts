@@ -1,7 +1,8 @@
 /**
- * Pure zero-dependency text normalization engine.
+ * Pure zero-dependency text sanitization and normalization engine.
  * Perfectly repairs OCR artifacts, stylistic wide letter-spacing, intra-word kerning glitches,
- * broken headers, and irregular whitespace across resumes and cover letters.
+ * broken headers, illegal control characters, non-standard unicode glyphs, and irregular whitespace
+ * across resumes and cover letters.
  */
 
 // Common professional/resume vocabulary dictionary for kerning and OCR repair
@@ -15,25 +16,75 @@ const KNOWN_WORDS = [
   "Partnerships", "Feasibility", "Troubleshooting", "Remediation", "Visibility",
   "Specifications", "Communication", "Consideration", "Enclosure", "Résumé",
   "Cradlepoint", "Expert", "Implementing", "Performance", "Analysis",
-  "Product", "Customer", "Process", "Quality", "Director", "Manager"
+  "Product", "Customer", "Process", "Quality", "Director", "Manager",
+  "Optimization", "Logistics", "Distribution", "Transformation", "Infrastructure",
+  "Continuous", "Improvement", "Compliance", "Supply", "Chain", "Warehouse"
 ];
 
 /**
+ * Sanitizes raw text by removing illegal control characters, non-printable binary tokens,
+ * broken unicode replacement characters, and converting non-standard punctuation.
+ */
+export function sanitizeRawText(input: string): string {
+  if (!input || typeof input !== "string") return "";
+
+  let text = input;
+
+  // 1. Remove binary null bytes, unprintable control characters (keep tab \t and newline \n)
+  text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
+  // 2. Remove Unicode replacement character and zero-width characters
+  text = text.replace(/[\uFFFD\uFEFF\u200B\u200C\u200D\u2060\u00AD]/g, "");
+
+  // 3. Normalize non-standard unicode quotation marks and apostrophes
+  text = text.replace(/[\u2018\u2019\u201A\u201B\u2032\u0060\u00B4]/g, "'");
+  text = text.replace(/[\u201C\u201D\u201E\u201F\u2033]/g, '"');
+
+  // 4. Normalize unicode dashes and hyphens to standard hyphen
+  text = text.replace(/[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]/g, "-");
+
+  // 5. Expand unicode ligatures
+  const ligatures: Record<string, string> = {
+    "\uFB00": "ff",
+    "\uFB01": "fi",
+    "\uFB02": "fl",
+    "\uFB03": "ffi",
+    "\uFB04": "ffl",
+    "\uFB05": "ft",
+    "\uFB06": "st",
+    "\u0152": "OE",
+    "\u0153": "oe",
+    "\u00C6": "AE",
+    "\u00E6": "ae"
+  };
+  for (const [lig, replacement] of Object.entries(ligatures)) {
+    text = text.replace(new RegExp(lig, "g"), replacement);
+  }
+
+  // 6. Normalize non-standard bullet characters to standard bullet
+  text = text.replace(/[\u2022\u2023\u25E6\u2043\u2219\u25AA\u25AB\u25CF\u25CB\u25D8\u25A0\u25A1\u25C6\u25C7\u25B8\u25B9\u27A2\u27A4\u2713\u2714\u25BA\u25B6\u2705]/g, "•");
+
+  return text;
+}
+
+/**
  * Normalizes text extracted from PDF, DOCX, OCR or text paste:
- * 1. Collapses stylistic letter spacing (e.g. "K A R E E M  A L S H O M A L Y" -> "KAREEM ALSHOMALY", "C O N T A C T" -> "CONTACT")
- * 2. Repairs broken intra-word kerning artifacts (e.g. "T echnical" -> "Technical", "Engine e ring" -> "Engineering", "Profes sional" -> "Professional", "busin ess" -> "business")
- * 3. Normalizes multiple spaces and maintains clean line breaks
+ * 1. Sanitizes illegal characters and normalizes unicode symbols
+ * 2. Collapses stylistic letter spacing (e.g. "K A R E E M  A L S H O M A L Y" -> "KAREEM ALSHOMALY", "C O N T A C T" -> "CONTACT")
+ * 3. Repairs broken intra-word kerning artifacts (e.g. "T echnical" -> "Technical", "Engine e ring" -> "Engineering", "Profes sional" -> "Professional", "busin ess" -> "business")
+ * 4. Normalizes multiple spaces and maintains clean line breaks
  */
 export function normalizeExtractedText(raw: string): string {
   if (!raw || typeof raw !== "string") return "";
 
-  let text = raw;
+  // Step 1: Sanitize illegal control characters & normalize unicode
+  let text = sanitizeRawText(raw);
 
-  // Step 1: Normalize unicode whitespace & newlines
+  // Step 2: Normalize unicode whitespace & newlines
   text = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   text = text.replace(/[\u00A0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g, " ");
 
-  // Step 2: Fix stylistic spaced uppercase/lowercase words
+  // Step 3: Fix stylistic spaced uppercase/lowercase words
   // e.g. "K A R E E M   A L S H O M A L Y" -> "KAREEM ALSHOMALY"
   // e.g. "C O N T A C T" -> "CONTACT"
   // e.g. "E X P E R T I S E   S H O W C A S E" -> "EXPERTISE SHOWCASE"
@@ -52,7 +103,7 @@ export function normalizeExtractedText(raw: string): string {
     return cleaned;
   });
 
-  // Step 3: Fix known specific intra-word kerning glitches
+  // Step 4: Fix known specific intra-word kerning glitches
   const specificReplacements: [RegExp, string][] = [
     [/\bT\s+echnical\b/gi, "Technical"],
     [/\bE\s+ngineering\b/gi, "Engineering"],
@@ -86,7 +137,7 @@ export function normalizeExtractedText(raw: string): string {
     text = text.replace(pattern, replacement);
   }
 
-  // Step 4: Dictionary-guided intra-word space collapse
+  // Step 5: Dictionary-guided intra-word space collapse
   for (const word of KNOWN_WORDS) {
     // Generate split regex: e.g. "T echnical" or "Tech nical" or "Techni cal"
     for (let splitIdx = 1; splitIdx < word.length; splitIdx++) {
@@ -97,16 +148,24 @@ export function normalizeExtractedText(raw: string): string {
     }
   }
 
-  // Step 5: Fix isolated letter glitches at start of lines or sentences
-  // e.g. "T echnical Escalation" -> "Technical Escalation"
+  // Step 6: Fix isolated letter glitches at start of lines or sentences
   text = text.replace(/(?:^|\n)\s*([A-Za-z])\s+([a-z]{3,})/gm, "$1$2");
 
-  // Step 6: Fix spaces before punctuation
+  // Step 7: Fix spaces before punctuation
   text = text.replace(/\s+([,.:;?!])/g, "$1");
 
-  // Step 7: Collapse excessive horizontal whitespace while preserving clean newlines
+  // Step 8: Collapse excessive horizontal whitespace while preserving clean newlines
   const lines = text.split("\n").map(l => l.replace(/[ \t]+/g, " ").trim());
   text = lines.filter(l => l.length > 0).join("\n");
 
   return text;
 }
+
+/**
+ * Main entry point to sanitize and normalize raw resume text extracted from any source.
+ * Removes illegal characters, fixes OCR artifacts, and formats into clean, structured paragraphs.
+ */
+export function sanitizeAndNormalizeResumeText(rawText: string): string {
+  return normalizeExtractedText(rawText);
+}
+

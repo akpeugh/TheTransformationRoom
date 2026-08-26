@@ -24,11 +24,13 @@ import {
   GraduationCap,
   ChevronRight,
   RefreshCw,
-  FolderOpen
+  FolderOpen,
+  AlertTriangle
 } from "lucide-react";
 import { ResumeData, CoverLetterData } from "../../types/resume";
 import { defaultResumeData, defaultCoverLetterData, sampleExecutiveProfiles } from "../../data/sampleResume";
-import { extractTextFromFile } from "../../utils/documentParser";
+import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../../utils/documentParser";
+import { sanitizeResumeText } from "../../utils/resumeSanitizer";
 import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
 import { 
   getSharedCareerProfile, 
@@ -61,6 +63,8 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [rawPastedText, setRawPastedText] = useState("");
+  const [uploadErrorNotice, setUploadErrorNotice] = useState<string | null>(null);
+  const [cleanSuccessNotice, setCleanSuccessNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -179,8 +183,11 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
 
   // Handler: Parse raw text or file
   const handleParseRawText = async (text: string, sourceName = "Pasted text") => {
-    if (!text || !text.trim()) {
-      alert("Please provide resume text to import.");
+    const sanitized = sanitizeResumeText(text || "");
+    const cleanText = sanitizeAndNormalizeResumeText(sanitized);
+    if (!cleanText || !cleanText.trim()) {
+      setUploadErrorNotice("Please provide resume text to import.");
+      setImportTab("paste");
       return;
     }
 
@@ -195,7 +202,7 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
         const res = await fetch("/api/resume/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rawText: text })
+          body: JSON.stringify({ rawText: cleanText })
         });
 
         if (res.ok) {
@@ -205,15 +212,15 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
           }
         } else {
           const errData = await res.json().catch(() => ({}));
-          console.warn("Server parse returned non-ok status:", errData);
+          console.warn("[ResumeInitializationScreen] Server parse returned non-ok status:", res.status, errData);
         }
       } catch (networkErr) {
-        console.warn("Network request to /api/resume/parse failed, using client-side structural parser:", networkErr);
+        console.warn("[ResumeInitializationScreen] Network request to /api/resume/parse failed, using client-side structural parser:", networkErr);
       }
 
       // If server returned no data or failed, execute deterministic client-side parser
       if (!structuredResume) {
-        structuredResume = fallbackParseResumeText(text);
+        structuredResume = fallbackParseResumeText(cleanText);
       }
 
       if (structuredResume) {
@@ -225,8 +232,8 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
         throw new Error("Could not construct structured resume data");
       }
     } catch (err: any) {
-      console.error("Parse error:", err);
-      const fallbackData = fallbackParseResumeText(text);
+      console.error("[ResumeInitializationScreen] Parse error:", err);
+      const fallbackData = fallbackParseResumeText(cleanText);
       onComplete({
         resumeData: fallbackData,
         source: sourceName
@@ -237,8 +244,24 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
     }
   };
 
-  // Handler: File Upload Process
+  // Handler: File Upload Process with automated fallback detection
   const handleFileProcess = async (file: File) => {
+    // Clear previous notices
+    setUploadErrorNotice(null);
+    setCleanSuccessNotice(null);
+
+    // Validate file
+    const validation = validateResumeFile(file);
+    if (!validation.isValid) {
+      console.warn("[ResumeInitializationScreen] File validation failed:", validation.error);
+      setUploadErrorNotice(
+        validation.error || `Unsupported or invalid file (${file.name}). Please paste your resume text below for manual cleanup and instant formatting.`
+      );
+      setImportTab("paste");
+      setViewMode("upload-import");
+      return;
+    }
+
     setIsProcessingFile(true);
     setStatusMessage(`Reading ${file.name}...`);
     setViewMode("generating");
@@ -260,14 +283,26 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
         extractedText = await extractTextFromFile(file);
       }
 
+      const sanitized = sanitizeResumeText(extractedText);
+      extractedText = sanitizeAndNormalizeResumeText(sanitized);
+
       if (!extractedText.trim()) {
-        throw new Error("Could not extract readable text from this file.");
+        throw new Error("Could not extract readable text from this file. The document may be empty, password-protected, or contain image-only scans.");
       }
 
       await handleParseRawText(extractedText, file.name);
     } catch (err: any) {
-      console.error("File processing failed:", err);
-      alert(`Could not process file: ${err.message || "Unknown error"}`);
+      console.error("[ResumeInitializationScreen] File processing failed:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        error: err.message || err
+      });
+      // Trigger fallback: prompt user to paste text into textarea for manual cleanup
+      setUploadErrorNotice(
+        `Automated extraction could not parse "${file.name}" (${err.message || "Unreadable layout"}). Please paste your resume text below for manual cleanup and instant structuring.`
+      );
+      setImportTab("paste");
       setViewMode("upload-import");
     } finally {
       setIsProcessingFile(false);
@@ -842,30 +877,139 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
               </div>
             )}
 
-            {/* Sub-tab 2: Paste Raw Text */}
+            {/* Sub-tab 2: Paste Raw Text & Manual Cleanup Fallback */}
             {importTab === "paste" && (
               <div className="space-y-4">
+                {/* Parsing Fallback Alert Notice */}
+                {uploadErrorNotice && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-start justify-between gap-3 text-amber-200"
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-amber-300">
+                          Automated Document Upload Notice
+                        </div>
+                        <p className="text-xs text-amber-200/90 leading-relaxed">
+                          {uploadErrorNotice}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setUploadErrorNotice(null)}
+                      className="text-amber-400 hover:text-amber-200 text-xs font-bold p-1 rounded hover:bg-amber-500/10 transition-colors"
+                    >
+                      Dismiss
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Sanitization feedback notice */}
+                {cleanSuccessNotice && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-center justify-between text-xs text-teal-300"
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                      <span>{cleanSuccessNotice}</span>
+                    </div>
+                    <button
+                      onClick={() => setCleanSuccessNotice(null)}
+                      className="text-teal-400 hover:text-teal-200 text-xs font-bold px-1.5 py-0.5"
+                    >
+                      ×
+                    </button>
+                  </motion.div>
+                )}
+
                 <div>
-                  <label className="text-xs font-bold text-slate-300 block mb-2">
-                    Paste full résumé or portfolio text:
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-teal-400" />
+                      Paste raw resume or bio text for manual cleanup:
+                    </label>
+                    <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                      <span>{rawPastedText.trim().split(/\s+/).filter(Boolean).length} words</span>
+                      <span>•</span>
+                      <span>{rawPastedText.length} characters</span>
+                    </div>
+                  </div>
+
                   <textarea
                     value={rawPastedText}
-                    onChange={(e) => setRawPastedText(e.target.value)}
+                    onChange={(e) => {
+                      setRawPastedText(e.target.value);
+                      if (cleanSuccessNotice) setCleanSuccessNotice(null);
+                    }}
                     rows={12}
                     placeholder="Paste your existing resume summary, experience bullets, education, and skills here..."
                     className="w-full p-4 bg-slate-850 border border-slate-700 rounded-2xl text-xs text-white placeholder:text-slate-500 focus:border-teal-500 outline-none resize-y leading-relaxed font-mono"
                   />
                 </div>
-                <div className="flex justify-end">
-                  <button
-                    disabled={!rawPastedText.trim()}
-                    onClick={() => handleParseRawText(rawPastedText, "Pasted text")}
-                    className="px-6 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg shadow-teal-500/20"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Parse and Build Resume
-                  </button>
+
+                {/* Actions toolbar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={!rawPastedText.trim()}
+                      onClick={() => {
+                        const cleaned = sanitizeResumeText(rawPastedText);
+                        setRawPastedText(cleaned);
+                        setCleanSuccessNotice("Sanitized: Removed non-printable characters, standardized whitespace & repaired encoding artifacts.");
+                      }}
+                      className="px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-teal-300 border border-teal-500/30 rounded-xl text-xs font-bold transition-all disabled:opacity-40 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+                      Sanitize & Clean Text
+                    </button>
+
+                    {rawPastedText.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRawPastedText("");
+                          setUploadErrorNotice(null);
+                          setCleanSuccessNotice(null);
+                        }}
+                        className="px-3 py-2 text-slate-400 hover:text-slate-200 rounded-xl text-xs transition-colors cursor-pointer"
+                      >
+                        Clear Text
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sample = sampleExecutiveProfiles[0];
+                        if (sample) {
+                          const sampleText = `${sample.data.personalInfo.fullName}\n${sample.data.personalInfo.targetTitle}\n${sample.data.personalInfo.email} | ${sample.data.personalInfo.phone} | ${sample.data.personalInfo.location}\n\nEXECUTIVE SUMMARY\n${sample.data.summary}\n\nPROFESSIONAL EXPERIENCE\n` +
+                            sample.data.experiences.map(e => `${e.role} - ${e.company} (${e.startDate} - ${e.endDate})\n` + e.highlights.map(h => `• ${h}`).join("\n")).join("\n\n");
+                          setRawPastedText(sampleText);
+                          setUploadErrorNotice(null);
+                        }
+                      }}
+                      className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium border border-slate-700 transition-colors cursor-pointer"
+                    >
+                      Load Sample Text
+                    </button>
+
+                    <button
+                      disabled={!rawPastedText.trim()}
+                      onClick={() => handleParseRawText(rawPastedText, "Pasted text")}
+                      className="px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 cursor-pointer shadow-lg shadow-teal-500/20"
+                    >
+                      <Sparkles className="w-4 h-4 fill-slate-950" />
+                      Parse and Build Resume
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

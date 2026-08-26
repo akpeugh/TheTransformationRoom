@@ -40,7 +40,7 @@ import {
 } from "recharts";
 
 import Markdown from "react-markdown";
-import { extractTextFromFile } from "../utils/documentParser";
+import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../utils/documentParser";
 
 interface ResumeOptimizerProps {
   onClose: () => void;
@@ -135,9 +135,19 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file
+    const validation = validateResumeFile(file);
+    if (!validation.isValid) {
+      console.warn("[ResumeOptimizer] File validation failed:", validation.error);
+      alert(validation.error || "Invalid file selected.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
     setParsingFile(true);
     try {
-      const text = await extractTextFromFile(file);
+      let text = await extractTextFromFile(file);
+      text = sanitizeAndNormalizeResumeText(text);
 
       if (text.trim()) {
         console.log(`[ResumeOptimizer] Successfully extracted ${text.length} characters`);
@@ -147,7 +157,12 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
         alert("We couldn't extract text from this document. It might be a scanned image. Please try pasting the text manually.");
       }
     } catch (error) {
-      console.error("[ResumeOptimizer] Error parsing file:", error);
+      console.error("[ResumeOptimizer] Error parsing file:", {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        error: error instanceof Error ? error.message : error
+      });
       alert(`Error parsing file: ${error instanceof Error ? error.message : "Unknown error"}. Please try pasting the text instead.`);
     } finally {
       setParsingFile(false);

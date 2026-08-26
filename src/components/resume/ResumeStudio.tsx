@@ -38,7 +38,9 @@ import {
   AtsScorecard 
 } from "../../types/resume";
 import { defaultResumeData, defaultCoverLetterData } from "../../data/sampleResume";
-import { extractTextFromFile } from "../../utils/documentParser";
+import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../../utils/documentParser";
+import { sanitizeResumeText } from "../../utils/resumeSanitizer";
+import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
 import { ResumePreview } from "./ResumePreview";
 import { CoverLetterPreview } from "./CoverLetterPreview";
 import { ResumeEditor } from "./ResumeEditor";
@@ -310,52 +312,102 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsParsing(true);
-    setStatusMessage("Extracting document text...");
+    // Validate file
+    const validation = validateResumeFile(file);
+    if (!validation.isValid) {
+      console.warn("[ResumeStudio] File validation failed:", validation.error);
+      alert(validation.error || "Invalid file selected.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
+    setIsParsing(true);
+    setStatusMessage("Extracting and sanitizing document text...");
+
+    let rawText = "";
     try {
-      const rawText = await extractTextFromFile(file);
+      rawText = await extractTextFromFile(file);
+      const sanitized = sanitizeResumeText(rawText);
+      rawText = sanitizeAndNormalizeResumeText(sanitized);
 
       if (!rawText.trim()) {
-        throw new Error("Could not extract readable text from file.");
+        throw new Error("Could not extract readable text from the document. The file may be empty, image-only, or encrypted.");
       }
 
       setStatusMessage("AI is parsing and structuring your career data...");
 
-      const res = await fetch("/api/resume/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawText })
-      });
+      let parsedData: ResumeData | null = null;
 
-      if (!res.ok) {
-        throw new Error("Failed to parse resume via AI service");
+      try {
+        const res = await fetch("/api/resume/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rawText })
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && json.data.personalInfo) {
+            parsedData = json.data;
+          }
+        } else {
+          console.warn("[ResumeStudio] Server parse endpoint returned non-OK status:", res.status);
+        }
+      } catch (networkErr: any) {
+        console.warn("[ResumeStudio] Server AI parsing failed, activating deterministic fallback:", networkErr?.message || networkErr);
       }
 
-      const json = await res.json();
-      if (json.data) {
-        setResumeData(json.data);
+      // If server AI parsing was unavailable or incomplete, use fallback parser
+      if (!parsedData) {
+        console.log("[ResumeStudio] Applying deterministic heuristic parser to sanitized resume text...");
+        parsedData = fallbackParseResumeText(rawText);
+      }
+
+      if (parsedData) {
+        setResumeData(parsedData);
         // Also update cover letter sender info
-        if (json.data.personalInfo) {
+        if (parsedData.personalInfo) {
           setCoverLetterData((prev) => ({
             ...prev,
             sender: {
-              fullName: json.data.personalInfo.fullName || prev.sender.fullName,
-              title: json.data.personalInfo.targetTitle || prev.sender.title,
-              email: json.data.personalInfo.email || prev.sender.email,
-              phone: json.data.personalInfo.phone || prev.sender.phone,
-              location: json.data.personalInfo.location || prev.sender.location,
+              fullName: parsedData!.personalInfo.fullName || prev.sender.fullName,
+              title: parsedData!.personalInfo.targetTitle || prev.sender.title,
+              email: parsedData!.personalInfo.email || prev.sender.email,
+              phone: parsedData!.personalInfo.phone || prev.sender.phone,
+              location: parsedData!.personalInfo.location || prev.sender.location,
             },
-            targetRole: json.data.personalInfo.targetTitle || prev.targetRole
+            targetRole: parsedData!.personalInfo.targetTitle || prev.targetRole
           }));
         }
         setStatusMessage("Resume successfully parsed and populated!");
         setTimeout(() => setStatusMessage(null), 4000);
       }
     } catch (err: any) {
-      console.error("Resume file parse error:", err);
-      alert(`Error reading file: ${err.message || "Please check the file format."}`);
-      setStatusMessage(null);
+      console.error("[ResumeStudio] Resume file processing error:", {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        errorMessage: err.message || err
+      });
+
+      // Attempt emergency fallback with whatever raw text was extracted
+      if (rawText && rawText.trim().length > 10) {
+        try {
+          console.log("[ResumeStudio] Attempting emergency text recovery...");
+          const emergencyData = fallbackParseResumeText(rawText);
+          setResumeData(emergencyData);
+          setStatusMessage("Resume parsed using local intelligent extractor.");
+          setTimeout(() => setStatusMessage(null), 4000);
+          return;
+        } catch (recoveryErr) {
+          console.error("[ResumeStudio] Emergency recovery also failed:", recoveryErr);
+        }
+      }
+
+      // Open the AI Import modal in text manual cleanup mode
+      setIsAiImportModalOpen(true);
+      setStatusMessage("Opening manual text cleaner...");
+      setTimeout(() => setStatusMessage(null), 3000);
     } finally {
       setIsParsing(false);
       if (fileInputRef.current) fileInputRef.current.value = "";

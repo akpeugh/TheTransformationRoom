@@ -3,8 +3,9 @@ import mammoth from "mammoth";
 import { GlobalWorkerOptions } from "pdfjs-dist";
 // @ts-ignore
 import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
-import { normalizeExtractedText } from "./textNormalizer";
-export { normalizeExtractedText };
+import { normalizeExtractedText, sanitizeRawText, sanitizeAndNormalizeResumeText } from "./textNormalizer";
+import { sanitizeResumeText } from "./resumeSanitizer";
+export { normalizeExtractedText, sanitizeRawText, sanitizeAndNormalizeResumeText, sanitizeResumeText };
 
 // Set PDF.js worker safely
 try {
@@ -13,6 +14,37 @@ try {
   }
 } catch (e) {
   console.warn("Failed to set PDF.js workerSrc with Vite URL:", e);
+}
+
+/**
+ * Validates a file object before extraction
+ */
+export function validateResumeFile(file: File): { isValid: boolean; error?: string } {
+  if (!file) {
+    return { isValid: false, error: "No file provided." };
+  }
+
+  // Maximum file size: 15MB
+  const MAX_FILE_SIZE = 15 * 1024 * 1024;
+  if (file.size > MAX_FILE_SIZE) {
+    return { isValid: false, error: `File size exceeds the 15MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB).` };
+  }
+
+  if (file.size === 0) {
+    return { isValid: false, error: "The selected file is empty (0 bytes)." };
+  }
+
+  const validExtensions = ["pdf", "docx", "doc", "txt", "rtf", "json", "md"];
+  const extension = file.name.split(".").pop()?.toLowerCase();
+
+  if (!extension || !validExtensions.includes(extension)) {
+    return { 
+      isValid: false, 
+      error: `Unsupported file format (.${extension || "unknown"}). Please upload a PDF, Word (.docx/.doc), Text (.txt), or JSON file.` 
+    };
+  }
+
+  return { isValid: true };
 }
 
 /**
@@ -69,10 +101,10 @@ export async function extractTextFromPdf(file: File): Promise<string> {
       fullText += pageLines.join("\n") + "\n\n--- PAGE BREAK ---\n\n";
     }
 
-    return normalizeExtractedText(fullText);
+    return sanitizeAndNormalizeResumeText(fullText);
   } catch (error: any) {
     console.error("Error extracting text from PDF:", error);
-    throw new Error(error.message || "Failed to parse PDF document");
+    throw new Error(error.message || "Failed to parse PDF document. It may be password-protected or contain scanned images without text.");
   }
 }
 
@@ -83,17 +115,22 @@ export async function extractTextFromDocx(file: File): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
-    return normalizeExtractedText(result.value);
+    return sanitizeAndNormalizeResumeText(result.value);
   } catch (error: any) {
     console.error("Error extracting text from DOCX:", error);
-    throw new Error(error.message || "Failed to parse DOCX document");
+    throw new Error(error.message || "Failed to parse DOCX document. Please ensure the file is not corrupted.");
   }
 }
 
 /**
- * Extracts plain text from a File (.pdf, .docx, .doc, .txt) with automatic normalization
+ * Extracts plain text from a File (.pdf, .docx, .doc, .txt, .json, .md) with validation and automatic normalization
  */
 export async function extractTextFromFile(file: File): Promise<string> {
+  const validation = validateResumeFile(file);
+  if (!validation.isValid) {
+    throw new Error(validation.error || "Invalid file.");
+  }
+
   const extension = file.name.split(".").pop()?.toLowerCase();
   
   let raw = "";
@@ -102,9 +139,10 @@ export async function extractTextFromFile(file: File): Promise<string> {
   } else if (extension === "docx" || extension === "doc") {
     raw = await extractTextFromDocx(file);
   } else {
-    // Standard text or markdown file
+    // Standard text, markdown, json, or rtf file
     raw = await file.text();
   }
-  return normalizeExtractedText(raw);
+  return sanitizeAndNormalizeResumeText(raw);
 }
+
 
