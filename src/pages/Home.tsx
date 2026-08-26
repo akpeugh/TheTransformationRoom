@@ -68,7 +68,7 @@ const videoMap: Record<string, string> = {
   "AMR / AGV": "https://storage.googleapis.com/thetransformationroomassets/AMR.mp4",
   "Auxiliary / AR / VR": "https://storage.googleapis.com/thetransformationroomassets/AR%20Glasses.mp4",
   "Employee Facing Tools": "https://storage.googleapis.com/thetransformationroomassets/Employee%20Phone.mp4",
-  "Transportation & Logistics": "https://storage.googleapis.com/thetransformationroomassets/Route.mp4"
+  "Transportation & Logistics": "https://storage.googleapis.com/thetransformationroomassets/ROute.mp4"
 };
 
 const Home = () => {

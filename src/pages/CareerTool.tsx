@@ -44,19 +44,12 @@ import {
   ResponsiveContainer 
 } from "recharts";
 
-import * as pdfjsLib from "pdfjs-dist";
-import mammoth from "mammoth";
 import Markdown from "react-markdown";
 import SEO from "../components/SEO";
 import { useLanguage } from "../contexts/LanguageContext";
 import { translate } from "../utils/translations";
-
-import { GlobalWorkerOptions } from 'pdfjs-dist';
-// @ts-ignore
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
-
-// Set PDF.js worker using Vite's URL import
-GlobalWorkerOptions.workerSrc = pdfWorker;
+import { updateSharedCareerProfile } from "../utils/careerStore";
+import { extractTextFromFile } from "../utils/documentParser";
 
 const CareerTool = () => {
   const { language } = useLanguage();
@@ -144,13 +137,12 @@ const CareerTool = () => {
     const params = new URLSearchParams(window.location.search);
     const path = params.get('path');
     if (path === 'resume') {
-      setStep('goal');
-      setFormData(prev => ({ ...prev, pathSelection: 'resume' }));
+      navigate('/resume-builder');
     } else if (path === 'simulator') {
       setStep('goal');
       setFormData(prev => ({ ...prev, pathSelection: 'simulator' }));
     }
-  }, []);
+  }, [navigate]);
 
   const [parsingFile, setParsingFile] = useState(false);
   const [formData, setFormData] = useState({
@@ -200,43 +192,7 @@ const CareerTool = () => {
 
     setParsingFile(true);
     try {
-      let text = "";
-      if (file.type === "application/pdf") {
-        console.log("[CareerTool] Parsing PDF...");
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({
-          data: new Uint8Array(arrayBuffer),
-          useWorkerFetch: true,
-        }).promise;
-        
-        console.log(`[CareerTool] PDF loaded with ${pdf.numPages} pages`);
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const pageText = content.items
-            .map((item: any) => item.str || "")
-            .join(" ");
-          text += pageText + "\n";
-        }
-      } else if (
-        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || 
-        file.name.toLowerCase().endsWith(".docx")
-      ) {
-        console.log("[CareerTool] Parsing DOCX...");
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        text = result.value;
-        if (result.messages.length > 0) {
-          console.warn("[CareerTool] Mammoth messages:", result.messages);
-        }
-      } else if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
-        console.log("[CareerTool] Parsing TXT...");
-        text = await file.text();
-      } else {
-        const errorMsg = "Unsupported file type. Please upload a PDF, DOCX, or TXT file.";
-        console.error(`[CareerTool] ${errorMsg} Got: ${file.type} (${file.name})`);
-        alert(errorMsg);
-      }
+      const text = await extractTextFromFile(file);
 
       if (text.trim()) {
         console.log(`[CareerTool] Successfully extracted ${text.length} characters`);
@@ -310,6 +266,18 @@ const CareerTool = () => {
       const result = JSON.parse(text);
       setParsedResult(result);
       setOptimizedContent(`## 🧠 Your Behavioral Profile\n${result.overview}\n\n## 💼 Recommended Roles\n${result.roles}\n\n## 📝 Actionable Next Steps\n${result.nextSteps}`);
+      
+      // Save to shared career profile
+      updateSharedCareerProfile({
+        careerGoal: formData.careerGoal,
+        currentTitle: formData.currentTitle,
+        targetIndustry: formData.targetIndustry,
+        behavioralAssessment: {
+          ...result,
+          date: new Date().toISOString()
+        }
+      });
+
       setStep("behavioral-out");
     } catch (error) {
       console.error("Assessment failed:", error);
@@ -355,6 +323,23 @@ const CareerTool = () => {
       if (jsonMatch) text = jsonMatch[0];
       const result = JSON.parse(text);
       setParsedResult(result);
+
+      // Save to shared career profile
+      updateSharedCareerProfile({
+        currentTitle: formData.currentRole,
+        targetRole: formData.targetRole,
+        simulatorData: {
+          roadmap: result.roadmap || [],
+          gaps: result.gaps || [],
+          overview: result.overview || "",
+          currentRole: formData.currentRole,
+          targetRole: formData.targetRole,
+          strengths: formData.strengths,
+          skills: formData.skills,
+          date: new Date().toISOString()
+        }
+      });
+
       setStep("simulator-out");
     } catch (error) {
       console.error("Simulation failed:", error);
@@ -600,7 +585,11 @@ const CareerTool = () => {
                 <button 
                   disabled={!formData.pathSelection} 
                   onClick={() => {
-                    setStep(formData.pathSelection === "behavioral" ? "behavioral-q" : formData.pathSelection === "simulator" ? "simulator-q" : "r-title");
+                    if (formData.pathSelection === "resume") {
+                      navigate("/resume-builder");
+                      return;
+                    }
+                    setStep(formData.pathSelection === "behavioral" ? "behavioral-q" : "simulator-q");
                     triggerNovaCareer();
                   }} 
                   className="flex-[2] bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50"
@@ -804,8 +793,15 @@ const CareerTool = () => {
                   </div>
                </div>
 
-               <div className="mt-16 flex flex-col sm:flex-row gap-6">
-                  <button onClick={() => setStep("path")} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Assessment</button>
+               <div className="mt-16 flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => setStep("path")} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Assessment</button>
+                  <Link 
+                    to="/resume-builder" 
+                    className="flex-1 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20 transition-all cursor-pointer text-center"
+                  >
+                    <FileText className="w-5 h-5 text-emerald-200" />
+                    Apply Traits to Executive Resume Studio
+                  </Link>
                   <button 
                     onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
                       detail: { 
@@ -813,12 +809,11 @@ const CareerTool = () => {
                         prompt: "Let's discuss my behavioral traits assessment results with NOVA. I'm interested in how these match the recommended high-growth roles." 
                       } 
                     }))} 
-                    className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
+                    className="flex-1 px-6 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
                   >
                     <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
                     Discuss Traits with NOVA
                   </button>
-                  <Link to="/contact" className="flex-1 px-8 py-4 bg-brand-primary text-white rounded-xl font-bold text-center shadow-xl shadow-brand-primary/20 flex items-center justify-center">Apply for High-Velocity Coaching</Link>
                </div>
             </motion.div>
           )}
@@ -870,8 +865,15 @@ const CareerTool = () => {
                   </div>
                </div>
 
-               <div className="mt-20 flex flex-col sm:flex-row gap-6">
-                  <button onClick={() => setStep("path")} className="px-8 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Simulation</button>
+               <div className="mt-20 flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => setStep("path")} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Simulation</button>
+                  <Link 
+                    to="/resume-builder" 
+                    className="flex-1 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20 transition-all cursor-pointer text-center"
+                  >
+                    <FileText className="w-5 h-5 text-emerald-200" />
+                    Apply Roadmap & Skills to Resume Studio
+                  </Link>
                   <button 
                     onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
                       detail: { 
@@ -879,14 +881,11 @@ const CareerTool = () => {
                         prompt: `Let's discuss my career path simulation results with NOVA. I just simulated a path to ${formData.targetRole} and want to deconstruct the roadmap.` 
                       } 
                     }))} 
-                    className="flex-1 px-8 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
+                    className="flex-1 px-6 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
                   >
                     <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
-                    Deconstruct Roadmap with NOVA
+                    Deconstruct with NOVA
                   </button>
-                  <Link to="/contact" className="flex-1 px-8 py-4 bg-brand-secondary text-brand-dark rounded-xl font-bold flex items-center justify-center gap-3 text-center shadow-xl hover:opacity-90 transition-all">
-                    <ShieldCheck className="w-5 h-5" /> Ready for Strategic Transition
-                  </Link>
                </div>
             </motion.div>
           )}

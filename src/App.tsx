@@ -1,6 +1,27 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense, Component, ErrorInfo, ReactNode } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
+
+// Robust dynamic import with automatic retry on chunk loading failure
+function lazyWithRetry<T extends React.ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+) {
+  return lazy(async () => {
+    try {
+      return await factory();
+    } catch (error) {
+      console.warn("Retrying dynamic module load...", error);
+      // Wait briefly and retry once
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      try {
+        return await factory();
+      } catch (retryError) {
+        console.error("Dynamic module load failed after retry:", retryError);
+        throw retryError;
+      }
+    }
+  });
+}
 
 // Components
 import { Navbar } from "./components/Navbar";
@@ -12,18 +33,19 @@ import { NavigationTracker } from "./components/NavigationTracker";
 import { GlobalPodcastPlayer } from "./components/GlobalPodcastPlayer";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
-// Pages (Lazy loaded)
-const Home = lazy(() => import("./pages/Home"));
-const Organizations = lazy(() => import("./pages/Organizations"));
-const Individuals = lazy(() => import("./pages/Individuals"));
-const CareerTool = lazy(() => import("./pages/CareerTool"));
-const About = lazy(() => import("./pages/About"));
-const Testimonials = lazy(() => import("./pages/Testimonials"));
-const Contact = lazy(() => import("./pages/Contact"));
-const PodcastLibrary = lazy(() => import("./pages/PodcastLibrary"));
-const ImpactSimulator = lazy(() => import("./pages/ImpactSimulator"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
-const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+// Pages (Lazy loaded with retry)
+const Home = lazyWithRetry(() => import("./pages/Home"));
+const Organizations = lazyWithRetry(() => import("./pages/Organizations"));
+const Individuals = lazyWithRetry(() => import("./pages/Individuals"));
+const CareerTool = lazyWithRetry(() => import("./pages/CareerTool"));
+const About = lazyWithRetry(() => import("./pages/About"));
+const Testimonials = lazyWithRetry(() => import("./pages/Testimonials"));
+const Contact = lazyWithRetry(() => import("./pages/Contact"));
+const PodcastLibrary = lazyWithRetry(() => import("./pages/PodcastLibrary"));
+const ImpactSimulator = lazyWithRetry(() => import("./pages/ImpactSimulator"));
+const ResumeBuilder = lazyWithRetry(() => import("./pages/ResumeBuilder"));
+const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -73,6 +95,8 @@ export default function App() {
                 <Route path="/contact" element={<Contact aiConsultationData={aiConsultationData} />} />
                 <Route path="/podcasts" element={<PodcastLibrary />} />
                 <Route path="/impact-simulator" element={<ImpactSimulator />} />
+                <Route path="/resume-builder" element={<ResumeBuilder />} />
+                <Route path="/resume" element={<Navigate to="/resume-builder" replace />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />

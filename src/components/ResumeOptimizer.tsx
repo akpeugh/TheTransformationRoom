@@ -39,16 +39,8 @@ import {
   ResponsiveContainer 
 } from "recharts";
 
-import * as pdfjsLib from "pdfjs-dist";
-import mammoth from "mammoth";
 import Markdown from "react-markdown";
-
-import { GlobalWorkerOptions } from 'pdfjs-dist';
-// @ts-ignore
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url';
-
-// Set PDF.js worker using Vite's URL import
-GlobalWorkerOptions.workerSrc = pdfWorker;
+import { extractTextFromFile } from "../utils/documentParser";
 
 interface ResumeOptimizerProps {
   onClose: () => void;
@@ -145,43 +137,7 @@ export const ResumeOptimizer = ({ onClose }: ResumeOptimizerProps) => {
 
     setParsingFile(true);
     try {
-      let text = "";
-      if (file.type === "application/pdf") {
-        console.log("[ResumeOptimizer] Parsing PDF...");
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({
-          data: new Uint8Array(arrayBuffer),
-          useWorkerFetch: true,
-        }).promise;
-        
-        console.log(`[ResumeOptimizer] PDF loaded with ${pdf.numPages} pages`);
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          const pageText = content.items
-            .map((item: any) => item.str || "")
-            .join(" ");
-          text += pageText + "\n";
-        }
-      } else if (
-        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || 
-        file.name.toLowerCase().endsWith(".docx")
-      ) {
-        console.log("[ResumeOptimizer] Parsing DOCX...");
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        text = result.value;
-        if (result.messages.length > 0) {
-          console.warn("[ResumeOptimizer] Mammoth messages:", result.messages);
-        }
-      } else if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
-        console.log("[ResumeOptimizer] Parsing TXT...");
-        text = await file.text();
-      } else {
-        const errorMsg = "Unsupported file type. Please upload a PDF, DOCX, or TXT file.";
-        console.error(`[ResumeOptimizer] ${errorMsg} Got: ${file.type} (${file.name})`);
-        alert(errorMsg);
-      }
+      const text = await extractTextFromFile(file);
 
       if (text.trim()) {
         console.log(`[ResumeOptimizer] Successfully extracted ${text.length} characters`);

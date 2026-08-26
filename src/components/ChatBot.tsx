@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, X, Send, Bot, Sparkles, ChevronRight, User, Video, Activity, Mic, MicOff, RefreshCw, AlertCircle } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { VideoCompanionMode as AIVideoCall } from './VideoCompanionMode';
+import { updateSharedCareerProfile } from '../utils/careerStore';
 
 interface Message {
   role: 'user' | 'assistant' | 'error';
@@ -233,7 +234,17 @@ export const ChatBot: React.FC = () => {
           }
         }
 
-        if (done) break;
+        if (done) {
+          if (assistantContext) {
+            updateSharedCareerProfile({
+              chatInsights: {
+                summary: assistantContext.slice(0, 300),
+                date: new Date().toISOString()
+              }
+            });
+          }
+          break;
+        }
       }
 
     } catch (error: any) {
