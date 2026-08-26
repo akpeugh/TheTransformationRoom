@@ -317,7 +317,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                             {opt.icon}
                           </div>
                           <div>
-                            <p className="font-bold text-sm leading-none mb-1">{opt.label}</p>
+                            <p className={`font-bold text-sm leading-none mb-1 ${selectedService === opt.label ? 'text-white' : 'text-slate-900'}`}>{opt.label}</p>
                             <p className={`text-[10px] uppercase tracking-wider font-semibold ${
                               selectedService === opt.label ? 'text-white/80' : 'text-slate-600'
                             }`}>{opt.sub}</p>
@@ -349,7 +349,7 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
                             {opt.icon}
                           </div>
                           <div>
-                            <p className="font-bold text-sm leading-none mb-1">{opt.label}</p>
+                            <p className={`font-bold text-sm leading-none mb-1 ${selectedService === opt.label ? 'text-white' : 'text-slate-900'}`}>{opt.label}</p>
                             <p className={`text-[10px] uppercase tracking-wider font-semibold ${
                               selectedService === opt.label ? 'text-white/80' : 'text-slate-600'
                             }`}>{opt.sub}</p>

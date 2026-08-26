@@ -653,8 +653,8 @@ const Home = () => {
                 <div className="w-14 h-14 bg-brand-primary text-white rounded-xl flex items-center justify-center mb-6 shadow-lg">
                   {pillar.icon}
                 </div>
-                <h3 className="text-xl font-bold mb-4">{pillar.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
+                <h3 className="text-xl font-bold text-black mb-4">{pillar.title}</h3>
+                <p className="text-slate-700 text-sm leading-relaxed">{pillar.desc}</p>
               </motion.div>
             ))}
           </div>

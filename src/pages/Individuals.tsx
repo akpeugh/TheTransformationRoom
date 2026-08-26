@@ -274,20 +274,20 @@ const stageData = [
             >
               <div className="relative mb-10">
                 <p className="text-brand-secondary font-bold text-xs uppercase tracking-[0.2em] mb-2">{pkg.price}</p>
-                <h3 className="text-3xl font-black mb-1 uppercase tracking-tighter">{pkg.tier}</h3>
-                <p className="text-slate-500 text-sm mb-6 font-medium border-l-2 border-brand-secondary/30 pl-4">{pkg.subtitle}</p>
+                <h3 className="text-3xl font-black text-black mb-1 uppercase tracking-tighter">{pkg.tier}</h3>
+                <p className="text-slate-700 text-sm mb-6 font-medium border-l-2 border-brand-secondary/30 pl-4">{pkg.subtitle}</p>
               </div>
               
               <div className="flex-grow">
                 <div className="mb-8 p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                   <p className="text-[10px] font-black mb-2 uppercase tracking-widest text-slate-400">Best For</p>
-                   <p className="text-xs text-slate-600 italic font-medium leading-relaxed">{pkg.bestFor}</p>
+                   <p className="text-[10px] font-black mb-2 uppercase tracking-widest text-slate-600">Best For</p>
+                   <p className="text-xs text-slate-700 italic font-medium leading-relaxed">{pkg.bestFor}</p>
                 </div>
 
                 <p className="text-[10px] font-black mb-4 uppercase tracking-widest text-brand-primary">Inclusions</p>
                 <ul className="space-y-4 mb-10">
                   {pkg.includes.map((item, j) => (
-                    <li key={j} className="flex gap-4 text-sm font-medium text-slate-700">
+                    <li key={j} className="flex gap-4 text-sm font-medium text-slate-800">
                       <CheckCircle2 className="w-5 h-5 text-brand-secondary shrink-0" />
                       {item}
                     </li>
