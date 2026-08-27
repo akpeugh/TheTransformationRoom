@@ -49,7 +49,7 @@ export async function generateAIContent({
 
   // 1. Try Gemini if available
   if (genAIClient && process.env.GEMINI_API_KEY) {
-    const modelsToTry = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-flash-latest"];
+    const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash", "gemini-3.7-flash"];
     for (const modelName of modelsToTry) {
       try {
         const response = await genAIClient.models.generateContent({
