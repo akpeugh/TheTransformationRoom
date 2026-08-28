@@ -41,7 +41,7 @@ const Individuals = () => {
     const params = new URLSearchParams(location.search);
     const tool = params.get('tool');
     if (tool === 'resume') {
-      navigate('/career-hub?path=resume');
+      navigate('/resume-builder');
     } else if (tool === 'career') {
       navigate('/career-hub?path=simulator');
     }

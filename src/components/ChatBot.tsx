@@ -10,42 +10,19 @@ interface Message {
   content: string;
 }
 
-const chatContainerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.05,
-    },
-  },
-} as const;
-
-const chatItemVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.97 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: 'spring',
-      stiffness: 140,
-      damping: 18,
-    },
-  },
-} as const;
-
 export const ChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [userType, setUserType] = useState<'individual' | 'organization' | null>(null);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: "Welcome to The Transformation Room. I am NOVA. To help you navigate your unique operational trajectory, are you here seeking transformation for yourself, or strategic evolution for an organization?" }
+    { role: 'assistant', content: "Welcome to The Transformation Room. I am NOVA. Are you exploring career transformation for yourself, or strategic operational evolution for an organization?" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreamingActive, setIsStreamingActive] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [isVideoModeOpen, setIsVideoModeOpen] = useState(false);
   const [showIntroVideo, setShowIntroVideo] = useState(false);
@@ -100,11 +77,22 @@ export const ChatBot: React.FC = () => {
     }
   }, [isOpen]);
 
-  useEffect(() => {
+  const scrollToBottom = (smooth = true) => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      if (smooth) {
+        scrollRef.current.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      } else {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     }
-  }, [messages]);
+  };
+
+  useEffect(() => {
+    scrollToBottom(false);
+  }, [messages.length]);
 
   const handleSend = async (text: string = input, typeConfig?: 'individual' | 'organization') => {
     if (!text.trim() || isLoading) return;
@@ -118,6 +106,7 @@ export const ChatBot: React.FC = () => {
     setMessages(currentMessages);
     setInput('');
     setIsLoading(true);
+    setIsStreamingActive(false);
 
     let finalErrorMessage = '';
 
@@ -183,6 +172,7 @@ export const ChatBot: React.FC = () => {
 
       // Add a placeholder message for the assistant stream
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setIsStreamingActive(true);
 
       let assistantContext = '';
       let buffer = '';
@@ -221,12 +211,14 @@ export const ChatBot: React.FC = () => {
               }
               if (parsed.content) {
                 assistantContext += parsed.content;
-                // Update the last message (the assistant one we just added) with new content
+                // Update the last message smoothly
                 setMessages(prev => {
+                  if (prev.length === 0) return prev;
                   const newMsgs = [...prev];
                   newMsgs[newMsgs.length - 1] = { role: 'assistant', content: assistantContext };
                   return newMsgs;
                 });
+                scrollToBottom(false);
               }
             } catch (e) {
               console.warn("Could not parse chunk", e, dataStr);
@@ -248,27 +240,26 @@ export const ChatBot: React.FC = () => {
       }
 
     } catch (error: any) {
-      console.error("[ChatBot API] OpenAI Error:", error);
-      let errorMessage = "I'm currently having trouble connecting to my central brain. Operational entropy is high. Please check your connection and try again.";
+      console.error("[ChatBot API] Error:", error);
+      let errorMessage = "I'm currently recalibrating my strategic connection. Please try again.";
       
       const errorStr = (error?.message || finalErrorMessage || "");
       
       if (errorStr.includes("API_KEY") || errorStr.includes("not configured") || errorStr.includes("api_key")) {
-        errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. The trajectory cannot be calculated without proper authorization.";
+        errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. Please check your API settings.";
       } else if (errorStr.includes("quota") || errorStr.includes("429")) {
-        errorMessage = `Service Saturation (OpenAI Quota/Rate Limit): NOVA is handling maximum capacity. This usually means your OpenAI account has insufficient funds, billing is not set up, or you hit a rate limit. Please check your OpenAI Developer Platform dashboard. (Error details: ${errorStr})`;
+        errorMessage = `NOVA is currently operating at maximum capacity. Please verify your platform quota or billing dashboard.`;
       } else if (!navigator.onLine) {
-        errorMessage = "Signal Loss: Your connection to the primary sector has been interrupted. Please check your link to the network.";
+        errorMessage = "Connection Offline: Please check your internet connection.";
       } else if (errorStr) {
-        errorMessage = `Operational anomaly detected: ${errorStr}`;
+        errorMessage = `Operational response issue: ${errorStr}`;
       }
 
       console.error("[ChatBot API] Fallback error message generated:", errorMessage);
 
       setMessages(prev => {
-        // if the last message was a blank assistant message, replace it, otherwise append error
         const newMsgs = [...prev];
-        if (newMsgs[newMsgs.length - 1].role === 'assistant' && !newMsgs[newMsgs.length - 1].content) {
+        if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].role === 'assistant' && !newMsgs[newMsgs.length - 1].content) {
           newMsgs[newMsgs.length - 1] = { role: 'error', content: errorMessage };
           return newMsgs;
         }
@@ -276,6 +267,8 @@ export const ChatBot: React.FC = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsStreamingActive(false);
+      setTimeout(() => scrollToBottom(true), 50);
     }
   };
 
@@ -294,55 +287,61 @@ export const ChatBot: React.FC = () => {
         setUserType(typeConfig);
       }
       if (e.detail?.prompt) {
-        // Use a slight delay to ensure the chat is open and state is ready
         setTimeout(() => {
           handleSend(e.detail.prompt, typeConfig);
-        }, 300);
+        }, 250);
       }
     };
     window.addEventListener('ais:open-chat', handleExternalOpen);
     return () => window.removeEventListener('ais:open-chat', handleExternalOpen);
-  }, [messages, isLoading]); // Keep dependencies updated so handleSend has correct closure state
+  }, [messages, isLoading]);
 
   const suggestedPrompts = useMemo(() => {
     if (!userType) {
       return [
-        { label: "Personal Transformation", value: "I'm seeking personal transformation for my own career and growth.", type: 'individual' },
-        { label: "Organizational Evolution", value: "I'm seeking strategic solutions for an organization.", type: 'organization' }
+        { label: "Career Transformation", value: "How can I map my career transformation trajectory?", type: 'individual' },
+        { label: "Enterprise Automation", value: "What are the first steps to automate our operations?", type: 'organization' }
       ];
     }
     
     if (userType === 'organization') {
       return [
-        { label: "Reveal our 'entropy'", value: "Can you help me identify the hidden 'entropy' or bottlenecks in my organization's operations?" },
-        { label: "Institutional Velocity", value: "How can we replace our IT bureaucracy with institutional velocity?" },
-        { label: "AI-Human Gap", value: "How do we bridge the gap between technical automation and human-centric strategy?" },
-        { label: "8 Pillars of Innovation", value: "Show me the 8 Pillars of Transformation for organizations." }
+        { label: "Identify Bottlenecks", value: "How do we pinpoint our primary operational bottlenecks?" },
+        { label: "Robotics Strategy", value: "How should we evaluate AMRs vs AS/RS systems?" },
+        { label: "Institutional Velocity", value: "How can we replace IT bureaucracy with institutional velocity?" },
+        { label: "8 Pillars of Transformation", value: "Summarize the 8 Pillars of Transformation for organizations." }
       ];
     }
 
     return [
-      { label: "My future with AI", value: "How can I become 'AI Fluent' and secure my future in the automated era?" },
-      { label: "Map my alignment", value: "Can you help me map my career trajectory and neural alignment for a new path?" },
-      { label: "Resume Optimization", value: "I'd like to optimize my professional profile for the modern operational landscape." },
-      { label: "Starting Assessment", value: "I'm ready for my individual transformation. Where do we begin?" }
+      { label: "Career Path Trajectory", value: "Help me map my career trajectory to an executive role." },
+      { label: "AI Fluency Training", value: "How can I build practical AI fluency for my role?" },
+      { label: "Resume Executive Impact", value: "How do I optimize my resume for high-impact leadership?" },
+      { label: "Behavioral Assessment", value: "Where should I start my behavioral and leadership assessment?" }
     ];
   }, [userType]);
+
+  const isWaitingInitialTokens = isLoading && (
+    messages.length === 0 || 
+    messages[messages.length - 1].role !== 'assistant' || 
+    !messages[messages.length - 1].content
+  );
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95, transformOrigin: 'bottom right' }}
+            initial={{ opacity: 0, y: 15, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[400px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[600px] max-h-[70vh]"
+            exit={{ opacity: 0, y: 15, scale: 0.96 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute bottom-20 right-0 w-[410px] max-w-[calc(100vw-2rem)] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[580px] max-h-[75vh]"
           >
             {/* Header */}
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
+            <div className="p-5 bg-slate-900 text-white flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative transition-all duration-500 ${showIntroVideo ? 'scale-110 shadow-[0_0_15px_rgba(45,212,191,0.5)]' : ''}`}>
+                <div className={`w-9 h-9 rounded-xl bg-slate-800 border border-brand-primary/30 overflow-hidden shrink-0 relative transition-all duration-300 ${showIntroVideo ? 'scale-105 shadow-[0_0_12px_rgba(45,212,191,0.5)]' : ''}`}>
                   {showIntroVideo ? (
                     <video aria-label="Video presentation" 
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
@@ -352,40 +351,38 @@ export const ChatBot: React.FC = () => {
                       className="w-full h-full object-cover scale-150"
                     />
                   ) : (
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" width="400" height="400" loading="lazy" />
                   )}
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm tracking-tight">NOVA</h3>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Interstellar Link Active</span>
+                  <h3 className="font-bold text-sm tracking-tight text-white flex items-center gap-2">
+                    NOVA <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-secondary/20 text-brand-secondary font-semibold">Strategic AI</span>
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] text-slate-300 font-medium">Direct Response Mode Active</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                  <motion.button 
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    onClick={() => {
-                      setIsVideoModeOpen(true);
-                      // Set isOpen to false if you want the main chat window hidden, 
-                      // or keep it open in the background. We hide it for cleaner UI.
-                      setIsOpen(false);
-                    }}
-                    className="hover:bg-white/10 p-2 rounded-full transition-colors text-brand-secondary flex items-center gap-2 bg-white/5 border border-white/10 hover:border-brand-secondary/50 group"
-                    title="Start Video Companion Mode"
-                  >
-                    <Video className="w-4 h-4" />
-                    <span className="text-[10px] uppercase font-bold tracking-widest sm:block hidden group-hover:text-white transition-colors">Video Mode</span>
-                  </motion.button>
+                <button 
+                  onClick={() => {
+                    setIsVideoModeOpen(true);
+                    setIsOpen(false);
+                  }}
+                  className="hover:bg-white/10 p-2 rounded-xl transition-colors text-brand-secondary flex items-center gap-1.5 bg-white/5 border border-white/10 hover:border-brand-secondary/50 group text-xs font-semibold px-2.5"
+                  title="Start Video Companion Mode"
+                >
+                  <Video className="w-3.5 h-3.5" />
+                  <span className="text-[10px] uppercase tracking-wider hidden sm:inline">Video</span>
+                </button>
                 <button 
                   onClick={() => setIsOpen(false)}
-                  className="hover:bg-white/10 p-2 rounded-full transition-colors"
+                  className="hover:bg-white/10 p-2 rounded-xl text-slate-300 hover:text-white transition-colors"
                   id="close-chat"
                   aria-label="Close Chat"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -393,7 +390,7 @@ export const ChatBot: React.FC = () => {
             {/* Messages */}
             <div 
               ref={scrollRef}
-              className="flex-grow overflow-y-auto p-6 space-y-6 scroll-smooth bg-slate-50 relative"
+              className="flex-grow overflow-y-auto p-5 space-y-4 bg-slate-50 relative overscroll-contain"
             >
               {/* Intro Video Overlay (Side View) */}
               <AnimatePresence>
@@ -402,7 +399,7 @@ export const ChatBot: React.FC = () => {
                     initial={{ opacity: 0, scale: 0.8, x: 20 }}
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    className="absolute top-20 right-4 w-28 h-36 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
+                    className="absolute top-4 right-4 w-28 h-36 rounded-2xl overflow-hidden border-2 border-brand-secondary shadow-2xl z-40 bg-slate-950 group"
                   >
                     <video aria-label="Video presentation" 
                       src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Chat.mp4"
@@ -418,99 +415,103 @@ export const ChatBot: React.FC = () => {
                     >
                       <X className="w-3 h-3" />
                     </button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                       <span className="text-[8px] font-black uppercase tracking-widest text-brand-secondary">Neural Greeting</span>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
+                       <span className="text-[8px] font-black uppercase tracking-widest text-brand-secondary">Greeting</span>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <motion.div
-                variants={chatContainerVariants}
-                initial="hidden"
-                animate="show"
-                className="space-y-6"
-              >
-                {messages.map((msg, i) => (
-                  <motion.div
-                    key={i}
-                    variants={chatItemVariants}
-                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div className={`max-w-[85%] flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative ${
-                        msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : 
-                        msg.role === 'error' ? 'bg-red-100 text-red-600 flex items-center justify-center' : ''
-                      }`}>
-                        {msg.role === 'user' ? <User className="w-4 h-4" /> : 
-                         msg.role === 'error' ? <AlertCircle className="w-4 h-4" /> : (
-                          <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
-                        )}
-                      </div>
-                      <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
-                        msg.role === 'user' 
-                          ? 'bg-brand-primary text-white rounded-tr-none' 
-                          : msg.role === 'error'
-                            ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-none'
-                            : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none'
-                      }`}>
-                        <div className="markdown-body prose prose-sm max-w-none">
-                          <Markdown>{msg.content}</Markdown>
+              {/* Message Feed - Clean, stable rendering */}
+              <div className="space-y-4">
+                {messages.map((msg, i) => {
+                  const isLatestAssistant = i === messages.length - 1 && msg.role === 'assistant';
+                  const isCurrentlyStreaming = isLatestAssistant && isStreamingActive;
+
+                  // Hide completely empty initial placeholder assistant bubble until tokens arrive
+                  if (msg.role === 'assistant' && !msg.content && isWaitingInitialTokens) {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={i}
+                      className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} transition-opacity duration-200`}
+                    >
+                      <div className={`max-w-[88%] flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                        <div className={`w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-sm relative ${
+                          msg.role === 'user' ? 'bg-brand-primary text-white flex items-center justify-center' : 
+                          msg.role === 'error' ? 'bg-red-100 text-red-600 flex items-center justify-center' : 'bg-slate-900 border border-brand-primary/20'
+                        }`}>
+                          {msg.role === 'user' ? <User className="w-3.5 h-3.5" /> : 
+                           msg.role === 'error' ? <AlertCircle className="w-3.5 h-3.5" /> : (
+                            <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" width="400" height="400" loading="lazy" />
+                          )}
                         </div>
-                        {msg.role === 'error' && (
-                          <button 
-                            onClick={handleRetry}
-                            className="mt-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-800 transition-colors group/retry"
-                          >
-                            <RefreshCw className="w-3 h-3 group-hover/retry:rotate-180 transition-transform duration-500" />
-                            Reconnect to Trajectory
-                          </button>
-                        )}
+                        <div className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-sm transition-all ${
+                          msg.role === 'user' 
+                            ? 'bg-brand-primary text-white rounded-tr-none font-medium' 
+                            : msg.role === 'error'
+                              ? 'bg-red-50 text-red-700 border border-red-200 rounded-tl-none'
+                              : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none font-normal'
+                        }`}>
+                          <div className="markdown-body prose prose-sm max-w-none text-slate-800 leading-snug [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:my-1.5 [&>ul]:pl-4 [&>li]:mb-1 font-sans">
+                            <Markdown>{msg.content}</Markdown>
+                          </div>
+                          {isCurrentlyStreaming && (
+                            <span className="inline-block w-1.5 h-3.5 bg-brand-secondary ml-1 animate-pulse align-middle rounded-sm" />
+                          )}
+                          {msg.role === 'error' && (
+                            <button 
+                              onClick={handleRetry}
+                              className="mt-2.5 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-600 hover:text-red-800 transition-colors group/retry"
+                            >
+                              <RefreshCw className="w-3 h-3 group-hover/retry:rotate-180 transition-transform duration-500" />
+                              Retry
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              {isLoading && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="max-w-[85%] flex gap-3 flex-row">
-                    <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 shadow-sm relative bg-slate-900 flex items-center justify-center border border-brand-primary/20">
-                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top opacity-50" referrerPolicy="no-referrer"  width="400" height="400" loading="lazy" />
+                  );
+                })}
+              </div>
+
+              {/* Compact Initial Loading State (Before first token) */}
+              {isWaitingInitialTokens && (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] flex gap-2.5 flex-row items-center">
+                    <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 shadow-sm relative bg-slate-900 flex items-center justify-center border border-brand-primary/20">
+                      <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover object-top opacity-60" referrerPolicy="no-referrer" width="400" height="400" loading="lazy" />
                       <div className="absolute inset-0 bg-brand-secondary/20 animate-pulse" />
                     </div>
-                    <div className="bg-white border border-slate-100 p-4 rounded-2xl rounded-tl-none shadow-sm flex flex-col gap-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Activity className="w-3 h-3 text-brand-secondary animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">NOVA is analyzing...</span>
-                      </div>
-                      <div className="flex gap-1.5 ml-0.5">
-                        <span className="w-1.5 h-1.5 bg-brand-secondary/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                        <span className="w-1.5 h-1.5 bg-brand-secondary/60 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                    <div className="bg-white border border-slate-200/80 px-3.5 py-2.5 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
+                      <span className="text-xs text-slate-500 font-medium">NOVA is thinking</span>
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                        <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-bounce [animation-delay:-0.15s]" />
                         <span className="w-1.5 h-1.5 bg-brand-secondary rounded-full animate-bounce" />
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Footer / Input */}
-            <div className="p-4 bg-white border-t border-slate-100 space-y-4">
+            <div className="p-3.5 bg-white border-t border-slate-100 space-y-3">
               {messages.length === 1 && !isLoading && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {suggestedPrompts.map((prompt, i) => (
                     <button
                       key={i}
                       onClick={() => handleSend(prompt.value, (prompt as any).type)}
-                      className="text-xs px-4 py-2 bg-slate-50 hover:bg-brand-primary/5 hover:text-brand-primary border border-slate-200 rounded-full transition-all text-slate-600 flex items-center gap-1 group font-medium"
+                      className="text-[11px] px-3 py-1.5 bg-slate-100/80 hover:bg-brand-primary/10 hover:text-brand-primary border border-slate-200 rounded-full transition-all text-slate-700 flex items-center gap-1 group font-semibold cursor-pointer"
                       id={`suggested-prompt-${i}`}
                     >
                       {prompt.label}
-                      <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ChevronRight className="w-3 h-3 text-brand-secondary group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   ))}
                 </div>
@@ -523,30 +524,30 @@ export const ChatBot: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={userType === 'individual' ? "Ask about your transformation..." : "Ask about organizational strategy..."}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                  placeholder={userType === 'individual' ? "Ask about your career trajectory..." : "Ask about operational transformation..."}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-4 pr-20 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-slate-900 font-medium"
                   id="chat-input"
                 />
-                <div className="absolute right-2 top-2 bottom-2 flex gap-1">
+                <div className="absolute right-1.5 top-1.5 bottom-1.5 flex gap-1 items-center">
                   <button
                     type="button"
                     onClick={toggleListening}
-                    className={`w-10 rounded-xl flex items-center justify-center transition-all ${
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                       isListening 
                         ? 'bg-red-500 text-white animate-pulse' 
                         : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                     }`}
                     title={isListening ? "Stop Listening" : "Start Voice Input"}
                   >
-                    {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                    {isListening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
                   </button>
                   <button
                     type="submit"
                     disabled={!input.trim() || isLoading}
-                    className="w-10 bg-brand-primary text-white rounded-xl flex items-center justify-center hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:hover:bg-brand-primary"
+                    className="w-8 h-8 bg-brand-primary text-white rounded-xl flex items-center justify-center hover:bg-brand-dark transition-colors disabled:opacity-40 disabled:hover:bg-brand-primary cursor-pointer"
                     id="send-message"
                   >
-                    <Send className="w-4 h-4" />
+                    <Send className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </form>
@@ -556,10 +557,10 @@ export const ChatBot: React.FC = () => {
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-700 relative group overflow-visible ${
+        className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full flex items-center justify-center transition-all duration-500 relative group overflow-visible ${
           isOpen ? 'bg-slate-950' : 'bg-transparent'
         }`}
         id="toggle-chat"
@@ -571,20 +572,20 @@ export const ChatBot: React.FC = () => {
               {/* Outer Glow Halo */}
               <motion.div 
                 animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.1, 0.3, 0.1],
+                  scale: [1, 1.15, 1],
+                  opacity: [0.15, 0.35, 0.15],
                 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-[-10px] rounded-full bg-brand-secondary/30 blur-2xl pointer-events-none"
+                className="absolute inset-[-8px] rounded-full bg-brand-secondary/30 blur-xl pointer-events-none"
               />
               
               {/* Pulsing Core Shadow */}
               <motion.div 
                 animate={{ 
                   boxShadow: [
-                    "0 0 20px rgba(45,212,191,0.2)",
-                    "0 0 50px rgba(45,212,191,0.5)",
-                    "0 0 20px rgba(45,212,191,0.2)"
+                    "0 0 15px rgba(45,212,191,0.2)",
+                    "0 0 35px rgba(45,212,191,0.4)",
+                    "0 0 15px rgba(45,212,191,0.2)"
                   ]
                 }}
                 transition={{ duration: 3, repeat: Infinity }}
@@ -595,12 +596,7 @@ export const ChatBot: React.FC = () => {
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-4px] border border-brand-secondary/20 rounded-[40%]"
-              />
-              <motion.div 
-                animate={{ rotate: -360 }}
-                transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-8px] border border-brand-primary/10 rounded-[35%]"
+                className="absolute inset-[-3px] border border-brand-secondary/20 rounded-[40%]"
               />
 
               {/* The Intelligence Pattern (Center) */}
@@ -608,7 +604,7 @@ export const ChatBot: React.FC = () => {
                  <img 
                     src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" 
                     alt="NOVA" 
-                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                  />
                  <div className="absolute inset-0 bg-brand-secondary/10 group-hover:bg-transparent transition-colors" />
@@ -631,7 +627,7 @@ export const ChatBot: React.FC = () => {
             animate={{ scale: 1, rotate: 0 }}
             className="z-50 relative"
           >
-            <X className="w-8 h-8 text-white" />
+            <X className="w-7 h-7 text-white" />
           </motion.div>
         )}
 
@@ -640,10 +636,10 @@ export const ChatBot: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-            className="absolute -top-12 right-0 bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-brand-secondary/30 shadow-xl whitespace-nowrap pointer-events-none"
+            transition={{ delay: 0.5 }}
+            className="absolute -top-10 right-0 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-brand-secondary/30 shadow-xl whitespace-nowrap pointer-events-none"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary animate-pulse" />
               <span className="text-[9px] font-black uppercase tracking-widest text-brand-secondary">Ask NOVA</span>
             </div>
@@ -657,7 +653,7 @@ export const ChatBot: React.FC = () => {
           <AIVideoCall
             onClose={() => {
                 setIsVideoModeOpen(false);
-                setIsOpen(true); // Bring back text chat when closing video
+                setIsOpen(true);
             }}
             messages={messages}
           />

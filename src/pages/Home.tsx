@@ -205,17 +205,18 @@ const Home = () => {
         }}
       />
       {/* Hero Content */}
-      <section className="relative min-h-[92vh] flex items-center pb-20 overflow-hidden bg-slate-950">
+      <section className="relative min-h-[92vh] flex flex-col justify-center pb-28 pt-12 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-950/90 to-slate-900">
         {/* Background Ambient Glow & Video Layer */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-slate-950">
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* Subtle Ambient Teal Atmosphere behind video */}
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-brand-secondary/15 rounded-full blur-[140px] pointer-events-none" />
           <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-brand-primary/20 rounded-full blur-[120px] pointer-events-none" />
           
-          {/* Dark Overlay Gradients for Optimal Contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/50 to-slate-950 z-10" />
+          {/* Dark Overlay Gradients for Optimal Contrast & Smooth Bottom Feathering */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-900/90 z-10" />
+          <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent z-15 pointer-events-none" />
           
-          {/* Header Video - Prioritized and Smoothly Faded In */}
+          {/* Header Video - Prioritized, Feathered and Seamlessly Faded */}
           <video 
             ref={heroVideoRef}
             aria-label="The Transformation Room Hero Video"  
@@ -227,7 +228,7 @@ const Home = () => {
             onPlaying={() => setHeroVideoReady(true)}
             onLoadedData={() => setHeroVideoReady(true)}
             onCanPlay={() => setHeroVideoReady(true)}
-            className={`w-full h-full object-cover [mask-image:linear-gradient(to_bottom,white_65%,transparent_100%)] object-center transform scale-105 transition-opacity duration-1000 ease-out ${
+            className={`w-full h-full object-cover [mask-image:linear-gradient(to_bottom,black_0%,black_45%,black_70%,transparent_100%)] object-center transform scale-105 transition-opacity duration-1000 ease-out ${
               heroVideoReady ? "opacity-100" : "opacity-0"
             }`}
             onError={() => {
@@ -239,7 +240,7 @@ const Home = () => {
           </video>
         </div>
         
-        <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center px-4 pt-20">
+        <div className="max-w-7xl mx-auto relative z-20 w-full flex flex-col items-center text-center px-4 pt-16">
           <motion.div 
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -271,13 +272,36 @@ const Home = () => {
           </motion.div>
         </div>
         
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-brand-secondary/10 blur-[50px] z-20 pointer-events-none"></div>
+        {/* Seamless Luminous Bridge into 'Who We Work With' */}
+        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-full max-w-5xl h-48 bg-gradient-to-r from-brand-primary/10 via-brand-secondary/20 to-brand-primary/10 rounded-full blur-[100px] z-10 pointer-events-none" />
+        
+        {/* Smooth Scroll Cue to next section */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-75 hover:opacity-100 transition-opacity">
+          <a 
+            href="#who-we-work-with" 
+            aria-label="Scroll to Who We Work With"
+            className="flex flex-col items-center gap-1.5 text-slate-300 hover:text-brand-secondary transition-colors group cursor-pointer"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 group-hover:text-brand-secondary transition-colors">
+              Explore
+            </span>
+            <motion.div
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown className="w-4 h-4 text-brand-secondary" />
+            </motion.div>
+          </a>
+        </div>
       </section>
 
-        {/* WHO WE WORK WITH */}
-      <section className="pt-24 pb-32 relative overflow-hidden perspective-1000 bg-transparent">
-        <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[100px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-        <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+      {/* WHO WE WORK WITH - Seamless Atmospheric Continuation */}
+      <section id="who-we-work-with" className="pt-16 pb-32 relative overflow-hidden perspective-1000 bg-slate-900">
+        {/* Subtle Ambient Blend Layers */}
+        <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-slate-900 via-slate-900/90 to-transparent pointer-events-none z-0" />
+        <motion.div style={{ y: yBg1 }} className="absolute top-0 right-0 w-1/2 h-full bg-brand-primary/10 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+        <motion.div style={{ y: yBg2 }} className="absolute bottom-0 left-0 w-1/2 h-full bg-brand-secondary/10 blur-[120px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+        
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -287,7 +311,7 @@ const Home = () => {
             className="text-center mb-20 text-white"
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">{t("home.whoWeWorkWith.title")}</h2>
-            <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full" />
+            <div className="w-24 h-1.5 bg-brand-secondary mx-auto rounded-full shadow-[0_0_12px_rgba(45,212,191,0.5)]" />
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
             {[
@@ -335,9 +359,9 @@ const Home = () => {
                 viewport={{ once: true, margin: "-100px" }}
                 whileHover={{ y: -5 }}
                 key={i} 
-                className="group p-8 bg-slate-800/95 border border-white/5 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] hover:shadow-[0_30px_60px_rgba(45,212,191,0.1)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
+                className="group p-8 bg-slate-800/80 backdrop-blur-sm border border-white/10 rounded-3xl hover:border-brand-secondary/50 shadow-[0_20px_40px_rgba(0,0,0,0.5)] hover:shadow-[0_30px_60px_rgba(45,212,191,0.15)] transition-all duration-500 relative overflow-hidden z-10 cursor-default"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 to-transparent pointer-events-none rounded-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/5 via-transparent to-brand-primary/5 pointer-events-none rounded-3xl" />
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-2xl group-hover:bg-brand-secondary/30 transition-all duration-500" />
                 <div className="w-12 h-12 bg-white/10 text-brand-secondary border border-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-brand-secondary group-hover:text-slate-900 transition-all duration-500 flex-shrink-0 relative z-20">
                   {item.icon}

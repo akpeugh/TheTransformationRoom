@@ -67,7 +67,7 @@ const CareerTool = () => {
     | "r-review"
     | "simulator-q"
     | "simulator-out"
-  >("goal");
+  >("path");
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -137,7 +137,7 @@ const CareerTool = () => {
     const params = new URLSearchParams(window.location.search);
     const path = params.get('path');
     if (path === 'resume') {
-      navigate('/resume-builder');
+      navigate('/resume-builder', { replace: true });
     } else if (path === 'simulator') {
       setStep('goal');
       setFormData(prev => ({ ...prev, pathSelection: 'simulator' }));
@@ -527,16 +527,17 @@ const CareerTool = () => {
 
           <div className="space-y-6">
             {(formData.pathSelection === "behavioral" ? [
-              { label: "Objective", active: step === "goal" },
-              { label: "Assessment", active: step === "behavioral-q" },
+              { label: "Select Tool", active: step === "path" },
+              { label: "Assessment", active: step === "behavioral-q" || step === "behavioral-generating" },
               { label: "Results", active: step === "behavioral-out" },
             ] : formData.pathSelection === "simulator" ? [
-              { label: "Objective", active: step === "goal" },
-              { label: "Constraints", active: step === "simulator-q" },
-              { label: "Roadmap", active: step === "simulator-out" },
+              { label: "Career Objective", active: step === "path" },
+              { label: "Role & Skills", active: step === "simulator-q" },
+              { label: "Transformation Roadmap", active: step === "simulator-out" },
             ] : [
-              { label: "Objective", active: step === "goal" },
-              { label: "Optimization", active: ["r-title", "r-gap", "r-upload", "r-review"].includes(step) },
+              { label: "Select Tool & Goal", active: step === "path" },
+              { label: "Assessment", active: false },
+              { label: "Roadmap / Profile", active: false },
             ]).map((s, i) => (
               <div key={i} className="flex items-center gap-4 group">
                 <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${s.active ? 'bg-brand-secondary scale-150 shadow-[0_0_12px_rgba(20,184,166,0.8)]' : 'bg-white/10 group-hover:bg-white/30'}`} />
@@ -558,92 +559,158 @@ const CareerTool = () => {
       {/* Main Content */}
       <div className="flex-1 p-6 md:p-12 overflow-y-auto bg-white flex flex-col relative">
         <AnimatePresence mode="wait">
-          {step === "goal" && (
-            <motion.div key="goal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-xl mx-auto my-auto py-12 md:py-0">
-               <h3 className="text-3xl font-bold text-slate-900 mb-4">{t('career.goals.q')}</h3>
-               <p className="text-slate-500 mb-10">{t('career.goals.desc')}</p>
-               <div className="grid grid-cols-1 gap-4 mb-10">
-                  {[
-                    { val: "Find a New Job", label: t('career.goals.1') },
-                    { val: "Transition Careers (Industry/Role)", label: t('career.goals.2') },
-                    { val: "Get Promoted (Level Up)", label: t('career.goals.3') },
-                    { val: "Build My Professional Brand", label: t('career.goals.4') }
-                  ].map((goal, i) => (
-                    <button key={i} onClick={() => setFormData({...formData, careerGoal: goal.val})} className={`text-left p-5 rounded-2xl border transition-all cursor-pointer ${formData.careerGoal === goal.val ? 'border-brand-secondary bg-brand-secondary/10 text-black font-bold shadow-sm' : 'border-slate-200 bg-white hover:border-brand-secondary text-black'}`}>
-                       <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${formData.careerGoal === goal.val ? 'bg-brand-primary text-white' : 'bg-slate-100 text-black border border-slate-200'}`}>
+          {step === "path" && (
+            <motion.div key="path" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl mx-auto my-auto py-8 md:py-0 w-full">
+              <div className="mb-8">
+                <h3 className="text-3xl font-bold text-slate-900 mb-2">{t('career.path.q')}</h3>
+                <p className="text-slate-500 text-sm md:text-base">{t('career.path.desc')}</p>
+              </div>
+              
+              <div className="space-y-5 mb-8">
+                {/* 1. Career Path Simulator Card with First Question Directly Underneath */}
+                <div 
+                  onClick={() => {
+                    if (formData.pathSelection !== "simulator") {
+                      setFormData(prev => ({ ...prev, pathSelection: "simulator" }));
+                    }
+                  }} 
+                  className={`text-left p-6 md:p-8 rounded-[2rem] border-2 transition-all relative overflow-hidden group cursor-pointer ${
+                    formData.pathSelection === "simulator" 
+                      ? 'border-brand-secondary bg-brand-secondary/5 shadow-md' 
+                      : 'border-slate-200 bg-white hover:border-brand-secondary/60 shadow-sm'
+                  }`}
+                >
+                  <div className="flex gap-5 relative z-10 items-start">
+                    <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
+                      <LucideMap className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className={`text-xl mb-1.5 ${formData.pathSelection === "simulator" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>
+                          {t('career.path.simTitle')}
+                        </h4>
+                        {formData.pathSelection === "simulator" && (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-secondary text-brand-primary">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-slate-500 font-normal leading-relaxed mb-1">{t('career.path.simDesc')}</p>
+                    </div>
+                  </div>
+
+                  {/* The First Question Directly Under Career Path Simulator */}
+                  <div className="mt-6 pt-6 border-t border-slate-200/80">
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="w-2 h-2 rounded-full bg-brand-secondary" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Question 1: Primary Objective</span>
+                      </div>
+                      <h5 className="text-base md:text-lg font-bold text-slate-900">{t('career.goals.q')}</h5>
+                      <p className="text-xs text-slate-500 mt-0.5">{t('career.goals.desc')}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                      {[
+                        { val: "Find a New Job", label: t('career.goals.1') },
+                        { val: "Transition Careers (Industry/Role)", label: t('career.goals.2') },
+                        { val: "Get Promoted (Level Up)", label: t('career.goals.3') },
+                        { val: "Build My Professional Brand", label: t('career.goals.4') }
+                      ].map((goal, i) => (
+                        <div
+                          key={i}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData(prev => ({ ...prev, careerGoal: goal.val, pathSelection: "simulator" }));
+                          }}
+                          className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer flex items-center gap-3 ${
+                            formData.careerGoal === goal.val && formData.pathSelection === "simulator"
+                              ? 'border-brand-primary bg-brand-primary text-white font-bold shadow-md' 
+                              : 'border-slate-200 bg-white hover:border-brand-secondary/70 text-slate-800'
+                          }`}
+                        >
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                            formData.careerGoal === goal.val && formData.pathSelection === "simulator" 
+                              ? 'bg-brand-secondary text-brand-primary font-black' 
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                          }`}>
                             {i + 1}
                           </div>
-                          <span className="text-black font-bold text-base md:text-lg leading-snug">{goal.label}</span>
-                       </div>
-                    </button>
-                  ))}
-               </div>
-               <button disabled={!formData.careerGoal} onClick={() => setStep("path")} className="w-full bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50">
-                  {t('career.goals.btn')} <ChevronRight className="w-5 h-5" />
-               </button>
-            </motion.div>
-          )}
+                          <span className="text-xs md:text-sm font-semibold leading-snug">{goal.label}</span>
+                        </div>
+                      ))}
+                    </div>
 
-          {step === "path" && (
-            <motion.div key="path" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl mx-auto my-auto py-12 md:py-0">
-              <h3 className="text-3xl font-bold text-slate-900 mb-4">{t('career.path.q')}</h3>
-              <p className="text-slate-500 mb-10">{t('career.path.desc')}</p>
-              
-              <div className="grid grid-cols-1 gap-6 mb-10">
-                <button onClick={() => setFormData({...formData, pathSelection: "simulator"})} className={`text-left p-8 rounded-[2rem] border transition-all relative overflow-hidden group cursor-pointer ${formData.pathSelection === "simulator" ? 'border-brand-secondary bg-brand-secondary/5 font-bold' : 'border-slate-200 bg-white hover:border-brand-secondary shadow-sm'}`}>
-                   <div className="flex gap-6 relative z-10">
-                      <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center shrink-0">
-                        <LucideMap className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "simulator" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.simTitle')}</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.simDesc')}</p>
-                      </div>
-                   </div>
-                </button>
+                    {formData.pathSelection === "simulator" && (
+                      <button
+                        type="button"
+                        disabled={!formData.careerGoal}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStep("simulator-q");
+                          triggerNovaCareer();
+                        }}
+                        className="w-full mt-2 py-4 bg-brand-primary hover:bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md cursor-pointer text-sm"
+                      >
+                        {formData.careerGoal ? "Continue Path Simulation" : "Select an Objective Above"} <ChevronRight className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-                <button onClick={() => setFormData({...formData, pathSelection: "resume"})} className={`text-left p-8 rounded-[2rem] border transition-all relative overflow-hidden group cursor-pointer ${formData.pathSelection === "resume" ? 'border-brand-secondary bg-brand-secondary/5 font-bold' : 'border-slate-200 bg-white hover:border-brand-secondary shadow-sm'}`}>
-                   <div className="flex gap-6 relative z-10">
-                      <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0">
-                        <FileText className="w-8 h-8" />
+                {/* 2. Executive Resume Studio Card */}
+                <div 
+                  onClick={() => navigate("/resume-builder")} 
+                  className="text-left p-6 md:p-8 rounded-[2rem] border-2 border-slate-200 bg-white hover:border-emerald-500 transition-all relative overflow-hidden group cursor-pointer shadow-sm"
+                >
+                  <div className="flex gap-5 relative z-10 items-start">
+                    <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                      <FileText className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-xl font-bold text-slate-900 mb-1.5 group-hover:text-emerald-700 transition-colors">
+                          {t('career.path.resTitle')}
+                        </h4>
+                        <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                          Open Studio <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
                       </div>
-                      <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "resume" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.resTitle')}</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.resDesc')}</p>
-                      </div>
-                   </div>
-                </button>
+                      <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.resDesc')}</p>
+                    </div>
+                  </div>
+                </div>
 
-                <button onClick={() => setFormData({...formData, pathSelection: "behavioral"})} className={`text-left p-8 rounded-[2rem] border transition-all relative overflow-hidden group cursor-pointer ${formData.pathSelection === "behavioral" ? 'border-brand-secondary bg-brand-secondary/5 font-bold' : 'border-slate-200 bg-white hover:border-brand-secondary shadow-sm'}`}>
-                   <div className="flex gap-6 relative z-10">
-                      <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0">
-                        <Sparkles className="w-8 h-8" />
-                      </div>
-                      <div>
-                        <h4 className={`text-xl mb-2 ${formData.pathSelection === "behavioral" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>{t('career.path.behTitle')}</h4>
-                        <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.behDesc')}</p>
-                      </div>
-                   </div>
-                </button>
-              </div>
-
-              <div className="flex gap-4">
-                <button onClick={() => setStep("goal")} className="flex-grow bg-slate-100 text-slate-600 py-5 rounded-2xl font-bold hover:bg-slate-200 transition-colors">{t('career.path.btnBack')}</button>
-                <button 
-                  disabled={!formData.pathSelection} 
+                {/* 3. Behavioral Traits Assessment Card */}
+                <div 
                   onClick={() => {
-                    if (formData.pathSelection === "resume") {
-                      navigate("/resume-builder");
-                      return;
-                    }
-                    setStep(formData.pathSelection === "behavioral" ? "behavioral-q" : "simulator-q");
+                    setFormData(prev => ({ ...prev, pathSelection: "behavioral" }));
+                    setStep("behavioral-q");
                     triggerNovaCareer();
                   }} 
-                  className="flex-[2] bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-brand-dark transition-all disabled:opacity-50"
+                  className={`text-left p-6 md:p-8 rounded-[2rem] border-2 transition-all relative overflow-hidden group cursor-pointer shadow-sm ${
+                    formData.pathSelection === "behavioral" 
+                      ? 'border-indigo-500 bg-indigo-50/20' 
+                      : 'border-slate-200 bg-white hover:border-indigo-400'
+                  }`}
                 >
-                  {t('career.path.btnNext')} <ChevronRight className="w-5 h-5" />
-                </button>
+                  <div className="flex gap-5 relative z-10 items-start">
+                    <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                      <Sparkles className="w-7 h-7" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-xl font-bold text-slate-900 mb-1.5 group-hover:text-indigo-700 transition-colors">
+                          {t('career.path.behTitle')}
+                        </h4>
+                        <span className="text-xs font-bold text-indigo-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                          Start Assessment <ChevronRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.behDesc')}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
@@ -763,9 +830,18 @@ const CareerTool = () => {
                )}
 
                <div className="mt-12 flex gap-4">
-                  {activeSubStep > 1 && (
-                    <button onClick={() => setActiveSubStep(s => s - 1)} className="flex-1 py-5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-bold transition-colors">Back</button>
-                  )}
+                  <button 
+                    onClick={() => {
+                      if (activeSubStep > 1) {
+                        setActiveSubStep(s => s - 1);
+                      } else {
+                        setStep("path");
+                      }
+                    }} 
+                    className="flex-1 py-5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-bold transition-colors"
+                  >
+                    Back
+                  </button>
                   {activeSubStep < 3 ? (
                     <button onClick={() => setActiveSubStep(s => s + 1)} className="flex-[2] py-5 bg-brand-primary hover:bg-brand-dark text-white rounded-2xl font-bold transition-all shadow-md">Next Insight</button>
                   ) : (
@@ -778,34 +854,47 @@ const CareerTool = () => {
           )}
 
           {step === "simulator-q" && (
-            <motion.div key="simulator-q" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto w-full my-auto py-12">
-               <h3 className="text-3xl font-bold text-slate-900 mb-4">Initialize Path Simulation</h3>
-               <p className="text-slate-500 mb-10">Map your transformation trajectory from current state to desired outcome.</p>
+            <motion.div key="simulator-q" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto w-full my-auto py-8">
+               <div className="mb-6">
+                 {formData.careerGoal && (
+                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-secondary/15 border border-brand-secondary/30 text-brand-primary font-bold text-xs mb-3">
+                     <span className="w-2 h-2 rounded-full bg-brand-secondary" />
+                     <span>Objective: {formData.careerGoal}</span>
+                   </div>
+                 )}
+                 <h3 className="text-3xl font-bold text-slate-900 mb-2">Initialize Path Simulation</h3>
+                 <p className="text-slate-500 text-sm md:text-base">Map your transformation trajectory from current state to desired outcome.</p>
+               </div>
                
-               <div className="space-y-6 mb-10">
+               <div className="space-y-6 mb-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Current Role</label>
-                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary" placeholder="e.g. Warehouse Manager" value={formData.currentRole} onChange={(e) => setFormData({...formData, currentRole: e.target.value})} />
+                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900 font-semibold" placeholder="e.g. Warehouse Manager" value={formData.currentRole} onChange={(e) => setFormData({...formData, currentRole: e.target.value})} />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Target Transformation</label>
-                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary" placeholder="e.g. Director of Operations" value={formData.targetRole} onChange={(e) => setFormData({...formData, targetRole: e.target.value})} />
+                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900 font-semibold" placeholder="e.g. Director of Operations" value={formData.targetRole} onChange={(e) => setFormData({...formData, targetRole: e.target.value})} />
                     </div>
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Top Strengths</label>
-                     <textarea className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary h-32" placeholder="Describe where you excel..." value={formData.strengths} onChange={(e) => setFormData({...formData, strengths: e.target.value})} />
+                     <textarea className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary h-28 text-slate-900" placeholder="Describe where you excel..." value={formData.strengths} onChange={(e) => setFormData({...formData, strengths: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Transferable Skills</label>
-                     <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary" placeholder="e.g. SQL, Lean Six Sigma, Automation" value={formData.skills} onChange={(e) => setFormData({...formData, skills: e.target.value})} />
+                     <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900" placeholder="e.g. SQL, Lean Six Sigma, Automation" value={formData.skills} onChange={(e) => setFormData({...formData, skills: e.target.value})} />
                   </div>
                </div>
 
-               <button onClick={handleSimulate} disabled={!formData.currentRole || !formData.targetRole} className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-bold text-xl flex items-center justify-center gap-3 hover:bg-brand-primary transition-all disabled:opacity-50">
-                  Simulate Transformation <Zap className="w-6 h-6 text-brand-secondary" />
-               </button>
+               <div className="flex gap-4">
+                  <button onClick={() => setStep("path")} className="flex-1 py-5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-bold transition-colors">
+                     Back to Tools
+                  </button>
+                  <button onClick={handleSimulate} disabled={!formData.currentRole || !formData.targetRole} className="flex-[2] py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-brand-primary transition-all disabled:opacity-50 shadow-md">
+                     Simulate Transformation <Zap className="w-5 h-5 text-brand-secondary" />
+                  </button>
+               </div>
             </motion.div>
           )}
 

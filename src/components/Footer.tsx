@@ -65,7 +65,7 @@ export const Footer = () => {
               </Link>
             </li>
             <li>
-              <Link to="/career-hub?path=resume" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
+              <Link to="/resume-builder" className="text-slate-400 hover:text-brand-secondary transition-all text-sm font-bold uppercase tracking-wider flex items-center gap-2 group">
                 <div className="w-0 h-px bg-brand-secondary group-hover:w-4 transition-all" />
                 {t("footer.resume")}
               </Link>
