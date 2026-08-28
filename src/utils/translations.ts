@@ -439,6 +439,12 @@ export const translations: TranslationsList = {
     "pod.data.legacy-heroics.type": "Leadership & Systems",
     "pod.data.legacy-heroics.title": "Scaling Beyond Legacy Heroics",
     "pod.data.legacy-heroics.desc": "Moving from individual acts of bravery to systematic operational excellence. Learn how to transform daily firefighting into scalable processes.",
+    "pod.data.stop-buying-technology.type": "Technology & Operations",
+    "pod.data.stop-buying-technology.title": "Stop Buying Technology to Fix Bad Operations",
+    "pod.data.stop-buying-technology.desc": "The expensive cycle of implementing new systems without fixing the process underneath them.",
+    "pod.data.best-employee-problem.type": "Leadership & Culture",
+    "pod.data.best-employee-problem.title": "Your Best Employee Is Probably Hiding Your Biggest Problem",
+    "pod.data.best-employee-problem.desc": "When star performers compensate for broken processes, leaders mistake heroics for operational excellence.",
 
     // Testimonials
     "test.hero.label": "IMPACT & EVIDENCE",
@@ -1005,6 +1011,12 @@ export const translations: TranslationsList = {
     "pod.data.legacy-heroics.type": "Liderazgo y Sistemas",
     "pod.data.legacy-heroics.title": "Escalando Más Allá del Heroísmo Tradicional",
     "pod.data.legacy-heroics.desc": "Pasando de actos individuales de valentía a la excelencia operativa sistemática. Aprende a transformar el apagar incendios diarios en procesos escalables.",
+    "pod.data.stop-buying-technology.type": "Tecnología y Operaciones",
+    "pod.data.stop-buying-technology.title": "Deja de Comprar Tecnología para Reparar Malas Operaciones",
+    "pod.data.stop-buying-technology.desc": "El costoso ciclo de implementar nuevos sistemas sin arreglar el proceso que está debajo de ellos.",
+    "pod.data.best-employee-problem.type": "Liderazgo y Cultura",
+    "pod.data.best-employee-problem.title": "Tu Mejor Empleado Probablemente Está Ocultando Tu Mayor Problema",
+    "pod.data.best-employee-problem.desc": "Cuando los colaboradores estrella compensan procesos rotos, los líderes confunden el heroísmo con la excelencia operativa.",
 
     // Testimonials
     "test.hero.label": "IMPACTO Y EVIDENCIA",

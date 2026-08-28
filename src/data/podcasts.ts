@@ -37,5 +37,19 @@ export const PODCASTS: Podcast[] = [
     description: "Moving from individual acts of bravery to systematic operational excellence. Learn how to transform daily firefighting into scalable processes.",
     url: "https://storage.googleapis.com/thetransformationroomassets/Scaling_Beyond_Legacy_Heroics.m4a",
     type: "Leadership & Systems"
+  },
+  {
+    id: "stop-buying-technology",
+    title: "Stop Buying Technology to Fix Bad Operations",
+    description: "The expensive cycle of implementing new systems without fixing the process underneath them.",
+    url: "https://storage.googleapis.com/thetransformationroomassets/Software%20Wont%20Fix%20Your%20Broken%20Process.m4a",
+    type: "Technology & Operations"
+  },
+  {
+    id: "best-employee-problem",
+    title: "Your Best Employee Is Probably Hiding Your Biggest Problem",
+    description: "When star performers compensate for broken processes, leaders mistake heroics for operational excellence.",
+    url: "https://storage.googleapis.com/thetransformationroomassets/Why_your_best_employee_is_a_threat.m4a",
+    type: "Leadership & Culture"
   }
 ];
