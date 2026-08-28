@@ -335,7 +335,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
         throw new Error("Could not extract readable text from the document. The file may be empty, image-only, or encrypted.");
       }
 
-      setStatusMessage("AI is parsing and structuring your career data...");
+      setStatusMessage("Analyzing document words, classifying technical systems and competencies...");
 
       let parsedData: ResumeData | null = null;
 
@@ -349,6 +349,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
         if (res.ok) {
           const json = await res.json();
           if (json.data && json.data.personalInfo) {
+            setStatusMessage("Enhancing executive narrative and structuring sections...");
             parsedData = json.data;
           }
         } else {
@@ -360,6 +361,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
 
       // If server AI parsing was unavailable or incomplete, use fallback parser
       if (!parsedData) {
+        setStatusMessage("Applying structural word classification...");
         console.log("[ResumeStudio] Applying deterministic heuristic parser to sanitized resume text...");
         parsedData = fallbackParseResumeText(rawText);
       }
@@ -554,33 +556,43 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     const elementId = activeTab === "cover-letter" ? "cover-letter-printable-area" : "resume-printable-area";
     const element = document.getElementById(elementId);
     if (!element) {
-      alert("Printable document element not found.");
+      alert("Printable document element not found. Switching to visual preview...");
+      setViewMode("split");
       return;
     }
 
     setIsDownloadingPdf(true);
-    setStatusMessage("Generating crisp, print-ready PDF...");
+    setStatusMessage("Generating crisp, executive PDF...");
 
     try {
-      // @ts-ignore
-      const html2pdf = (await import('html2pdf.js')).default;
-      const fileName = activeTab === "cover-letter" 
-        ? `${resumeData.personalInfo.fullName.replace(/\s+/g, "_")}_Cover_Letter.pdf`
-        : `${resumeData.personalInfo.fullName.replace(/\s+/g, "_")}_Executive_Resume.pdf`;
+      // Dynamic import with robust module resolution for Vite/ESM
+      const html2pdfModule: any = await import('html2pdf.js');
+      const html2pdf = html2pdfModule?.default || html2pdfModule || (window as any).html2pdf;
 
-      const marginValue = options?.margins === "compact" ? 0.25 : options?.margins === "relaxed" ? 0.5 : 0.35;
+      if (typeof html2pdf !== "function") {
+        throw new Error("HTML2PDF engine failed to initialize");
+      }
+
+      const fileName = activeTab === "cover-letter" 
+        ? `${(resumeData.personalInfo.fullName || "Candidate").trim().replace(/\s+/g, "_")}_Cover_Letter.pdf`
+        : `${(resumeData.personalInfo.fullName || "Candidate").trim().replace(/\s+/g, "_")}_Executive_Resume.pdf`;
+
+      const marginValue = options?.margins === "compact" ? 0.2 : options?.margins === "relaxed" ? 0.45 : 0.3;
       const formatValue = options?.paperSize === "a4" ? "a4" : "letter";
-      const scaleValue = options?.scaleFactor || 2.5;
+      const scaleValue = options?.scaleFactor || 2;
 
       const opt = {
-        margin: [marginValue, marginValue] as [number, number],
+        margin: [marginValue, marginValue, marginValue, marginValue] as [number, number, number, number],
         filename: fileName,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: {
           scale: scaleValue,
           useCORS: true,
           letterRendering: true,
-          logging: false
+          logging: false,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 850
         },
         jsPDF: { unit: 'in', format: formatValue, orientation: 'portrait' as const },
         pagebreak: {
@@ -594,6 +606,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
             '.certification-item',
             '.metrics-banner',
             '.resume-header',
+            'h1',
             'h2',
             'h3',
             '.section-heading'
@@ -602,13 +615,18 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
       };
 
       await html2pdf().from(element).set(opt).save();
-      setStatusMessage("PDF download initiated successfully!");
+      setStatusMessage("PDF download completed successfully!");
       setIsPdfExportModalOpen(false);
       setTimeout(() => setStatusMessage(null), 4000);
     } catch (err: any) {
-      console.error("PDF generation failed:", err);
-      alert("PDF generation failed. You can also use the Print button to save as PDF.");
-      setStatusMessage(null);
+      console.warn("Direct html2pdf generation note:", err);
+      // Seamlessly fall back to browser print dialog
+      setStatusMessage("Opening print dialog — select 'Save as PDF' for pristine vector quality");
+      setIsPdfExportModalOpen(false);
+      setTimeout(() => {
+        window.print();
+        setStatusMessage(null);
+      }, 400);
     } finally {
       setIsDownloadingPdf(false);
     }
@@ -785,7 +803,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
       {/* Top Header Bar */}
-      <header className="bg-slate-950 border-b border-slate-800/80 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <header className="no-print print:hidden bg-slate-950 border-b border-slate-800/80 sticky top-0 z-40 px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
         {/* Left: Branding & Back Navigation */}
         <div className="flex items-center gap-4">
           {onBackToAssessment && (
@@ -990,7 +1008,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
       </AnimatePresence>
 
       {/* Secondary Customization Ribbon (Templates, Colors, Fonts, Density, Layout) */}
-      <div className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-2.5 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div className="no-print print:hidden bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-2.5 flex flex-wrap items-center justify-between gap-4 text-xs">
         {/* Template Selector + Gallery Modal Trigger + Refresh Template & AI Style */}
         <div className="flex items-center gap-2">
           <button
@@ -1005,7 +1023,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
           {/* Refresh Template Button */}
           <button
             onClick={handleRefreshTemplate}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white rounded-lg text-xs font-semibold border border-teal-500/30 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-750 text-teal-300 hover:text-white rounded-lg text-xs font-semibold border border-teal-500/30 transition-all cursor-pointer"
             title="Cycle and refresh to next complementary template design"
           >
             <RefreshCcw className="w-3 h-3 text-teal-400" />
@@ -1015,7 +1033,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
           {/* Style Match Suggestion Button */}
           <button
             onClick={handleAiChangeStyle}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-secondary hover:text-white rounded-lg text-xs font-semibold border border-brand-secondary/30 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-750 text-brand-secondary hover:text-white rounded-lg text-xs font-semibold border border-brand-secondary/30 transition-all cursor-pointer"
             title="Automatically matches template, typography, and accent color to your target role"
           >
             <Sparkles className="w-3 h-3 text-brand-secondary" />
@@ -1131,10 +1149,10 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
       </div>
 
       {/* Main Workspace: Split Screen Layout */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden print:overflow-visible print:block">
         {/* Left Side: Interactive Editor Workspace */}
         {(viewMode === "split" || viewMode === "editor-only") && (
-          <div className={`w-full ${viewMode === "split" ? "lg:w-1/2 xl:w-5/12" : "w-full"} p-4 md:p-6 overflow-y-auto border-r border-slate-800 bg-slate-900/50 space-y-6 max-h-[calc(100vh-120px)]`}>
+          <div className={`w-full ${viewMode === "split" ? "lg:w-1/2 xl:w-5/12" : "w-full"} no-print print:hidden editor-workspace p-4 md:p-6 overflow-y-auto border-r border-slate-800 bg-slate-900/50 space-y-6 max-h-[calc(100vh-120px)]`}>
             {activeTab === "resume" ? (
               <ResumeEditor
                 data={resumeData}
@@ -1158,34 +1176,32 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
         )}
 
         {/* Right Side: Live Visual Document Preview */}
-        {(viewMode === "split" || viewMode === "preview-only") && (
-          <div className={`w-full ${viewMode === "split" ? "lg:w-1/2 xl:w-7/12" : "w-full"} p-4 md:p-8 bg-slate-950 overflow-y-auto max-h-[calc(100vh-120px)] flex justify-center items-start`}>
-            <div className="w-full max-w-[850px] animate-in fade-in zoom-in-95 duration-300">
-              {activeTab === "resume" ? (
-                <ResumePreview
-                  data={resumeData}
-                  template={selectedTemplate}
-                  colorTheme={selectedColor}
-                  typography={selectedTypography}
-                  isCompact={isCompact}
-                  showPageBreakGuides={showPageBreakGuides}
-                />
-              ) : activeTab === "cover-letter" ? (
-                <CoverLetterPreview
-                  data={coverLetterData}
-                  template={selectedTemplate}
-                  colorTheme={selectedColor}
-                  typography={selectedTypography}
-                />
-              ) : null}
-            </div>
+        <div className={`w-full ${viewMode === "split" ? "lg:w-1/2 xl:w-7/12" : viewMode === "preview-only" ? "w-full" : "hidden print:block"} p-4 md:p-8 bg-slate-950 overflow-y-auto max-h-[calc(100vh-120px)] flex justify-center items-start print:w-full print:max-w-full print:p-0 print:m-0 print:overflow-visible print:bg-white print:max-h-none`}>
+          <div className="w-full max-w-[850px] animate-in fade-in zoom-in-95 duration-300 print:max-w-full print:w-full print:m-0 print:p-0">
+            {activeTab === "resume" ? (
+              <ResumePreview
+                data={resumeData}
+                template={selectedTemplate}
+                colorTheme={selectedColor}
+                typography={selectedTypography}
+                isCompact={isCompact}
+                showPageBreakGuides={showPageBreakGuides}
+              />
+            ) : activeTab === "cover-letter" ? (
+              <CoverLetterPreview
+                data={coverLetterData}
+                template={selectedTemplate}
+                colorTheme={selectedColor}
+                typography={selectedTypography}
+              />
+            ) : null}
           </div>
-        )}
+        </div>
       </main>
 
       {/* AI Resume Optimize Modal / Drawer */}
       {isOptimizeModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="no-print print:hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-5">
             <div className="flex justify-between items-center border-b border-slate-800 pb-4">
               <div className="flex items-center gap-3">

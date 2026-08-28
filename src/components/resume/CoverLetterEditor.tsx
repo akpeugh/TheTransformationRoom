@@ -183,7 +183,7 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
             title="Automatically generates executive intro, current scope, highlight bullets, and company alignment matching the reference format"
           >
             <Wand2 className="w-3.5 h-3.5" />
-            Auto-Fill Executive Format (Fawn Cook Style)
+            Auto-Fill Executive Format
           </button>
 
           <span className="text-[11px] text-slate-400 hidden sm:inline">

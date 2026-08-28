@@ -22,6 +22,7 @@ import { sampleExecutiveProfiles } from "../../data/sampleResume";
 import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../../utils/documentParser";
 import { sanitizeResumeText } from "../../utils/resumeSanitizer";
 import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
+import { ResumeProcessingLoader } from "./ResumeProcessingLoader";
 
 interface AiImportModalProps {
   isOpen: boolean;
@@ -258,10 +259,11 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
 
           {/* Parsing Progress Loader Banner */}
           {isProcessing && (
-            <div className="p-6 bg-slate-950 rounded-2xl border border-teal-500/30 text-center space-y-3">
-              <Loader2 className="w-8 h-8 text-brand-secondary animate-spin mx-auto" />
-              <h3 className="text-sm font-bold text-white">Parsing Engine Active</h3>
-              <p className="text-xs text-slate-400">{parsingProgress || "Extracting structured data from your document..."}</p>
+            <div className="py-4">
+              <ResumeProcessingLoader
+                statusMessage={parsingProgress}
+                subTitle="Parsing document layout, experience timeline, and executive skills"
+              />
             </div>
           )}
 
@@ -294,6 +296,29 @@ export const AiImportModal: React.FC<AiImportModalProps> = ({
                   <span className="text-xs font-bold text-white">{extractedPreview.skills?.length || 0} Groups</span>
                 </div>
               </div>
+
+              {extractedPreview.skills && extractedPreview.skills.length > 0 && (
+                <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
+                  <strong className="text-white block text-[11px] uppercase tracking-wider">Categorized Skills & Systems Analysis:</strong>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {extractedPreview.skills.map((cat, idx) => (
+                      <div key={cat.id || idx} className="bg-slate-950/80 p-3 rounded-lg border border-slate-800">
+                        <span className="text-[11px] font-bold text-teal-400 block mb-1.5 flex items-center gap-1.5">
+                          <Zap className="w-3 h-3 text-teal-400" />
+                          {cat.category}
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {cat.skills.map((s, sIdx) => (
+                            <span key={sIdx} className="text-[10px] bg-slate-800 text-slate-200 px-2 py-0.5 rounded-md border border-slate-700">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {extractedPreview.summary && (
                 <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-300 leading-relaxed">

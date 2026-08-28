@@ -28,6 +28,7 @@ import { ResumeData, CoverLetterData } from "../../types/resume";
 import { defaultResumeData, defaultCoverLetterData, sampleExecutiveProfiles } from "../../data/sampleResume";
 import { extractTextFromFile } from "../../utils/documentParser";
 import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
+import { ResumeProcessingLoader } from "./ResumeProcessingLoader";
 import { 
   getSharedCareerProfile, 
   updateSharedCareerProfile, 
@@ -1373,16 +1374,11 @@ export const ResumeOnboardingModal: React.FC<ResumeOnboardingModalProps> = ({
 
           {/* VIEW 4: GENERATING SPINNER */}
           {viewMode === "generating" && (
-            <div className="py-16 flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-3xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 animate-spin">
-                <Loader2 className="w-8 h-8" />
-              </div>
-              <h3 className="text-base font-bold text-white">
-                {statusMessage || "NOVA Cognitive Engine Active..."}
-              </h3>
-              <p className="text-xs text-slate-400 max-w-md">
-                Structuring executive summary, action-driven experience bullets, metric highlights, and ATS keyword densities.
-              </p>
+            <div className="py-6 sm:py-8">
+              <ResumeProcessingLoader
+                statusMessage={statusMessage}
+                subTitle="NOVA Cognitive Engine is actively shaping your executive resume"
+              />
             </div>
           )}
         </div>

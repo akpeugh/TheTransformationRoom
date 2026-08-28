@@ -88,26 +88,69 @@
 
 /* Print and Multi-Page Document Styling */
 @page {
-  size: auto;
-  margin: 12mm 12mm 14mm 12mm;
+  size: letter portrait;
+  margin: 10mm 12mm 12mm 12mm;
 }
 
 @media print {
-  html, body {
+  html, body, #root {
     background-color: #ffffff !important;
+    background: #ffffff !important;
     color: #0f172a !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Hide app navigation and studio toolbars when printing */
-  header, nav, footer, button, .no-print, [role="dialog"], .print-hidden {
+  /* Completely hide all app navigation, studio headers, customization ribbons, editor workspaces, drawers, sidebars, modals, and toasts */
+  header, 
+  nav, 
+  footer, 
+  aside,
+  button, 
+  form,
+  input,
+  textarea,
+  select,
+  .no-print, 
+  .print-hidden,
+  .editor-workspace,
+  .studio-header,
+  .studio-ribbon,
+  .studio-editor-panel,
+  .drawer-container,
+  [role="dialog"], 
+  .fixed,
+  .toast-notification,
+  .page-guide {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
   }
 
-  #resume-printable-area, #cover-letter-printable-area {
+  /* Reset all outer containers so they do not scroll or restrict height */
+  main, div {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  /* Display only the printable document container */
+  #resume-printable-area, 
+  #cover-letter-printable-area {
+    display: block !important;
+    visibility: visible !important;
+    position: relative !important;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;
@@ -116,6 +159,9 @@
     min-height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
   }
 
   /* Prevent page cuts inside atomic blocks */

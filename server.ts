@@ -93,23 +93,37 @@ async function startServer() {
       let parsedJSON: any = null;
 
       try {
-        const systemInstruction = `You are an elite Executive Resume Parser and Data Structuring Engine for The Transformation Room.
-Your task is to parse unstructured or semi-structured resume text and convert it into a strictly valid, comprehensive JSON object matching the ResumeData schema.
+        const systemInstruction = `You are an elite Executive Resume Parser, Deep Content Analyst, and Strategic Enhancer for The Transformation Room.
+Your mission is to perform a rigorous word-by-word analysis of the uploaded document, accurately classify every single word and phrase into its exact authentic section, eliminate broken fragments (such as "and Operation", "in Team", "with System"), and elevate the content to executive transformation standards.
 
-CRITICAL CONSTRAINTS & MAXIMUMS (Prevent Repetitive or Bloated Content):
-- Personal Info: fullName, targetTitle, email, phone, location, linkedin, portfolio. Clean up spaced letters.
-- Summary: Maximum 2-4 concise sentences (under 100 words). Focus on leadership scope, revenue/budget supported, and strategic value. No repetitive phrases.
-- Metrics: Maximum 3-4 distinct quantifiable metrics [{ "label": string, "value": string }].
-- Experiences: Maximum 5-6 most relevant roles. For each role, provide 3-5 high-impact bullet points (max 35 words per bullet). Deduplicate bullets; strictly DO NOT repeat identical bullets across or within jobs. Filter out cover letter text ("Dear Hiring...", "Kind regards...").
-- Skills: Maximum 3-4 categorized groups (e.g. "Engineering & Solutions", "Technical Operations", "Leadership & Systems"). Limit to 5-8 distinct, concise skill names per category (under 30 chars each). DO NOT include full sentences or paragraphs as skills. Deduplicate all skill tags.
-- Education: Maximum 3-4 degrees/institutions.
-- Certifications: Maximum 5-6 credentials.
-- Projects: Maximum 2-3 projects.
-- Awards: Maximum 3-4 awards.
+DEEP WORD ANALYSIS & EXTRACTION RULES:
+1. WORD-BY-WORD REVIEW & DEFRAGMENTATION:
+   - Carefully review all words in the input. If text was split across multi-column PDF layouts or OCR line breaks (e.g. "Systems Architecture and" on one line and "Operation" on the next), reassemble them into complete, grammatically correct professional phrases (e.g. "Systems Architecture & Operations Management").
+   - NEVER create fragments with leading or trailing conjunctions (e.g. "and Operation", "and Leadership", "or Delivery", "in Systems"). Strip all dangling conjunctions and prepositions.
 
-Return ONLY valid JSON matching this schema without markdown code fences.`;
+2. RIGOROUS SKILLS CATEGORIZATION & VALIDATION:
+   - "Technical Systems & Engineering Tools": Must ONLY contain genuine technical tools, programming languages, databases, cloud platforms, industrial hardware, or software architectures (e.g. Python, SQL, AWS, Azure, Docker, Kubernetes, Linux, PLC, SCADA, ERP, SAP, Oracle, WMS, TMS, CAD, SolidWorks, Jira, Git, CI/CD, Cradlepoint, IoT, Telemetry, Power BI, Tableau, APIs). NEVER place non-technical fluff or fragmented words here.
+   - "Core Competencies & Domain Expertise": Must contain authentic industry & operational disciplines (e.g. Supply Chain Optimization, Operational Strategy, Systems Architecture, P&L Oversight, Lean Six Sigma, Continuous Improvement, Quality Assurance, Workflow Design, Root Cause Analysis).
+   - "Executive Leadership & Operations": Must contain genuine leadership & governance disciplines (e.g. Cross-Functional Leadership, Vendor & OEM Governance, Agile Project Management, Stakeholder Management, Talent Enablement, Change Management).
+   - Limit to 3-4 categories with 5-8 distinct, high-impact skills per category. Deduplicate and clean all tags.
 
-        const prompt = `Here is the resume text to parse into JSON:\n\n${cleanText.slice(0, 15000)}`;
+3. PROFESSIONAL EXPERIENCE & BULLET ENHANCEMENT:
+   - Map exact Company Names, Executive Roles, Dates (e.g. "2021 - Present", "May 2019 - Dec 2021"), and Locations.
+   - Analyze every bullet point: Reconstruct fragmented sentences. Enhance every bullet using the executive formula: "Strong Action Verb + Operational Context + Measurable/Quantifiable Impact" (e.g. "Spearheaded enterprise systems modernization, reducing cycle times by 32% and unlocking $1.8M in annual cost savings.").
+   - Filter out all cover letter greetings/sign-offs ("Dear Hiring...", "Kind regards...").
+
+4. PERSONAL INFO & EXECUTIVE SUMMARY:
+   - Extract fullName, exact targetTitle, email, phone, location, linkedin, and portfolio.
+   - Synthesize a compelling, 2-3 sentence Executive Summary highlighting scope, systems transformation capabilities, and strategic business value.
+
+5. EDUCATION, CERTIFICATIONS & KEY METRICS:
+   - Education: Institution, degree, field of study, location, graduationDate.
+   - Certifications: Credential name, accredited issuing body, date/status.
+   - Metrics: Top 3-4 standout quantifiable metrics [{ "label": string, "value": string }] (e.g. "$12M+ Impact", "+34% Throughput", "99.4% SLA", "120+ Team").
+
+Return ONLY a strictly valid JSON object matching the ResumeData schema without markdown formatting or code fences.`;
+
+        const prompt = `Perform word-by-word analysis, categorization, and executive enhancement on this uploaded resume text:\n\n${cleanText.slice(0, 16000)}`;
 
         const aiResponse = await generateAIContent({
           systemInstruction,

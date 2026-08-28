@@ -1,6 +1,6 @@
 import { ResumeData, ExperienceItem, EducationItem, SkillCategory, CertificationItem, ResumeMetric } from "../types/resume";
 import { sanitizeAndNormalizeResumeText } from "./textNormalizer";
-import { enforceResumeSectionLimits } from "./resumeSectionLimits";
+import { enforceResumeSectionLimits, cleanAndValidateSkillTag, isTechnicalSkill } from "./resumeSectionLimits";
 
 /**
  * Deterministic, intelligent heuristic resume parser.
@@ -328,38 +328,83 @@ export function fallbackParseResumeText(rawText: string): ResumeData {
     });
   }
 
-  // 6. Dynamic Skills Extraction
+  // 6. Dynamic Skills Extraction & Deep Word Analysis
   const skills: SkillCategory[] = [];
   const rawSkillLines = sectionBuckets.skills;
 
   if (rawSkillLines.length > 0) {
     const extractedSkillsList: string[] = [];
     for (const line of rawSkillLines) {
-      const items = line.split(/[,|•;•\n\t]+/).map(s => s.replace(/^[•\-\*\s]+|[•\-\*\s]+$/g, "").trim()).filter(s => s.length > 1 && s.length < 40);
-      extractedSkillsList.push(...items);
+      // Split on common delimiters
+      const items = line.split(/[,|•;•\n\t/]+/).map(s => s.trim());
+      for (const item of items) {
+        const cleaned = cleanAndValidateSkillTag(item);
+        if (cleaned) {
+          extractedSkillsList.push(cleaned);
+        }
+      }
     }
 
     const uniqueSkills = Array.from(new Set(extractedSkillsList));
     if (uniqueSkills.length > 0) {
-      const chunkSize = Math.ceil(uniqueSkills.length / 3);
-      skills.push({
-        id: "skills-1",
-        category: "Core Competencies & Strategy",
-        skills: uniqueSkills.slice(0, chunkSize)
-      });
-      if (uniqueSkills.length > chunkSize) {
+      const technicalGroup: string[] = [];
+      const coreGroup: string[] = [];
+      const leadershipGroup: string[] = [];
+
+      for (const s of uniqueSkills) {
+        if (isTechnicalSkill(s)) {
+          technicalGroup.push(s);
+        } else if (/leadership|management|cross-functional|vendor|stakeholder|partner|executive|team|governance|change|enablement/i.test(s)) {
+          leadershipGroup.push(s);
+        } else {
+          coreGroup.push(s);
+        }
+      }
+
+      if (technicalGroup.length > 0) {
         skills.push({
-          id: "skills-2",
-          category: "Technical & Systems Execution",
-          skills: uniqueSkills.slice(chunkSize, chunkSize * 2)
+          id: "skills-tech",
+          category: "Technical Systems & Engineering Tools",
+          skills: technicalGroup
         });
       }
-      if (uniqueSkills.length > chunkSize * 2) {
+      if (coreGroup.length > 0) {
         skills.push({
-          id: "skills-3",
-          category: "Leadership & Cross-Functional Alignment",
-          skills: uniqueSkills.slice(chunkSize * 2)
+          id: "skills-core",
+          category: "Core Competencies & Domain Expertise",
+          skills: coreGroup
         });
+      }
+      if (leadershipGroup.length > 0) {
+        skills.push({
+          id: "skills-lead",
+          category: "Executive Leadership & Operations",
+          skills: leadershipGroup
+        });
+      }
+
+      // If everything fell into one bucket or groups are empty, distribute evenly with professional names
+      if (skills.length === 0) {
+        const chunkSize = Math.ceil(uniqueSkills.length / 3);
+        skills.push({
+          id: "skills-1",
+          category: "Technical & Systems Execution",
+          skills: uniqueSkills.slice(0, chunkSize)
+        });
+        if (uniqueSkills.length > chunkSize) {
+          skills.push({
+            id: "skills-2",
+            category: "Core Competencies & Operations",
+            skills: uniqueSkills.slice(chunkSize, chunkSize * 2)
+          });
+        }
+        if (uniqueSkills.length > chunkSize * 2) {
+          skills.push({
+            id: "skills-3",
+            category: "Leadership & Cross-Functional Alignment",
+            skills: uniqueSkills.slice(chunkSize * 2)
+          });
+        }
       }
     }
   }

@@ -32,6 +32,7 @@ import { defaultResumeData, defaultCoverLetterData, sampleExecutiveProfiles } fr
 import { extractTextFromFile, validateResumeFile, sanitizeAndNormalizeResumeText } from "../../utils/documentParser";
 import { sanitizeResumeText } from "../../utils/resumeSanitizer";
 import { fallbackParseResumeText } from "../../utils/resumeParserFallback";
+import { ResumeProcessingLoader } from "./ResumeProcessingLoader";
 import { 
   getSharedCareerProfile, 
   updateSharedCareerProfile, 
@@ -192,13 +193,14 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
     }
 
     setIsProcessingFile(true);
-    setStatusMessage(`AI is structuring resume data from ${sourceName}...`);
+    setStatusMessage("Scanning document words and analyzing section structure...");
     setViewMode("generating");
 
     try {
       let structuredResume: ResumeData | null = null;
 
       try {
+        setStatusMessage("Classifying technical tools, competencies, and engineering systems...");
         const res = await fetch("/api/resume/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -208,6 +210,7 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
         if (res.ok) {
           const json = await res.json();
           if (json.data && json.data.personalInfo) {
+            setStatusMessage("Enhancing executive narrative and quantifying impact metrics...");
             structuredResume = json.data;
           }
         } else {
@@ -220,6 +223,7 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
 
       // If server returned no data or failed, execute deterministic client-side parser
       if (!structuredResume) {
+        setStatusMessage("Applying deterministic structural word analyzer...");
         structuredResume = fallbackParseResumeText(cleanText);
       }
 
@@ -1483,27 +1487,11 @@ export const ResumeInitializationScreen: React.FC<ResumeInitializationScreenProp
 
         {/* View 4: GENERATING / SYNTHESIZING ANIMATION */}
         {viewMode === "generating" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 sm:p-16 text-center space-y-6 shadow-2xl flex flex-col items-center justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-3xl bg-teal-500/10 border-2 border-teal-500/30 text-teal-400 flex items-center justify-center shadow-2xl shadow-teal-500/20">
-                <Loader2 className="w-10 h-10 animate-spin" />
-              </div>
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 animate-ping" />
-            </div>
-            
-            <div className="space-y-2 max-w-md">
-              <h3 className="text-xl font-bold text-white">
-                NOVA Intelligence is Synthesizing Your Narrative
-              </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {statusMessage || "Structuring executive summary, bullet metrics, and formatting ATS-optimized sections..."}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 text-[11px] text-teal-400 bg-teal-500/10 px-3.5 py-1.5 rounded-full border border-teal-500/20 font-bold">
-              <Sparkles className="w-3.5 h-3.5" />
-              Applying Executive Transformation Framework
-            </div>
+          <div className="py-6 sm:py-10 animate-in fade-in zoom-in-95 duration-300">
+            <ResumeProcessingLoader
+              statusMessage={statusMessage}
+              subTitle="NOVA Intelligence is actively structuring and polishing your executive resume"
+            />
           </div>
         )}
       </div>

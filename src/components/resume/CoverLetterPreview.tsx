@@ -149,14 +149,14 @@ export const CoverLetterPreview: React.FC<CoverLetterPreviewProps> = ({
       className={`bg-white text-slate-800 ${fonts.font} p-10 md:p-14 shadow-xl rounded-sm w-full max-w-[850px] mx-auto min-h-[1100px] border border-slate-200 flex flex-col justify-between print:shadow-none print:border-none print:p-8 print:m-0`}
     >
       <div>
-        {/* Executive Letterhead matching the attached Fawn Cook reference */}
+        {/* Executive Letterhead */}
         {headerLayout === "centered-letterhead" ? (
           <div className="text-center pb-6 mb-8 border-b border-slate-300">
             <h1 className="text-2xl md:text-3xl font-normal tracking-[0.3em] uppercase text-slate-800">
-              {data.sender.fullName || "FAWN COOK"}
+              {data.sender.fullName || "EXECUTIVE CANDIDATE"}
             </h1>
             <p className="text-[11px] md:text-xs font-semibold tracking-[0.25em] uppercase text-slate-600 mt-2">
-              {data.sender.title || "FINANCE & OPERATIONAL STRATEGY LEADER"}
+              {data.sender.title || "EXECUTIVE LEADER"}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[11px] font-medium tracking-[0.15em] uppercase text-slate-500 mt-2">
               {data.sender.phone && <span>{data.sender.phone}</span>}
@@ -303,13 +303,13 @@ export const CoverLetterPreview: React.FC<CoverLetterPreviewProps> = ({
             className="italic text-2xl md:text-3xl text-slate-900 font-serif"
             style={{ fontFamily: "'Brush Script MT', 'Dancing Script', 'Playfair Display', Georgia, cursive" }}
           >
-            {data.sender.fullName || "Fawn Cook"}
+            {data.sender.fullName || "Candidate Signature"}
           </span>
         </div>
 
         {/* Typed Name in Tracked Uppercase */}
         <div className="text-xs font-semibold tracking-[0.2em] uppercase text-slate-800">
-          {data.sender.fullName || "FAWN COOK"}
+          {data.sender.fullName || "CANDIDATE NAME"}
         </div>
         {data.sender.title && (
           <p className="text-[10px] tracking-[0.15em] uppercase text-slate-500 mt-0.5">

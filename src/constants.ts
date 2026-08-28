@@ -8,3 +8,4 @@ export const PHONE_NUMBER = "(717) 707-8997";
 export const ADDRESS = "8401 MAYLAND DR STE A, RICHMOND, VA, 23294, USA";
 export const LEGAL_NAME = "The Transformation Room, LLC";
 export const DONATION_TEXT = "Join us in extending transformation far beyond our boardroom. Together, we can make a difference in our communities.";
+export const SPOTIFY_PODCAST_URL = "https://open.spotify.com/show/6Q3M5tnl0UYFKVk9Kz6gaI?si=MMDHiXA1RuGLX8hkEn0u-g";

@@ -18,7 +18,9 @@ const KNOWN_WORDS = [
   "Cradlepoint", "Expert", "Implementing", "Performance", "Analysis",
   "Product", "Customer", "Process", "Quality", "Director", "Manager",
   "Optimization", "Logistics", "Distribution", "Transformation", "Infrastructure",
-  "Continuous", "Improvement", "Compliance", "Supply", "Chain", "Warehouse"
+  "Continuous", "Improvement", "Compliance", "Supply", "Chain", "Warehouse",
+  "Kubernetes", "PostgreSQL", "JavaScript", "TypeScript", "Microservices",
+  "Telecommunications", "Orchestration", "Competencies", "Accomplishments"
 ];
 
 /**
@@ -151,10 +153,16 @@ export function normalizeExtractedText(raw: string): string {
   // Step 6: Fix isolated letter glitches at start of lines or sentences
   text = text.replace(/(?:^|\n)\s*([A-Za-z])\s+([a-z]{3,})/gm, "$1$2");
 
-  // Step 7: Fix spaces before punctuation
+  // Step 7: Fix hyphenated word breaks across newlines (e.g. "Transfor-\nmation" -> "Transformation")
+  text = text.replace(/([A-Za-z]{2,})-\s*\n\s*([A-Za-z]{2,})/g, "$1$2");
+
+  // Step 8: Fix dangling conjunctions at line ends (e.g. "Strategic Planning and\nOperations" -> "Strategic Planning and Operations")
+  text = text.replace(/\b(and|&|or|with|in|the|for|to|of|at|by)\s*\n\s*([A-Za-z])/gi, "$1 $2");
+
+  // Step 9: Fix spaces before punctuation
   text = text.replace(/\s+([,.:;?!])/g, "$1");
 
-  // Step 8: Collapse excessive horizontal whitespace while preserving clean newlines
+  // Step 10: Collapse excessive horizontal whitespace while preserving clean newlines
   const lines = text.split("\n").map(l => l.replace(/[ \t]+/g, " ").trim());
   text = lines.filter(l => l.length > 0).join("\n");
 

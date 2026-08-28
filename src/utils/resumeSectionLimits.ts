@@ -1,8 +1,96 @@
 import { ResumeData, ExperienceItem, EducationItem, SkillCategory, CertificationItem, ResumeMetric, ProjectItem } from "../types/resume";
 
 /**
- * Standard Executive Section Maximums & ATS Density Rules
+ * Comprehensive technical skills dictionary and regex matcher
  */
+const TECHNICAL_TERMS_REGEX = /\b(python|sql|java|c\+\+|c#|typescript|javascript|react|node|docker|kubernetes|aws|azure|gcp|cloud|linux|unix|git|ci\/cd|api|apis|rest|graphql|kafka|redis|postgres|postgresql|mongodb|mysql|oracle|sap|erp|crm|wms|tms|cad|solidworks|matlab|plc|scada|iot|telemetry|cradlepoint|power bi|tableau|snowflake|databricks|hadoop|spark|terraform|ansible|jenkins|jira|confluence|agile|scrum|devops|microservices|html|css|bash|powershell|networking|tcp\/ip|vpn|dns|saas|paas|iaas|cybersecurity|siem|soc|etl|elt|ai|machine learning|deep learning|llm|nlp|automation|rfid|asrs|amr|robotics)\b/i;
+
+/**
+ * Meaningless noise tokens that should never be skills
+ */
+const NOISE_SKILLS = new Set([
+  "and", "or", "etc", "etc.", "etc...", "n/a", "none", "skills", "skill",
+  "other", "various", "various tools", "including", "such as", "experience",
+  "knowledge", "proficient", "familiar", "responsible", "working", "team", "tools"
+]);
+
+/**
+ * Cleans, repairs, and validates a skill tag, removing dangling conjunctions and orphan words.
+ */
+export function cleanAndValidateSkillTag(rawSkill: string): string | null {
+  if (!rawSkill || typeof rawSkill !== "string") return null;
+
+  // 1. Strip list markers, bullets, and surrounding punctuation
+  let cleaned = rawSkill
+    .replace(/^[•\-\*\u2022\u2023\u25E6\d\.\s,;:]+|[•\-\*\s,;:]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // 2. Strip leading conjunctions, prepositions, or articles (e.g. "and Operation" -> "Operation", "in Systems" -> "Systems")
+  cleaned = cleaned.replace(/^(?:and|&|or|with|in|the|for|to|of|at|a|an|as|by|including)\s+/i, "").trim();
+  cleaned = cleaned.replace(/\s+(?:and|&|or|with|in|the|for|to|of|at|etc\.?)$/i, "").trim();
+
+  // 3. Check for noise words or invalid lengths
+  if (!cleaned || cleaned.length < 2 || cleaned.length > RESUME_SECTION_LIMITS.skills.maxSkillNameChars) {
+    return null;
+  }
+
+  const lower = cleaned.toLowerCase();
+  if (NOISE_SKILLS.has(lower)) {
+    return null;
+  }
+
+  // 4. If it's a full sentence or verbose explanation, reject
+  if (cleaned.includes(".") && cleaned.split(" ").length > 3) {
+    return null;
+  }
+  if (cleaned.split(" ").length > 5) {
+    return null;
+  }
+  if (/^(responsible for|duties include|managing team|experienced in|proficient in|knowledge of|ability to|proven track)/i.test(cleaned)) {
+    return null;
+  }
+
+  // 5. Expand single-word fragments from broken lines into complete professional terminology
+  const fragmentRepairs: Record<string, string> = {
+    "operation": "Operations Management",
+    "operations": "Operations Management",
+    "leadership": "Executive Leadership",
+    "strategy": "Strategic Planning",
+    "transformation": "Operational Transformation",
+    "engineering": "Systems Engineering",
+    "infrastructure": "Infrastructure Management",
+    "optimization": "Process Optimization",
+    "architecture": "Systems Architecture",
+    "distribution": "Distribution & Logistics",
+    "compliance": "Regulatory Compliance",
+    "logistics": "Logistics Orchestration",
+    "procurement": "Strategic Sourcing & Procurement",
+    "analytics": "Data & Performance Analytics"
+  };
+
+  if (fragmentRepairs[lower]) {
+    return fragmentRepairs[lower];
+  }
+
+  // Capitalize first letter of words if all lowercase
+  if (cleaned === cleaned.toLowerCase()) {
+    cleaned = cleaned
+      .split(" ")
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  }
+
+  return cleaned;
+}
+
+/**
+ * Determines whether a skill is genuinely technical
+ */
+export function isTechnicalSkill(skill: string): boolean {
+  if (!skill) return false;
+  return TECHNICAL_TERMS_REGEX.test(skill);
+}
 export const RESUME_SECTION_LIMITS = {
   personalInfo: {
     fullNameMaxChars: 60,
@@ -206,17 +294,9 @@ export function enforceResumeSectionLimits(data: ResumeData): ResumeData {
     const categorySkills: string[] = [];
     for (const rawSkill of rawCategorySkills) {
       if (!rawSkill || typeof rawSkill !== "string") continue;
-      // Strip bullet characters and whitespace
-      const cleanSkill = rawSkill.replace(/^[•\-\*\s]+|[•\-\*\s]+$/g, "").trim();
-
-      // Filter out empty items, entire paragraphs mistakenly ingested as skills, or bloated strings
-      if (!cleanSkill || cleanSkill.length > RESUME_SECTION_LIMITS.skills.maxSkillNameChars || cleanSkill.length < 2) {
-        continue;
-      }
-      // If it looks like a full sentence with verbs and periods, skip
-      if (cleanSkill.includes(".") && cleanSkill.split(" ").length > 4) {
-        continue;
-      }
+      
+      const cleanSkill = cleanAndValidateSkillTag(rawSkill);
+      if (!cleanSkill) continue;
 
       const normalized = normalizeForComparison(cleanSkill);
       if (globalSeenSkills.has(normalized)) continue;

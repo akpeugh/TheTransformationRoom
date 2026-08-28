@@ -79,8 +79,6 @@ const stageData = [
     { title: t('ind.spec8.title'), desc: t('ind.spec8.desc'), icon: <Bot className="w-5 h-5" /> }
   ];
 
-  const [isServicesExpanded, setIsServicesExpanded] = useState(false);
-
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
       <SEO 
@@ -321,68 +319,36 @@ const stageData = [
         </div>
 
         <div className="max-w-7xl mx-auto px-4 relative z-20">
-           <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-12">
-              <div className="max-w-xl">
-                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
-                   <Activity className="w-3 h-3" /> {t('ind.spec.label')}
-                 </div>
-                 <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tighter">{t('ind.spec.title')}</h2>
-                 <p className="text-slate-500 font-light leading-relaxed">{t('ind.spec.desc')}</p>
+           <div className="max-w-3xl mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+                <Activity className="w-3 h-3" /> {t('ind.spec.label')}
               </div>
-              <button 
-                onClick={() => setIsServicesExpanded(!isServicesExpanded)}
-                className="group flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-brand-primary transition-all shadow-xl active:scale-95"
-              >
-                {isServicesExpanded ? t('ind.spec.btnCol') : t('ind.spec.btnMain')}
-                <motion.div
-                  animate={{ rotate: isServicesExpanded ? 180 : 0 }}
-                >
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </motion.div>
-              </button>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tighter">{t('ind.spec.title')}</h2>
+              <p className="text-slate-500 font-light leading-relaxed text-base md:text-lg">{t('ind.spec.desc')}</p>
            </div>
 
-           <motion.div 
-             initial={false}
-             animate={{ height: isServicesExpanded ? 'auto' : '120px' }}
-             className="overflow-hidden relative"
-           >
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
-                 {specializedServices.map((item, i) => (
-                   <motion.div 
-                     key={i}
-                     initial={{ opacity: 0 }}
-                     animate={{ opacity: 1 }}
-                     transition={{ delay: i * 0.05 }}
-                     whileHover={{ y: -5 }}
-                     className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-brand-secondary/50 hover:shadow-lg transition-all group flex items-start gap-4 cursor-default"
-                   >
-                      <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-secondary group-hover:bg-brand-secondary/10 transition-all shrink-0">
-                         {item.icon}
-                      </div>
-                      <div>
-                         <h4 className="text-slate-900 font-bold text-sm mb-1">{item.title}</h4>
-                         <AnimatePresence>
-                           {isServicesExpanded && (
-                             <motion.p 
-                               initial={{ opacity: 0, height: 0 }}
-                               animate={{ opacity: 1, height: 'auto' }}
-                               exit={{ opacity: 0, height: 0 }}
-                               className="text-[11px] text-slate-400 leading-tight font-light"
-                             >
-                                {item.desc}
-                             </motion.p>
-                           )}
-                         </AnimatePresence>
-                      </div>
-                   </motion.div>
-                 ))}
-              </div>
-              
-              {!isServicesExpanded && (
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none" />
-              )}
-           </motion.div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {specializedServices.map((item, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  whileHover={{ y: -4 }}
+                  className="p-6 rounded-3xl bg-white border border-slate-200 hover:border-brand-secondary/50 hover:shadow-xl hover:shadow-slate-200/50 transition-all group flex items-start gap-4 cursor-default"
+                >
+                   <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-brand-secondary group-hover:bg-brand-secondary/10 transition-all shrink-0">
+                      {item.icon}
+                   </div>
+                   <div className="space-y-1">
+                      <h4 className="text-slate-900 font-bold text-sm tracking-tight">{item.title}</h4>
+                      <p className="text-xs text-slate-500 leading-relaxed font-light">
+                        {item.desc}
+                      </p>
+                   </div>
+                </motion.div>
+              ))}
+           </div>
         </div>
       </section>
 
