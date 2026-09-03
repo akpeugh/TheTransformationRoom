@@ -74,8 +74,9 @@ const Organizations = () => {
   return (
     <div className="bg-slate-900 min-h-screen pb-24 font-sans selection:bg-brand-secondary selection:text-brand-dark">
       <SEO 
-        title="Organizations"
-        description="Strategic operational audits, system design, and technology implementation for high-performing organizations outgrowing operational complexity."
+        title="Enterprise Supply Chain & Warehouse Technology Consulting"
+        description="Specialized supply chain consulting, warehouse consulting, robotics automation, and enterprise AI technology integration for high-growth operations."
+        keywords="Supply chain consulting, warehouse consulting, technology consulting, AI consulting, warehouse robotics, AS/RS automation, AMR integration, operations audit, logistics engineering"
       />
       <header className="relative py-40 bg-brand-primary overflow-hidden perspective-1000">
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/40 z-10" />

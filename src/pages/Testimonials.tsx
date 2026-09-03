@@ -10,8 +10,9 @@ const Testimonials = () => {
   return (
   <div className="pt-32 pb-24 bg-slate-50">
     <SEO 
-      title="Testimonials"
-      description="Read real results and testimonials from the front lines of operations and technology integration at The Transformation Room."
+      title="Client Results & Impact | Supply Chain & Technology Consulting"
+      description="Proven transformation outcomes in supply chain consulting, warehouse automation, enterprise technology integration, and AI operational systems."
+      keywords="Supply chain consulting reviews, warehouse consulting testimonials, technology consulting results, automation client outcomes, The Transformation Room impact"
     />
     <div className="max-w-7xl mx-auto px-4">
       <div className="text-center mb-20">

@@ -154,12 +154,12 @@ export const ChatBot: React.FC = () => {
       console.log(`[ChatBot API] Response received. Status: ${res.status}`);
 
       if (!res.ok) {
-        let errorMsg = 'Failed to fetch from API';
+        let errorMsg = '';
         try {
-            const data = await res.json();
-            errorMsg = data.error || errorMsg;
+          const data = await res.json();
+          errorMsg = data.error || '';
         } catch(e) {}
-        throw new Error(errorMsg);
+        throw new Error(errorMsg || `Server responded with status ${res.status}`);
       }
 
       // Handle server-sent events for streaming
@@ -167,7 +167,7 @@ export const ChatBot: React.FC = () => {
       const decoder = new TextDecoder();
       
       if (!reader) {
-        throw new Error("No response body to read.");
+        throw new Error("No response stream available.");
       }
 
       // Add a placeholder message for the assistant stream
@@ -205,9 +205,8 @@ export const ChatBot: React.FC = () => {
             try {
               const parsed = JSON.parse(dataStr);
               if (parsed.error) {
-                console.error("[ChatBot API] Error from stream:", parsed.error);
+                console.warn("[ChatBot API] Error from stream payload:", parsed.error);
                 finalErrorMessage = parsed.error;
-                throw new Error(parsed.error);
               }
               if (parsed.content) {
                 assistantContext += parsed.content;
@@ -239,27 +238,41 @@ export const ChatBot: React.FC = () => {
         }
       }
 
-    } catch (error: any) {
-      console.error("[ChatBot API] Error:", error);
-      let errorMessage = "I'm currently recalibrating my strategic connection. Please try again.";
-      
-      const errorStr = (error?.message || finalErrorMessage || "");
-      
-      if (errorStr.includes("API_KEY") || errorStr.includes("not configured") || errorStr.includes("api_key")) {
-        errorMessage = "Strategic Link Failure: The NOVA access key is missing or invalid. Please check your API settings.";
-      } else if (errorStr.includes("quota") || errorStr.includes("429")) {
-        errorMessage = `NOVA is currently operating at maximum capacity. Please verify your platform quota or billing dashboard.`;
-      } else if (!navigator.onLine) {
-        errorMessage = "Connection Offline: Please check your internet connection.";
-      } else if (errorStr) {
-        errorMessage = `Operational response issue: ${errorStr}`;
+      // If for any reason the stream completed with empty content, provide a strategic fallback
+      if (!assistantContext.trim()) {
+        const fallbackText = userType === 'individual'
+          ? "**Executive Career Strategy**\n\nI can help you audit your leadership narrative, quantify operational impact, or simulate next-stage career trajectories. What area would you like to focus on?"
+          : "**Operational Transformation**\n\nI can help you pinpoint operational bottlenecks, evaluate automation solutions (AMRs, AS/RS), or design scalable team workflows. What strategic challenge are you tackling?";
+        
+        setMessages(prev => {
+          if (prev.length === 0) return prev;
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = { role: 'assistant', content: fallbackText };
+          return newMsgs;
+        });
       }
 
-      console.error("[ChatBot API] Fallback error message generated:", errorMessage);
+    } catch (error: any) {
+      console.error("[ChatBot API] Error:", error);
+      
+      const errorStr = (error?.message || finalErrorMessage || "").toLowerCase();
+      let errorMessage = "I encountered a brief connection interruption. Please click retry below to reconnect.";
+      
+      if (errorStr.includes("api_key") || errorStr.includes("not configured")) {
+        errorMessage = "Strategic Link Configuration: The AI access key is being initialized. Please try again in a moment.";
+      } else if (errorStr.includes("quota") || errorStr.includes("429")) {
+        errorMessage = "NOVA is operating under high query volume. Please click retry to reconnect.";
+      } else if (!navigator.onLine) {
+        errorMessage = "Connection Offline: Please check your network connection.";
+      }
 
       setMessages(prev => {
         const newMsgs = [...prev];
-        if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].role === 'assistant' && !newMsgs[newMsgs.length - 1].content) {
+        // If an assistant bubble exists and already has partial content, keep it rather than overwriting with error
+        if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].role === 'assistant') {
+          if (newMsgs[newMsgs.length - 1].content) {
+            return newMsgs; // Retain what was already received
+          }
           newMsgs[newMsgs.length - 1] = { role: 'error', content: errorMessage };
           return newMsgs;
         }

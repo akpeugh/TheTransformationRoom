@@ -432,8 +432,9 @@ const CareerTool = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans flex flex-col md:flex-row overflow-hidden pt-16">
       <SEO 
-        title="Career Hub"
-        description="Explore your professional DNA with NOVA Intelligence. Use our Career Path Simulator, Resume Optimizer, and Behavioral Traits Assessment."
+        title="Supply Chain & Tech Career Hub | NOVA AI Intelligence"
+        description="AI-driven career path simulation, executive resume optimization, and behavioral traits assessment for supply chain, warehouse, and technology leaders."
+        keywords="Supply chain career hub, warehouse operations career simulator, technology leadership assessment, AI resume optimizer, operations talent development"
       />
 
       {/* Nova Strategic Companion Overlay */}

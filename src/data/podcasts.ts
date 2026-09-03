@@ -18,6 +18,13 @@ export const PODCASTS: Podcast[] = [
     type: "Latest Episode"
   },
   {
+    id: "stop-calling-everything-transformation",
+    title: "Stop Calling Everything Transformation",
+    description: "Changing your software without changing your behavior isn't a digital transformation - it's just a very expensive way to keep doing the exact same thing.",
+    url: "https://storage.googleapis.com/thetransformationroomassets/Stop%20calling%20everything%20Transformation.m4a",
+    type: "Digital & Cultural Transformation"
+  },
+  {
     id: "ai-fluent-humans",
     title: "Why Robots Need AI Fluent Humans",
     description: "Exploring the critical intersection of human intuition and artificial intelligence in modern operational ecosystems. A deep dive into why technical automation alone is a trap.",

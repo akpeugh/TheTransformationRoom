@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Scale, ShieldCheck, AlertTriangle } from "lucide-react";
 import { LEGAL_NAME, ADDRESS } from "../constants";
+import SEO from "../components/SEO";
 
 const TermsOfService = () => {
   useEffect(() => {
@@ -9,6 +10,10 @@ const TermsOfService = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+      <SEO 
+        title="Terms of Service"
+        description="Terms and conditions for consulting services and digital tools provided by The Transformation Room, LLC."
+      />
       <div className="max-w-4xl mx-auto px-4">
         
         {/* Header section */}

@@ -50,8 +50,9 @@ const About = () => {
   return (
     <div>
       <SEO 
-        title="About Us"
-        description="Meet the practitioners behind The Transformation Room. We specialize in industrial systems, cognitive strategy, and workforce transformation."
+        title="About Our Supply Chain, Warehouse & Technology Consultants"
+        description="Meet the industry practitioners leading The Transformation Room in supply chain consulting, warehouse optimization, technology integration, and applied AI strategy."
+        keywords="Supply chain consulting, warehouse consulting, technology consulting, AI consulting, operational transformation, industrial robotics consultants, leadership team"
       />
       <section className="bg-slate-50 pt-40 pb-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-brand-primary/5 -skew-x-12 translate-x-1/2" />

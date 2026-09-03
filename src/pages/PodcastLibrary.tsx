@@ -95,8 +95,9 @@ const PodcastLibrary = () => {
   return (
     <div className="bg-slate-950 min-h-screen pb-24 font-sans selection:bg-brand-secondary selection:text-brand-dark">
       <SEO 
-        title="Podcast Library"
-        description="Listen to strategic insights at the intersection of industrial systems, cognitive strategy, and workforce transformation from The Transformation Room."
+        title="Supply Chain, Warehouse & Technology Transformation Podcasts"
+        description="Listen to executive discussions on supply chain consulting, warehouse operations, technology implementation, and enterprise AI leadership from The Transformation Room."
+        keywords="Supply chain podcast, warehouse operations podcast, technology consulting audio, AI operations insights, industrial automation podcast, The Transformation Room"
         url="https://thetransformationroom.com/podcasts"
         schema={podcastSchema}
       />

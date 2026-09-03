@@ -197,8 +197,9 @@ const Home = () => {
   return (
     <div className="bg-slate-900">
       <SEO 
-        title="Home"
-        description="Professional operations and technology consulting specializing in warehouse automation, workforce strategy, and scalable systems."
+        title="Supply Chain, Warehouse, Technology & AI Consulting"
+        description="Premier supply chain consulting, warehouse consulting, technology consulting, and AI consulting firm. We align people, connect systems, and drive measurable operational results."
+        keywords="Supply chain consulting, warehouse consulting, technology consulting, AI consulting, warehouse automation, robotics integration, supply chain optimization, operations strategy, logistics technology, enterprise AI, The Transformation Room"
         schema={{
           "@context": "https://schema.org",
           "@graph": [ORGANIZATION_SCHEMA, WEBSITE_SCHEMA]

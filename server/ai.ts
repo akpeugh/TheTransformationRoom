@@ -47,16 +47,16 @@ export async function generateAIContent({
 }): Promise<string> {
   const { genAIClient, openAIClient } = getAIClient();
 
-  // 1. Try Gemini if available
+  // 1. Try Gemini primary model (gemini-3.7-flash) and fallbacks
   if (genAIClient && process.env.GEMINI_API_KEY) {
-    const modelsToTry = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash", "gemini-3.7-flash"];
+    const modelsToTry = ["gemini-3.7-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
     for (const modelName of modelsToTry) {
       try {
         const response = await genAIClient.models.generateContent({
           model: modelName,
           contents: prompt,
           config: {
-            systemInstruction: systemInstruction || "You are an expert executive resume and career coach.",
+            systemInstruction: systemInstruction || "You are an expert executive resume and career coach at The Transformation Room.",
             responseMimeType: jsonMode ? "application/json" : "text/plain",
             temperature: 0.2,
           },
@@ -71,12 +71,12 @@ export async function generateAIContent({
           return text;
         }
       } catch (err: any) {
-        console.warn(`[AI Server] Gemini model ${modelName} call failed:`, err.message);
+        console.warn(`[AI Server] Gemini model ${modelName} call failed:`, err.message || err);
       }
     }
   }
 
-  // 2. Try OpenAI if Gemini not available or failed
+  // 2. Try OpenAI if Gemini was unavailable or failed
   if (openAIClient) {
     try {
       const messages: any[] = [];
@@ -96,12 +96,14 @@ export async function generateAIContent({
       if (jsonMode) {
         content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
       }
-      return content;
+      if (content.trim().length > 0) {
+        return content;
+      }
     } catch (err: any) {
-      console.error("[AI Server] OpenAI call failed:", err.message);
-      throw err;
+      console.warn("[AI Server] OpenAI call failed:", err.message || err);
     }
   }
 
-  throw new Error("No AI API client is configured (neither GEMINI_API_KEY nor OPENAI_API_KEY found).");
+  throw new Error("AI services currently unavailable. Please verify API configuration.");
 }
+

@@ -445,6 +445,9 @@ export const translations: TranslationsList = {
     "pod.data.best-employee-problem.type": "Leadership & Culture",
     "pod.data.best-employee-problem.title": "Your Best Employee Is Probably Hiding Your Biggest Problem",
     "pod.data.best-employee-problem.desc": "When star performers compensate for broken processes, leaders mistake heroics for operational excellence.",
+    "pod.data.stop-calling-everything-transformation.type": "Digital & Cultural Transformation",
+    "pod.data.stop-calling-everything-transformation.title": "Stop Calling Everything Transformation",
+    "pod.data.stop-calling-everything-transformation.desc": "Changing your software without changing your behavior isn't a digital transformation - it's just a very expensive way to keep doing the exact same thing.",
 
     // Testimonials
     "test.hero.label": "IMPACT & EVIDENCE",
@@ -1017,6 +1020,9 @@ export const translations: TranslationsList = {
     "pod.data.best-employee-problem.type": "Liderazgo y Cultura",
     "pod.data.best-employee-problem.title": "Tu Mejor Empleado Probablemente Está Ocultando Tu Mayor Problema",
     "pod.data.best-employee-problem.desc": "Cuando los colaboradores estrella compensan procesos rotos, los líderes confunden el heroísmo con la excelencia operativa.",
+    "pod.data.stop-calling-everything-transformation.type": "Transformación Digital y Cultural",
+    "pod.data.stop-calling-everything-transformation.title": "Deja de Llamarle Transformación a Todo",
+    "pod.data.stop-calling-everything-transformation.desc": "Cambiar tu software sin cambiar tu comportamiento no es una transformación digital: es solo una forma muy costosa de seguir haciendo exactamente lo mismo.",
 
     // Testimonials
     "test.hero.label": "IMPACTO Y EVIDENCIA",

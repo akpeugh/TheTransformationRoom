@@ -46,6 +46,7 @@ const ImpactSimulator = lazyWithRetry(() => import("./pages/ImpactSimulator"));
 const ResumeBuilder = lazyWithRetry(() => import("./pages/ResumeBuilder"));
 const PrivacyPolicy = lazyWithRetry(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazyWithRetry(() => import("./pages/TermsOfService"));
+const CookiePolicy = lazyWithRetry(() => import("./pages/CookiePolicy"));
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -164,6 +165,8 @@ export default function App() {
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms-of-service" element={<TermsOfService />} />
                   <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
+                  <Route path="/cookie-policy" element={<CookiePolicy />} />
+                  <Route path="/cookies" element={<Navigate to="/cookie-policy" replace />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Suspense>

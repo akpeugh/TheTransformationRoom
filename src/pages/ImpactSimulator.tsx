@@ -473,8 +473,9 @@ export default function ImpactSimulator() {
   return (
     <div className="min-h-screen bg-[#05070a] text-white pt-24 pb-20 selection:bg-brand-secondary/30">
       <SEO 
-        title="Impact Simulator"
-        description="Calculate your estimated 5-year value potential and net ROI with our high-fidelity operational foresight engine."
+        title="Supply Chain & Warehouse ROI Simulator | Technology Consulting"
+        description="Simulate 5-year operational ROI, labor efficiency, and throughput gains for warehouse automation, supply chain upgrades, and AI technology consulting."
+        keywords="Supply chain consulting, warehouse consulting, technology consulting, AI consulting, warehouse automation ROI, supply chain ROI simulator, robotics cost benefit, operations financial model"
       />
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

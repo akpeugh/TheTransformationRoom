@@ -129,7 +129,7 @@ export const Footer = () => {
         <div className="flex gap-8">
           <Link to="/privacy-policy" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Privacy Policy</Link>
           <Link to="/terms-of-service" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Terms of Service</Link>
-          <a href="#" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Cookie Policy</a>
+          <Link to="/cookie-policy" className="text-[10px] text-slate-500 uppercase tracking-widest font-bold hover:text-white transition-colors">Cookie Policy</Link>
         </div>
       </div>
     </div>

@@ -97,8 +97,9 @@ const Contact = ({ aiConsultationData }: { aiConsultationData?: { summary: strin
   return (
     <div>
       <SEO 
-        title="Contact"
-        description="Get in touch with The Transformation Room. Whether you're an organization looking for operational strategy or an individual looking for a career shift, we're here to help."
+        title="Contact Supply Chain & Warehouse Technology Consultants"
+        description="Connect with our supply chain consulting, warehouse consulting, technology consulting, and AI consulting specialists to schedule an operational audit or strategy session."
+        keywords="Supply chain consulting, warehouse consulting, technology consulting, AI consulting, operational audit, warehouse automation discovery, contact consultants"
       />
       <section className="bg-slate-900 pt-40 pb-24 text-white">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-20">

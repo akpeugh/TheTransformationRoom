@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Shield } from "lucide-react";
 import { LEGAL_NAME } from "../constants";
+import SEO from "../components/SEO";
 
 const PrivacyPolicy = () => {
   useEffect(() => {
@@ -9,6 +10,10 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pt-32 pb-24">
+      <SEO 
+        title="Privacy Policy"
+        description="Privacy policy and data governance practices at The Transformation Room, LLC."
+      />
       <div className="max-w-4xl mx-auto px-4">
         
         {/* Header section */}
@@ -41,7 +46,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Personal Data:</strong> Name, email address, phone number, and any other details you provide via contact forms, inquiries, or account registration.</li>
                 <li><strong>Professional Information:</strong> Job title, company name, resumes/CVs, and career history submitted through our tools (e.g., Resume Optimizer, Career Path Simulator).</li>
                 <li><strong>Operational Data:</strong> Input provided for simulations and assessments related to your organization's processes and goals.</li>
-                <li><strong>Automatically Collected Information:</strong> IP address, browser type, device details, and usage metrics collected via cookies and analytics tools to improve website performance.</li>
+                <li><strong>Automatically Collected Information:</strong> IP address, browser type, device details, and usage metrics collected via cookies, browser storage, and analytics tools to improve website performance. For detailed information on our use of tracking technologies, please review our <a href="/cookie-policy" className="text-brand-primary underline font-medium">Cookie Policy</a>.</li>
               </ul>
             </section>
 

@@ -82,8 +82,9 @@ const stageData = [
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
       <SEO 
-        title="Individuals"
-        description="Career transformation tools, resume optimization, and personal growth paths for the modern workforce using NOVA AI Intelligence."
+        title="Workforce Transformation & AI Career Consulting"
+        description="Career transformation tools, executive resume optimization, and operational leadership growth paths for supply chain and technology professionals."
+        keywords="Workforce transformation, supply chain career consulting, warehouse leadership career path, technology talent strategy, AI career coaching"
       />
       <header className="relative py-40 bg-slate-900 overflow-hidden perspective-1000">
         <motion.div style={{ y: yHero, opacity: opacityHero }} className="absolute inset-0 bg-brand-dark/50 mix-blend-overlay z-10" />
