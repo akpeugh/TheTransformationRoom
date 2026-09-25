@@ -114,7 +114,11 @@ export const Footer = () => {
             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6 underline underline-offset-4">{t("footer.office")}</h4>
             <div className="space-y-4 opacity-70">
               <p className="text-slate-400 text-xs font-medium">{PHONE_NUMBER}</p>
-              <p className="text-slate-400 text-xs font-medium">katie@thetransformationroom.com</p>
+              <p className="text-slate-400 text-xs font-medium">
+                <a href="mailto:support@thetransformationroom.com" className="hover:text-brand-secondary transition-colors">
+                  support@thetransformationroom.com
+                </a>
+              </p>
             </div>
           </div>
         </div>

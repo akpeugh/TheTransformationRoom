@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { ResumeData, ExperienceItem, EducationItem, SkillCategory, CertificationItem } from "../../types/resume";
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp, User, Briefcase, GraduationCap, Award, Cpu, Zap, ShieldCheck } from "lucide-react";
 import { calculateResumeScore } from "../../utils/resumeScoreEngine";
+import { VoiceInputButton } from "../VoiceInputButton";
 
 interface ResumeEditorProps {
   data: ResumeData;
@@ -226,7 +227,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-slate-900">
       {/* Live Mini Resume Score Banner */}
       <div className="bg-slate-900 text-white p-3.5 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-2.5">
@@ -267,7 +268,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? "bg-brand-primary text-white shadow-sm"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -279,68 +280,68 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
       {/* Personal Info Section */}
       {activeSection === "personal" && (
-        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
+        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <User className="w-4 h-4 text-brand-secondary" /> Contact Details & Identity
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Full Name</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">Full Name</label>
               <input
                 type="text"
                 value={data.personalInfo.fullName}
                 onChange={(e) => updatePersonalInfo("fullName", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="e.g. Alex Rivera"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Target Title</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">Target Title</label>
               <input
                 type="text"
                 value={data.personalInfo.targetTitle}
                 onChange={(e) => updatePersonalInfo("targetTitle", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="e.g. Director of Operations & Automation"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Email</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">Email</label>
               <input
                 type="email"
                 value={data.personalInfo.email}
                 onChange={(e) => updatePersonalInfo("email", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="alex@example.com"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Phone</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">Phone</label>
               <input
                 type="text"
                 value={data.personalInfo.phone}
                 onChange={(e) => updatePersonalInfo("phone", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="(555) 000-0000"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Location</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">Location</label>
               <input
                 type="text"
                 value={data.personalInfo.location}
                 onChange={(e) => updatePersonalInfo("location", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="Richmond, VA"
               />
             </div>
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">LinkedIn Profile</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">LinkedIn Profile</label>
               <input
                 type="text"
                 value={data.personalInfo.linkedin}
                 onChange={(e) => updatePersonalInfo("linkedin", e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-brand-secondary outline-none transition-all"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
                 placeholder="linkedin.com/in/username"
               />
             </div>
@@ -350,35 +351,45 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
       {/* Summary Section */}
       {activeSection === "summary" && (
-        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
-          <div className="flex justify-between items-center">
+        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
+          <div className="flex flex-wrap justify-between items-center gap-2">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
               <Zap className="w-4 h-4 text-brand-secondary" /> Executive Summary & Narrative
             </h3>
-            <span className="text-[10px] text-slate-400">{data.summary?.length || 0} characters</span>
+            <div className="flex items-center gap-2.5">
+              <VoiceInputButton
+                onTranscript={(spoken) => {
+                  const current = data.summary || "";
+                  const sep = current.trim() ? " " : "";
+                  updateSummary(current + sep + spoken);
+                }}
+                label="Talk to Text"
+              />
+              <span className="text-[10px] text-slate-600 font-bold">{data.summary?.length || 0} characters</span>
+            </div>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600 font-medium">
             Write a powerful 2–4 sentence synthesis framing your transformation philosophy, scale of impact, and core domain authority.
           </p>
           <textarea
             value={data.summary}
             onChange={(e) => updateSummary(e.target.value)}
             rows={5}
-            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:border-brand-secondary outline-none transition-all resize-y"
-            placeholder="Executive summary describing your systems thinking and track record..."
+            className="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-brand-secondary focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y placeholder:text-slate-400"
+            placeholder="Executive summary describing your systems thinking and track record (or click Talk to Text to speak)..."
           />
         </div>
       )}
 
       {/* Metrics Section */}
       {activeSection === "metrics" && (
-        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
+        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-brand-secondary" /> Standout Impact Metrics Banner
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">Top quantifiable stats displayed on select modern templates.</p>
+              <p className="text-xs text-slate-600 font-medium mt-0.5">Top quantifiable stats displayed on select modern templates.</p>
             </div>
             <button
               onClick={addMetric}
@@ -397,14 +408,14 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                     value={m.value}
                     onChange={(e) => updateMetric(idx, "value", e.target.value)}
                     placeholder="e.g. $14.2M or +38%"
-                    className="w-full text-xs font-bold text-slate-900 bg-white px-2 py-1 rounded border border-slate-200 outline-none"
+                    className="w-full text-xs font-bold text-slate-900 bg-white px-2.5 py-1.5 rounded border border-slate-300 focus:border-brand-secondary outline-none placeholder:text-slate-400"
                   />
                   <input
                     type="text"
                     value={m.label}
                     onChange={(e) => updateMetric(idx, "label", e.target.value)}
                     placeholder="e.g. Cost Savings Delivered"
-                    className="w-full text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 outline-none"
+                    className="w-full text-[11px] font-semibold text-slate-700 bg-white px-2.5 py-1 rounded border border-slate-300 focus:border-brand-secondary outline-none placeholder:text-slate-400"
                   />
                 </div>
                 <button
@@ -421,13 +432,13 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
       {/* Experience Section */}
       {activeSection === "experience" && (
-        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
+        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Briefcase className="w-4 h-4 text-brand-secondary" /> Work History & Roles
               </h3>
-              <p className="text-xs text-slate-500">Highlight achievements using action verbs and measurable metrics.</p>
+              <p className="text-xs text-slate-600 font-medium">Highlight achievements using action verbs and measurable metrics.</p>
             </div>
             <button
               onClick={addExperience}
@@ -447,14 +458,14 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                       value={exp.role}
                       onChange={(e) => updateExperience(exp.id, "role", e.target.value)}
                       placeholder="Role Title (e.g. Senior Director of Operations)"
-                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-brand-secondary"
+                      className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-brand-secondary focus:ring-1 focus:ring-teal-500/20 placeholder:text-slate-400"
                     />
                     <input
                       type="text"
                       value={exp.company}
                       onChange={(e) => updateExperience(exp.id, "company", e.target.value)}
                       placeholder="Company Name"
-                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none focus:border-brand-secondary"
+                      className="px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-brand-secondary focus:ring-1 focus:ring-teal-500/20 placeholder:text-slate-400"
                     />
                     <div className="flex gap-2">
                       <input
@@ -462,7 +473,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                         value={exp.startDate}
                         onChange={(e) => updateExperience(exp.id, "startDate", e.target.value)}
                         placeholder="Start (2022)"
-                        className="w-1/2 px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] outline-none"
+                        className="w-1/2 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-[11px] font-medium text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                       />
                       <input
                         type="text"
@@ -470,7 +481,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                         onChange={(e) => updateExperience(exp.id, "endDate", e.target.value)}
                         disabled={exp.current}
                         placeholder="End (2024)"
-                        className="w-1/2 px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] outline-none disabled:bg-slate-100"
+                        className="w-1/2 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-[11px] font-medium text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-500"
                       />
                     </div>
                     <div className="flex items-center gap-4">
@@ -479,9 +490,9 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                         value={exp.location}
                         onChange={(e) => updateExperience(exp.id, "location", e.target.value)}
                         placeholder="Location (e.g. Richmond, VA)"
-                        className="flex-grow px-2 py-1 bg-white border border-slate-200 rounded-lg text-[11px] outline-none"
+                        className="flex-grow px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-[11px] font-medium text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                       />
-                      <label className="flex items-center gap-1.5 text-[11px] text-slate-600 font-medium cursor-pointer shrink-0">
+                      <label className="flex items-center gap-1.5 text-[11px] text-slate-700 font-bold cursor-pointer shrink-0">
                         <input
                           type="checkbox"
                           checked={exp.current}
@@ -504,7 +515,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                 {/* Highlights list */}
                 <div className="space-y-2 pt-2 border-t border-slate-200">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Accomplishment Bullets</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-700">Accomplishment Bullets</span>
                     <button
                       onClick={() => addHighlight(exp.id)}
                       className="text-[11px] font-bold text-brand-primary hover:text-brand-dark flex items-center gap-1 cursor-pointer"
@@ -514,15 +525,24 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                   </div>
                   {exp.highlights.map((bullet, bulletIdx) => (
                     <div key={bulletIdx} className="flex items-start gap-2 group">
-                      <span className="text-slate-400 text-xs mt-2">•</span>
+                      <span className="text-slate-700 text-sm mt-1 font-bold">•</span>
                       <textarea
                         value={bullet}
                         onChange={(e) => updateHighlight(exp.id, bulletIdx, e.target.value)}
                         rows={2}
-                        className="flex-grow p-2 bg-white border border-slate-200 rounded-lg text-xs leading-relaxed outline-none focus:border-brand-secondary resize-none"
+                        className="flex-grow p-2.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 leading-relaxed outline-none focus:border-brand-secondary focus:ring-1 focus:ring-teal-500/20 placeholder:text-slate-400 resize-none"
                         placeholder="Action verb + Context + Quantifiable Metric..."
                       />
                       <div className="flex flex-col gap-1 shrink-0 pt-1">
+                        <VoiceInputButton
+                          onTranscript={(spoken) => {
+                            const current = bullet || "";
+                            const sep = current.trim() ? " " : "";
+                            updateHighlight(exp.id, bulletIdx, current + sep + spoken);
+                          }}
+                          iconOnly
+                          size="sm"
+                        />
                         <button
                           onClick={() => onEnhanceBullet(bullet, exp.id, bulletIdx)}
                           className="p-1.5 bg-brand-secondary/15 hover:bg-brand-secondary text-brand-primary rounded-lg text-xs transition-all flex items-center gap-1 cursor-pointer font-bold"
@@ -532,7 +552,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                         </button>
                         <button
                           onClick={() => removeHighlight(exp.id, bulletIdx)}
-                          className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
                           title="Delete Bullet"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -549,13 +569,13 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
       {/* Skills Section */}
       {activeSection === "skills" && (
-        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
+        <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Cpu className="w-4 h-4 text-brand-secondary" /> Core Competencies & Skills Groups
               </h3>
-              <p className="text-xs text-slate-500">Group skills by category and separate items with commas.</p>
+              <p className="text-xs text-slate-600 font-medium">Group skills by category and separate items with commas.</p>
             </div>
             <button
               onClick={addSkillCategory}
@@ -574,7 +594,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                     value={cat.category}
                     onChange={(e) => updateSkillCategoryName(cat.id, e.target.value)}
                     placeholder="Category (e.g. Automation Systems)"
-                    className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 outline-none w-1/2"
+                    className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400 w-1/2"
                   />
                   <button
                     onClick={() => removeSkillCategory(cat.id)}
@@ -584,13 +604,13 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                   </button>
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block mb-1">Comma-separated skills</label>
+                  <label className="text-[10px] text-slate-700 uppercase tracking-wider font-bold block mb-1">Comma-separated skills</label>
                   <input
                     type="text"
                     value={cat.skills.join(", ")}
                     onChange={(e) => updateSkillTags(cat.id, e.target.value)}
                     placeholder="AMR/AGV, WMS, Lean Six Sigma, Python"
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 outline-none"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -601,7 +621,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
       {/* Education & Certs Section */}
       {activeSection === "education" && (
-        <div className="space-y-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200">
+        <div className="space-y-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-200 text-slate-900">
           {/* Education */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
@@ -624,28 +644,28 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                       value={edu.degree}
                       onChange={(e) => updateEducation(edu.id, "degree", e.target.value)}
                       placeholder="Degree (e.g. Master of Science)"
-                      className="px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold outline-none"
+                      className="px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-bold text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                     />
                     <input
                       type="text"
                       value={edu.field}
                       onChange={(e) => updateEducation(edu.id, "field", e.target.value)}
                       placeholder="Field (e.g. Industrial Engineering)"
-                      className="px-2 py-1 bg-white border border-slate-200 rounded text-xs outline-none"
+                      className="px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-semibold text-slate-800 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                     />
                     <input
                       type="text"
                       value={edu.institution}
                       onChange={(e) => updateEducation(edu.id, "institution", e.target.value)}
                       placeholder="Institution / University"
-                      className="px-2 py-1 bg-white border border-slate-200 rounded text-xs outline-none"
+                      className="px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-800 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                     />
                     <input
                       type="text"
                       value={edu.graduationDate}
                       onChange={(e) => updateEducation(edu.id, "graduationDate", e.target.value)}
                       placeholder="Graduation Year (2020)"
-                      className="px-2 py-1 bg-white border border-slate-200 rounded text-xs outline-none"
+                      className="px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-800 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                     />
                   </div>
                   <button onClick={() => removeEducation(edu.id)} className="p-1 text-slate-400 hover:text-red-500">
@@ -676,21 +696,21 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
                   value={cert.name}
                   onChange={(e) => updateCertification(cert.id, "name", e.target.value)}
                   placeholder="Cert Name (e.g. Lean Six Sigma Black Belt)"
-                  className="w-1/2 px-2 py-1 bg-white border border-slate-200 rounded text-xs font-bold outline-none"
+                  className="w-1/2 px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-bold text-slate-900 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                 />
                 <input
                   type="text"
                   value={cert.issuer}
                   onChange={(e) => updateCertification(cert.id, "issuer", e.target.value)}
                   placeholder="Issuer (e.g. ASQ / APICS)"
-                  className="w-1/3 px-2 py-1 bg-white border border-slate-200 rounded text-xs outline-none"
+                  className="w-1/3 px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-800 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                 />
                 <input
                   type="text"
                   value={cert.date}
                   onChange={(e) => updateCertification(cert.id, "date", e.target.value)}
                   placeholder="Year"
-                  className="w-1/6 px-2 py-1 bg-white border border-slate-200 rounded text-xs outline-none"
+                  className="w-1/6 px-2.5 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-800 outline-none focus:border-brand-secondary placeholder:text-slate-400"
                 />
                 <button onClick={() => removeCertification(cert.id)} className="p-1 text-slate-400 hover:text-red-500">
                   <Trash2 className="w-4 h-4" />

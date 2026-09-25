@@ -52,10 +52,26 @@ export interface SharedCareerProfile {
   lastUpdated: string;
   careerGoal?: string;
   currentTitle?: string;
+  candidateName?: string;
+  currentCompany?: string;
+  yearsExperience?: string;
+  currentAccomplishments?: string;
+  currentSkills?: string;
   targetRole?: string;
+  targetCompany?: string;
   targetIndustry?: string;
+  targetJobDescription?: string;
+  targetSalary?: string;
+  targetLocation?: string;
   biggestGap?: string;
   experienceLevel?: string;
+  conflictDynamics?: string;
+  riskThreshold?: string;
+  transformationStyle?: string;
+  careerValue?: string;
+  companyCulture?: string[];
+  rawResumeText?: string;
+  uploadedResumeData?: any;
   behavioralAssessment?: BehavioralAssessmentData;
   simulatorData?: CareerSimulatorData;
   chatInsights?: ChatInsightData;
@@ -64,7 +80,67 @@ export interface SharedCareerProfile {
 
 export type CareerProfile = SharedCareerProfile;
 
-const STORAGE_KEY = "ttr_career_hub_shared_profile_v1";
+const SESSION_STORAGE_KEY = "ttr_career_session_profile_v2";
+const RESUME_WORKSPACE_KEY = "ttr_user_session_resume_workspace_v3";
+
+// Clean up legacy global localStorage keys if present to avoid cross-user bleeding
+if (typeof window !== "undefined") {
+  try {
+    localStorage.removeItem("ttr_career_hub_shared_profile_v1");
+    localStorage.removeItem("trm_resume_autosave_v2");
+    localStorage.removeItem("ttr_resume_studio_autosave_v2");
+  } catch (_) {}
+}
+
+// Sync uploaded or edited resume directly to the user's active session workspace
+export function syncResumeToWorkspace(resumeData: any, rawText?: string): void {
+  try {
+    if (typeof window !== "undefined") {
+      const existingRaw = sessionStorage.getItem(RESUME_WORKSPACE_KEY);
+      let payload: any = {};
+      if (existingRaw) {
+        try {
+          payload = JSON.parse(existingRaw);
+        } catch (_) {}
+      }
+
+      payload = {
+        ...payload,
+        version: 3,
+        updatedAt: new Date().toISOString(),
+        resumeData
+      };
+
+      sessionStorage.setItem(RESUME_WORKSPACE_KEY, JSON.stringify(payload));
+      window.dispatchEvent(new CustomEvent("ttr:resume-workspace-updated", { detail: payload }));
+    }
+
+    // Also update career store with key profile attributes
+    updateSharedCareerProfile({
+      candidateName: resumeData.personalInfo?.fullName || "",
+      currentTitle: resumeData.experiences?.[0]?.role || resumeData.personalInfo?.targetTitle || "",
+      currentCompany: resumeData.experiences?.[0]?.company || "",
+      targetRole: resumeData.personalInfo?.targetTitle || "",
+      rawResumeText: rawText || "",
+      uploadedResumeData: resumeData,
+      currentSkills: (resumeData.skills || []).flatMap((s: any) => s.skills || []).slice(0, 10).join(", "),
+      currentAccomplishments: (resumeData.experiences || []).flatMap((e: any) => e.highlights || []).slice(0, 4).join("\n")
+    });
+  } catch (err) {
+    console.error("Failed to sync resume to workspace:", err);
+  }
+}
+
+// Retrieve the session resume workspace
+export function getResumeWorkspace(): any | null {
+  try {
+    if (typeof window !== "undefined") {
+      const raw = sessionStorage.getItem(RESUME_WORKSPACE_KEY);
+      if (raw) return JSON.parse(raw);
+    }
+  } catch (_) {}
+  return null;
+}
 
 // Subscribe to shared profile changes
 export function subscribeToCareerProfile(callback: (profile: SharedCareerProfile) => void): () => void {
@@ -75,15 +151,17 @@ export function subscribeToCareerProfile(callback: (profile: SharedCareerProfile
   return () => window.removeEventListener("ttr:career-profile-updated", handler);
 }
 
-// Retrieve current shared profile
+// Retrieve current shared profile for this user's session
 export function getSharedCareerProfile(): SharedCareerProfile {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
+    if (typeof window !== "undefined") {
+      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
     }
   } catch (e) {
-    console.warn("Failed to load shared career profile:", e);
+    console.warn("Failed to load session career profile:", e);
   }
 
   return {
@@ -97,7 +175,7 @@ export function getSharedCareerProfile(): SharedCareerProfile {
   };
 }
 
-// Save or merge updates into shared profile
+// Save or merge updates into session profile
 export function updateSharedCareerProfile(updates: Partial<SharedCareerProfile>): SharedCareerProfile {
   const current = getSharedCareerProfile();
   const updated: SharedCareerProfile = {
@@ -107,11 +185,13 @@ export function updateSharedCareerProfile(updates: Partial<SharedCareerProfile>)
   };
 
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    // Dispatch global event for reactive UI updates across all components
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+    }
+    // Dispatch global event for reactive UI updates across all components in this session
     window.dispatchEvent(new CustomEvent("ttr:career-profile-updated", { detail: updated }));
   } catch (e) {
-    console.error("Failed to save shared career profile:", e);
+    console.error("Failed to save session career profile:", e);
   }
 
   return updated;

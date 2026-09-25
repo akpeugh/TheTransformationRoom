@@ -555,6 +555,116 @@ ${JSON.stringify(careerProfile || {}, null, 2)}`;
     }
   });
 
+  // --- /api/extract-job-url route: Extract job details and description from a pasted URL or webpage ---
+  app.post("/api/extract-job-url", async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url || typeof url !== "string" || !url.trim()) {
+        return res.status(400).json({ error: "Missing or invalid job URL." });
+      }
+
+      const trimmedUrl = url.trim();
+      console.log(`[Server] Fetching job posting from URL: ${trimmedUrl}`);
+
+      // Validate URL format
+      let parsedUrl: URL;
+      try {
+        parsedUrl = new URL(trimmedUrl.startsWith("http") ? trimmedUrl : `https://${trimmedUrl}`);
+      } catch {
+        return res.status(400).json({ error: "Please enter a valid web URL (e.g. https://...)." });
+      }
+
+      let pageText = "";
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+
+        const response = await fetch(parsedUrl.toString(), {
+          signal: controller.signal,
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9"
+          }
+        });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const html = await response.text();
+        // Strip non-content blocks
+        let cleaned = html
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ")
+          .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ")
+          .replace(/<svg\b[^<]*(?:(?!<\/svg>)<[^<]*)*<\/svg>/gi, " ")
+          .replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, " ")
+          .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, " ")
+          .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, " ")
+          .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, " ");
+
+        // Convert block elements to spacing
+        cleaned = cleaned.replace(/<(?:p|div|h[1-6]|li|br|tr)[^>]*>/gi, "\n");
+        cleaned = cleaned.replace(/<[^>]+>/g, " ");
+        cleaned = cleaned
+          .replace(/&nbsp;/g, " ")
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'");
+
+        pageText = cleaned.replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n\n").trim();
+        
+        if (pageText.length > 25000) {
+          pageText = pageText.substring(0, 25000);
+        }
+      } catch (fetchErr: any) {
+        console.warn(`[Server] Web fetch failed for ${trimmedUrl}:`, fetchErr.message);
+        return res.status(422).json({
+          error: "Unable to automatically fetch content from this link (the website may restrict automated access or require login). You can paste the job description text directly into the Paste area below.",
+          url: trimmedUrl
+        });
+      }
+
+      if (!pageText || pageText.length < 50) {
+        return res.status(422).json({
+          error: "No readable job content found at this link. Please copy and paste the job description text directly into the description box.",
+          url: trimmedUrl
+        });
+      }
+
+      const systemInstruction = `You are an elite Executive Talent Acquisition Strategist at The Transformation Room.
+Extract and structure the key job posting details from the raw page content.
+Return a clean, strictly valid JSON object matching:
+{
+  "targetRole": string,
+  "targetCompany": string,
+  "targetIndustry": string,
+  "targetSalary": string,
+  "targetLocation": string,
+  "jobDescription": string,
+  "keySkills": string[],
+  "leadershipTier": string
+}`;
+
+      const prompt = `Webpage URL: ${trimmedUrl}\n\nWebpage Content:\n${pageText}`;
+
+      const aiResponse = await generateAIContent({
+        systemInstruction,
+        prompt,
+        jsonMode: true,
+      });
+
+      const parsedResult = extractJSON(aiResponse);
+      return res.json({ success: true, url: trimmedUrl, ...parsedResult });
+    } catch (err: any) {
+      console.error("[Server] Error in /api/extract-job-url:", err.message || err);
+      res.status(500).json({ error: err.message || "Failed to process job URL" });
+    }
+  });
+
   // --- /api/resume/suggestions route: AI content suggestions, bullet generators, summary variations & JD matching ---
   app.post("/api/resume/suggestions", async (req, res) => {
     try {
@@ -926,35 +1036,36 @@ ${companyKnowledge}`;
         console.warn("[Server] Primary AI call in /api/generate encountered issue, deploying resilient contextual fallback:", aiErr.message || aiErr);
 
         // Contextual fallback for Behavioral Assessment
-        if (systemInstruction && (systemInstruction.includes("behavioral traits") || systemInstruction.includes("scores") || systemInstruction.includes("Top Traits"))) {
+        if (systemInstruction && (systemInstruction.includes("behavioral traits") || systemInstruction.includes("scores") || systemInstruction.includes("Top Traits") || systemInstruction.includes("Conflict & Feedback"))) {
           const fallbackBehavioral = {
             scores: [
-              { subject: "Strategic", A: 94, fullMark: 100 },
-              { subject: "Proactivity", A: 92, fullMark: 100 },
-              { subject: "Analytical", A: 88, fullMark: 100 },
-              { subject: "Adaptability", A: 86, fullMark: 100 },
-              { subject: "Collaboration", A: 82, fullMark: 100 }
+              { subject: "Strategic Architecture", A: 96, fullMark: 100 },
+              { subject: "Execution Velocity", A: 92, fullMark: 100 },
+              { subject: "Conflict Candor", A: 89, fullMark: 100 },
+              { subject: "Risk Agility", A: 91, fullMark: 100 },
+              { subject: "Change Leadership", A: 94, fullMark: 100 },
+              { subject: "Cultural Alignment", A: 88, fullMark: 100 }
             ],
             topTraits: [
               {
-                title: "Level Headed",
-                percentage: 95,
-                description: "Maintains clear, objective focus and structured logic under high-pressure transformation environments."
+                title: "Evidence-Led Pragmatist",
+                percentage: 96,
+                description: "Grounds operational disagreements in objective data telemetry and SLA metrics, neutralizing organizational friction and driving decisive root-cause resolutions."
               },
               {
-                title: "Principled Leader",
-                percentage: 92,
-                description: "Leads with operational integrity, prioritizing long-term systemic health over short-term band-aids."
+                title: "Calculated Systems Pioneer",
+                percentage: 94,
+                description: "Balances bold technology experimentation (AI, AMR/ASRS integration) with rigorous risk mitigation and structured pilot cutovers to safeguard uptime."
               },
               {
-                title: "Proactive Systems Builder",
-                percentage: 90,
-                description: "Anticipates workflow bottlenecks and engineers automated, scalable processes before friction surfaces."
+                title: "Transformation Catalyst",
+                percentage: 91,
+                description: "Engineers high-velocity change through disciplined Kaizen sprints and clean-slate legacy sunsetting, ensuring frontline adoption across cross-functional teams."
               }
             ],
-            overview: "Your leadership profile demonstrates a strong orientation toward high-impact systems architecture and strategic operations. You excel at synthesizing complex workflows into repeatable, high-output engines.",
-            roles: "• **Director of Operational Excellence / Transformation**\n• **Head of Technical Operations & Programs**\n• **VP of Supply Chain Systems & Automation**\n• **Principal Strategy & Operations Partner**",
-            nextSteps: "1. **Refine Leadership Positioning**: Elevate your resume narrative from tactical task management to enterprise transformation metrics ($ savings, velocity improvements, uptime).\n2. **Target High-Growth Ecosystems**: Map out target companies currently scaling operations or integrating automation.\n3. **Engage Key Stakeholders**: Position your background around end-to-end efficiency, team enablement, and technology-driven ROI."
+            overview: "Your executive diagnostic profile reveals an exceptional aptitude for complex operational transformation. By synthesizing rigorous telemetry, direct conflict resolution, and calculated risk-taking, you bridge frontline operational execution with enterprise strategic architecture.\n\nYou excel at identifying systemic bottlenecks, deploying automation where throughput density demands it, and leading cross-functional teams through non-disruptive modernization.",
+            roles: "• **Director of Operational Excellence & Modernization**\n• **VP of Supply Chain Technology & Automation**\n• **Head of Enterprise Program & Systems Transformation**\n• **Principal Operations & Technology Partner**",
+            nextSteps: "1. **Calibrate Executive Resume Branding**: Elevate your resume positioning from tactical task management to quantifiable enterprise ROI ($ millions saved, throughput acceleration, automation deployment).\n2. **Target Modernization-Ready Ecosystems**: Prioritize organizations actively scaling automated warehouse networks or sunsetting legacy WMS/ERP platforms.\n3. **Leverage Conflict & Telemetry Authority**: Position your evidence-led conflict resolution and risk de-risking methodology as key leadership differentiators in executive interviews."
           };
 
           return res.json({ reply: JSON.stringify(fallbackBehavioral) });

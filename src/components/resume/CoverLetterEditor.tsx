@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CoverLetterData, ResumeData, CoverLetterHighlight } from "../../types/resume";
+import { VoiceInputButton } from "../VoiceInputButton";
 import { 
   Sparkles, 
   Loader2, 
@@ -291,12 +292,23 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
         </div>
 
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-300 block mb-1">Target Job Description / Key Requirements (Optional)</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-300">Target Job Description / Key Requirements (Optional)</label>
+            <VoiceInputButton
+              onTranscript={(spoken) => {
+                const current = jobDescription || "";
+                const sep = current.trim() ? " " : "";
+                setJobDescription(current + sep + spoken);
+              }}
+              label="Talk to Text"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            />
+          </div>
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
             rows={2}
-            placeholder="Paste keywords from job description (e.g. P&L analysis, forecasting, labor planning, distribution strategy)..."
+            placeholder="Paste or speak keywords from job description (e.g. P&L analysis, forecasting, labor planning, distribution strategy)..."
             className="w-full p-2.5 bg-white/10 border border-white/20 rounded-xl text-xs text-white placeholder:text-slate-400 outline-none focus:border-brand-secondary resize-none"
           />
         </div>
@@ -359,36 +371,36 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
       )}
 
       {/* Structured Executive Cover Letter Editor Sections */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 text-slate-900">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <FileText className="w-4 h-4 text-teal-600" /> Executive Letter Structure & Content
           </h3>
-          <span className="text-[11px] font-semibold text-slate-500">
+          <span className="text-[11px] font-semibold text-slate-600">
             Edit text or customize format
           </span>
         </div>
 
         {/* Salutation */}
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
             1. Salutation
           </label>
           <input
             type="text"
             value={data.salutation || "Dear Hiring Manager,"}
             onChange={(e) => updateField("salutation", e.target.value)}
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:border-teal-600 outline-none"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"
           />
         </div>
 
         {/* 2. Opening Paragraph */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-700">
               2. Opening Intro (Role, Company & Core Domains)
             </label>
-            <span className="text-[10px] text-teal-600 font-semibold">
+            <span className="text-[10px] text-teal-700 font-bold">
               Format: Target Role + Company + Experience Background
             </span>
           </div>
@@ -396,13 +408,13 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
             value={data.openingParagraph}
             onChange={(e) => updateField("openingParagraph", e.target.value)}
             rows={3}
-            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:border-teal-600 outline-none resize-y"
+            className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y placeholder:text-slate-400"
           />
         </div>
 
         {/* 3. Current Position & Scope */}
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
             3. Current Position & Scope (Leadership & Stakeholder Partnership)
           </label>
           <textarea
@@ -410,13 +422,13 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
             onChange={(e) => updateField("currentPositionParagraph", e.target.value)}
             rows={3}
             placeholder="In my current position as [Role] at [Company], I partner with leaders to turn data into actionable decisions. My experience includes..."
-            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:border-teal-600 outline-none resize-y"
+            className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y placeholder:text-slate-400"
           />
         </div>
 
         {/* 4. Scope Alignment & Bridge */}
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
             4. Scope Alignment & Value Proposition
           </label>
           <textarea
@@ -424,7 +436,7 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
             onChange={(e) => updateField("scopeAlignmentParagraph", e.target.value)}
             rows={2}
             placeholder="While my current scope is broader than a traditional role, this opportunity aligns closely with where I can add immediate value..."
-            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:border-teal-600 outline-none resize-y"
+            className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y placeholder:text-slate-400"
           />
         </div>
 
@@ -432,19 +444,19 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
         <div className="space-y-3 pt-1">
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block">
                 5. Highlights of Experience (Key Achievements with Category Labels)
               </label>
               <input
                 type="text"
                 value={data.highlightsHeader || "Highlights of my experience include:"}
                 onChange={(e) => updateField("highlightsHeader", e.target.value)}
-                className="text-xs font-semibold text-slate-700 bg-transparent border-b border-dashed border-slate-300 focus:border-teal-600 outline-none mt-1 pb-0.5"
+                className="text-xs font-bold text-slate-900 bg-transparent border-b border-dashed border-slate-400 focus:border-teal-600 outline-none mt-1 pb-0.5"
               />
             </div>
             <button
               onClick={addHighlight}
-              className="flex items-center gap-1 text-[11px] font-bold text-teal-700 hover:text-teal-900 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 cursor-pointer"
+              className="flex items-center gap-1 text-[11px] font-bold text-teal-800 hover:text-teal-950 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-300 cursor-pointer shadow-xs"
             >
               <Plus className="w-3 h-3" /> Add Highlight
             </button>
@@ -455,13 +467,13 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
               <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Category / Skill Tag</label>
+                    <label className="text-[9px] font-black uppercase tracking-wider text-slate-700">Category / Skill Tag</label>
                     <input
                       type="text"
                       value={highlight.label}
                       onChange={(e) => updateHighlight(idx, "label", e.target.value)}
                       placeholder="e.g. Operations Finance or Labor & Workforce Planning"
-                      className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:border-teal-600 outline-none"
+                      className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:border-teal-600 outline-none placeholder:text-slate-400"
                     />
                   </div>
                   <button
@@ -473,13 +485,13 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
                   </button>
                 </div>
                 <div>
-                  <label className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Accomplishment & Impact</label>
+                  <label className="text-[9px] font-black uppercase tracking-wider text-slate-700">Accomplishment & Impact</label>
                   <textarea
                     value={highlight.text}
                     onChange={(e) => updateHighlight(idx, "text", e.target.value)}
                     rows={2}
                     placeholder="Action + context + quantifiable result..."
-                    className="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs leading-relaxed text-slate-700 focus:border-teal-600 outline-none resize-y"
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs leading-relaxed font-medium text-slate-900 focus:border-teal-600 outline-none resize-y placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -489,7 +501,7 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
 
         {/* 6. Company Interest Paragraph */}
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
             6. Target Company Interest & Strategic Alignment
           </label>
           <textarea
@@ -497,45 +509,45 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
             onChange={(e) => updateField("companyInterestParagraph", e.target.value)}
             rows={3}
             placeholder="I am particularly interested in [Company] because of the opportunity to... I would welcome the opportunity to discuss how my experience could support the team."
-            className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:border-teal-600 outline-none resize-y"
+            className="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-y placeholder:text-slate-400"
           />
         </div>
 
         {/* 7. Thank You line */}
         <div>
-          <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+          <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
             7. Consideration Note
           </label>
           <input
             type="text"
             value={data.thankYouLine || "Thank you for your consideration."}
             onChange={(e) => updateField("thankYouLine", e.target.value)}
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-teal-600 outline-none"
+            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 outline-none"
           />
         </div>
 
         {/* 8. Sign-off Line & Enclosure */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <div>
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
               Sign-off Closing
             </label>
             <input
               type="text"
               value={data.signoff || "Kind regards,"}
               onChange={(e) => updateField("signoff", e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-teal-600 outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 outline-none"
             />
           </div>
           <div>
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
               Enclosure Notice
             </label>
             <input
               type="text"
               value={data.enclosureNotice || "Enclosure: Résumé"}
               onChange={(e) => updateField("enclosureNotice", e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:border-teal-600 outline-none"
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 outline-none"
             />
           </div>
         </div>

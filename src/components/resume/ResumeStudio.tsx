@@ -150,8 +150,18 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
   const [isAtsModalOpen, setIsAtsModalOpen] = useState(false);
   const [showPageBreakGuides, setShowPageBreakGuides] = useState(false);
 
-  // Storage key for auto-saving resume and cover letter drafts
-  const AUTOSAVE_STORAGE_KEY = "ttr_resume_studio_autosave_v2";
+  // Storage key for auto-saving resume and cover letter drafts strictly scoped to the active user's session
+  const SESSION_WORKSPACE_KEY = "ttr_user_session_resume_workspace_v3";
+
+  // Automatically purge any stale global localStorage keys so past uploads never bleed across users
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("ttr_resume_studio_autosave_v2");
+        localStorage.removeItem("trm_resume_autosave_v2");
+      } catch (_) {}
+    }
+  }, []);
 
   // Auto-save state
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -178,12 +188,12 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     }, 3800);
   };
 
-  // Immediate Save Executor
+  // Immediate Save Executor (User session-isolated)
   const executeSave = (isAuto = true) => {
     try {
       setSaveStatus("saving");
       const payload = {
-        version: 2,
+        version: 3,
         updatedAt: new Date().toISOString(),
         resumeData,
         coverLetterData,
@@ -193,15 +203,17 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
         isCompact,
         atsScorecard
       };
-      localStorage.setItem(AUTOSAVE_STORAGE_KEY, JSON.stringify(payload));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(SESSION_WORKSPACE_KEY, JSON.stringify(payload));
+      }
       const now = new Date();
       setLastSaved(now);
       setSaveStatus("saved");
 
       const timeFormatted = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
       const msg = isAuto 
-        ? "Progress auto-saved to browser storage"
-        : "Changes saved to browser storage";
+        ? "Progress auto-saved to your session"
+        : "Changes saved to your session";
 
       triggerAutoSaveToast(msg, timeFormatted, "save");
     } catch (err) {
@@ -210,29 +222,44 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     }
   };
 
-  // Restore saved draft from browser storage on mount
+  // Restore saved draft from user's active session on mount
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(AUTOSAVE_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.resumeData) setResumeData(parsed.resumeData);
-        if (parsed.coverLetterData) setCoverLetterData(parsed.coverLetterData);
-        if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
-        if (parsed.selectedColor) setSelectedColor(parsed.selectedColor);
-        if (parsed.selectedTypography) setSelectedTypography(parsed.selectedTypography);
-        if (typeof parsed.isCompact === "boolean") setIsCompact(parsed.isCompact);
-        if (parsed.atsScorecard) setAtsScorecard(parsed.atsScorecard);
-        if (parsed.updatedAt) {
-          const savedDate = new Date(parsed.updatedAt);
-          setLastSaved(savedDate);
-          const timeFormatted = savedDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-          triggerAutoSaveToast("Restored saved draft from browser storage", timeFormatted, "restore");
+      if (typeof window !== "undefined") {
+        const saved = sessionStorage.getItem(SESSION_WORKSPACE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.resumeData) setResumeData(parsed.resumeData);
+          if (parsed.coverLetterData) setCoverLetterData(parsed.coverLetterData);
+          if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
+          if (parsed.selectedColor) setSelectedColor(parsed.selectedColor);
+          if (parsed.selectedTypography) setSelectedTypography(parsed.selectedTypography);
+          if (typeof parsed.isCompact === "boolean") setIsCompact(parsed.isCompact);
+          if (parsed.atsScorecard) setAtsScorecard(parsed.atsScorecard);
+          if (parsed.updatedAt) {
+            const savedDate = new Date(parsed.updatedAt);
+            setLastSaved(savedDate);
+            const timeFormatted = savedDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+            triggerAutoSaveToast("Restored your session draft", timeFormatted, "restore");
+          }
         }
       }
     } catch (e) {
-      console.warn("Failed to load saved draft from browser storage:", e);
+      console.warn("Failed to load saved draft from session storage:", e);
     }
+  }, []);
+
+  // Listen for live resume updates from Career Hub or other tabs in this session
+  useEffect(() => {
+    const handleWorkspaceUpdate = (e: any) => {
+      const payload = e.detail;
+      if (payload?.resumeData) {
+        setResumeData(payload.resumeData);
+        triggerAutoSaveToast("Synced from Career Hub", undefined, "restore");
+      }
+    };
+    window.addEventListener("ttr:resume-workspace-updated", handleWorkspaceUpdate);
+    return () => window.removeEventListener("ttr:resume-workspace-updated", handleWorkspaceUpdate);
   }, []);
 
   // Debounced Auto-Save trigger on changes
@@ -270,10 +297,12 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [resumeData, coverLetterData, selectedTemplate, selectedColor, selectedTypography, isCompact, atsScorecard]);
 
-  // Reset draft to initial sample defaults
+  // Reset draft to initial sample defaults and clear user's session draft
   const handleResetDraft = () => {
-    if (window.confirm("Are you sure you want to reset the resume to default executive data? This will clear your saved draft in browser storage.")) {
-      localStorage.removeItem(AUTOSAVE_STORAGE_KEY);
+    if (window.confirm("Start fresh with a clean workspace? This will clear your current session draft so you can build a new resume or upload another document.")) {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem(SESSION_WORKSPACE_KEY);
+      }
       setResumeData(defaultResumeData);
       setCoverLetterData(defaultCoverLetterData);
       setSelectedTemplate("transformation-teal");
@@ -282,7 +311,8 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
       setIsCompact(false);
       setLastSaved(null);
       setSaveStatus("idle");
-      triggerAutoSaveToast("Reset to default executive template", undefined, "reset");
+      setStudioMode("init");
+      triggerAutoSaveToast("Workspace cleared. Ready for new resume", undefined, "reset");
     }
   };
 
@@ -795,7 +825,7 @@ export const ResumeStudio: React.FC<ResumeStudioProps> = ({
       <ResumeInitializationScreen
         onComplete={handleInitializationComplete}
         onSkipToWorkspace={() => setStudioMode("workspace")}
-        hasExistingDraft={Boolean(lastSaved || (typeof window !== "undefined" && localStorage.getItem(AUTOSAVE_STORAGE_KEY)))}
+        hasExistingDraft={Boolean(lastSaved || (typeof window !== "undefined" && sessionStorage.getItem(SESSION_WORKSPACE_KEY)))}
       />
     );
   }

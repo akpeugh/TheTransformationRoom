@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { 
   FileText, 
   Sparkles, 
@@ -12,29 +12,35 @@ import {
   Loader2,
   X,
   Upload,
-  Mail,
   User,
   Zap,
   TrendingUp,
   Target,
-  Clock,
-  Dna,
-  Binary,
   Layers,
-  Settings,
   Briefcase,
   Lightbulb,
   ShieldAlert,
   ArrowRight,
-  Globe,
-  Users,
-  Compass,
-  Trophy,
-  Coffee,
-  Heart,
-  Map as LucideMap,
   Bot,
-  Brain
+  Brain,
+  MessageSquare,
+  BarChart3,
+  RefreshCw,
+  CheckCircle2,
+  Check,
+  Building,
+  Compass,
+  FileCheck,
+  Cpu,
+  Link as LinkIcon,
+  ExternalLink,
+  ClipboardPaste,
+  Trash2,
+  Globe,
+  HelpCircle,
+  FileCode,
+  SlidersHorizontal,
+  BookmarkPlus
 } from "lucide-react";
 import { 
   Radar, 
@@ -48,1116 +54,1640 @@ import Markdown from "react-markdown";
 import SEO from "../components/SEO";
 import { useLanguage } from "../contexts/LanguageContext";
 import { translate } from "../utils/translations";
-import { updateSharedCareerProfile } from "../utils/careerStore";
-import { extractTextFromFile } from "../utils/documentParser";
+import { 
+  getSharedCareerProfile, 
+  updateSharedCareerProfile, 
+  syncResumeToWorkspace, 
+  subscribeToCareerProfile 
+} from "../utils/careerStore";
+import { extractTextFromFile, sanitizeAndNormalizeResumeText } from "../utils/documentParser";
+import { sanitizeResumeText } from "../utils/resumeSanitizer";
+import { fallbackParseResumeText } from "../utils/resumeParserFallback";
+import { VoiceInputButton } from "../components/VoiceInputButton";
+import { ResumeStudio } from "../components/resume/ResumeStudio";
 
-const CareerTool = () => {
+const assessmentMarkdownComponents = {
+  p: ({ children }: any) => <p className="text-slate-700 text-sm md:text-base leading-relaxed mb-3 font-normal">{children}</p>,
+  ul: ({ children }: any) => <ul className="space-y-3 my-3">{children}</ul>,
+  ol: ({ children }: any) => <ol className="space-y-3 my-3 text-slate-700 text-sm md:text-base">{children}</ol>,
+  li: ({ children }: any) => (
+    <li className="flex items-start gap-3 text-slate-700 text-sm md:text-base leading-relaxed font-normal">
+      <span className="w-2 h-2 rounded-full bg-teal-600 mt-2 shrink-0 shadow-xs" />
+      <span className="flex-1">{children}</span>
+    </li>
+  ),
+  strong: ({ children }: any) => <strong className="text-slate-900 font-bold tracking-tight">{children}</strong>,
+  em: ({ children }: any) => <em className="text-teal-700 font-semibold not-italic">{children}</em>,
+  h1: ({ children }: any) => <h1 className="text-xl font-bold text-slate-900 mb-2">{children}</h1>,
+  h2: ({ children }: any) => <h2 className="text-lg font-bold text-teal-800 mb-2">{children}</h2>,
+  h3: ({ children }: any) => <h3 className="text-base font-bold text-slate-900 mb-2">{children}</h3>,
+};
+
+const SAMPLE_TARGET_JD = `Role: Vice President of Supply Chain Systems & Automation
+Target Organization: Enterprise Global Fulfillment
+
+Position Summary:
+Lead enterprise-scale supply chain transformation across 14 high-throughput fulfillment and automated distribution centers ($380M operating budget, 2,400+ workforce). Spearhead the modernization roadmap, including Autonomous Mobile Robots (AMR), AS/RS storage, conveyor sortation, and next-generation WMS/WES integration.
+
+Key Responsibilities:
+• Deliver multi-facility operational excellence, optimizing fulfillment velocity, order cycle times, and SLA adherence (99.8%+ target).
+• Architect and execute multi-year automation capital expenditure (CapEx) initiatives with proven ROI payback models under 18 months.
+• Eliminate cross-functional operational bottlenecks by implementing real-time telemetry, predictive throughput dashboards, and root-cause Kaizen methodologies.
+• Direct executive stakeholder communication, vendor contract negotiations, and change management across frontline shift leadership.
+
+Qualifications & Requirements:
+• 10+ years executive leadership in supply chain operations, logistics automation, or manufacturing transformation.
+• Proven track record leading large-scale systems cutovers (SAP, Manhattan, Blue Yonder, HighJump) and robotic fleet deployments.
+• Demonstrated mastery of Lean Six Sigma principles, quantitative capacity modeling, and executive board presentations.`;
+
+type ActiveHubTab = "simulator" | "resume" | "behavioral";
+type JobInputTab = "paste" | "link";
+
+export const CareerTool = () => {
   const { language } = useLanguage();
   const t = (key: string) => translate(key, language);
   const navigate = useNavigate();
-  const [step, setStep] = useState<
-    | "goal"
-    | "path"
-    | "behavioral-q"
-    | "behavioral-generating"
-    | "behavioral-out"
-    | "r-title"
-    | "r-gap"
-    | "r-upload"
-    | "r-review"
-    | "simulator-q"
-    | "simulator-out"
-  >("path");
-  const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [activeSubStep, setActiveSubStep] = useState(1);
-  
-  const [isNovaVisible, setIsNovaVisible] = useState(false);
-  const [isNovaMuted, setIsNovaMuted] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  useEffect(() => {
-    // Auto-play Nova on enter - only once per user
-    if (localStorage.getItem('nova_career_intro_seen')) return;
-
-    const timer = setTimeout(() => {
-      setIsNovaVisible(true);
-      setIsNovaMuted(false);
-      localStorage.setItem('nova_career_intro_seen', 'true');
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const triggerNovaCareer = () => {
-    if (localStorage.getItem('nova_career_intro_seen')) return;
-    setIsNovaVisible(true);
-    setIsNovaMuted(false);
-    localStorage.setItem('nova_career_intro_seen', 'true');
-  };
-
-  // Handle Nova Volume
-  useEffect(() => {
-    if (videoRef.current && !isNovaMuted) {
-      videoRef.current.volume = 0.15; // Lower professional background volume
-    }
-  }, [isNovaMuted, isNovaVisible]);
-
-  const loadingMessages = [
-    "NOVA is analyzing your professional DNA...",
-    "Scanning for operational breakthroughs...",
-    "Mapping your level-headedness metrics...",
-    "Calibrating industry-fit trajectories...",
-    "Finalizing your Transformation Blueprint...",
-    "Gathering insights from NOVA Intelligence..."
-  ];
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (loading && ["behavioral-q", "behavioral-generating", "simulator-q"].includes(step)) {
-      let currentProgress = 0;
-      let msgIndex = 0;
-      setLoadingMessage(loadingMessages[0]);
-
-      interval = setInterval(() => {
-        currentProgress += Math.random() * 5;
-        if (currentProgress > 100) currentProgress = 100;
-        setGenerationProgress(currentProgress);
-
-        if (Math.floor(currentProgress / 20) > msgIndex && msgIndex < loadingMessages.length - 1) {
-          msgIndex++;
-          setLoadingMessage(loadingMessages[msgIndex]);
-        }
-      }, 300);
-    }
-    return () => clearInterval(interval);
-  }, [loading, step]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const path = params.get('path');
-    if (path === 'resume') {
-      navigate('/resume-builder', { replace: true });
-    } else if (path === 'simulator') {
-      setStep('goal');
-      setFormData(prev => ({ ...prev, pathSelection: 'simulator' }));
-    }
-  }, [navigate]);
-
-  const [parsingFile, setParsingFile] = useState(false);
-  const [formData, setFormData] = useState({
-    careerGoal: "",
-    pathSelection: "", // "behavioral" | "resume" | "simulator"
-    behavioralQ1: "", 
-    behavioralQ2: "", 
-    behavioralQ3: "", 
-    behavioralQ4: "", 
-    behavioralQ5: "", 
-    behavioralQ6: "", 
-    behavioralQ7: "", 
-    behavioralQ8: "", 
-    targetIndustry: "",
-    currentTitle: "",
-    careerValue: "",
-    salaryRange: "",
-    companyCulture: [] as string[],
-    rolePreference: "", 
-    riskAppetite: "", 
-    currentRole: "",
-    targetRole: "",
-    biggestGap: "",
-    experienceLevel: "Mid-Level",
-    rawContent: "",
-    strengths: "",
-    skills: ""
+  // Active Tool in the Unified Career Center
+  const [activeTab, setActiveTab] = useState<ActiveHubTab>(() => {
+    const tabParam = searchParams.get("tab") || searchParams.get("tool") || searchParams.get("path");
+    if (tabParam === "resume") return "resume";
+    if (tabParam === "behavioral") return "behavioral";
+    return "simulator";
   });
 
-  const [optimizedContent, setOptimizedContent] = useState("");
-  const [parsedResult, setParsedResult] = useState<{
+  // Simulator step
+  const [simStep, setSimStep] = useState<"input" | "generating" | "results">("input");
+  
+  // Behavioral Assessment step & sub-step
+  const [behStep, setBehStep] = useState<"intro" | "questions" | "generating" | "results">("intro");
+
+  const [loading, setLoading] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
+
+  // Resume upload state
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [uploadSuccessToast, setUploadSuccessToast] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Job link extraction state
+  const [jobInputMode, setJobInputMode] = useState<JobInputTab>("paste");
+  const [jobUrlInput, setJobUrlInput] = useState("");
+  const [isExtractingUrl, setIsExtractingUrl] = useState(false);
+  const [urlExtractionError, setUrlExtractionError] = useState<string | null>(null);
+  const [urlExtractionSuccess, setUrlExtractionSuccess] = useState<{
+    targetRole?: string;
+    targetCompany?: string;
+    keySkills?: string[];
+  } | null>(null);
+
+  // Persistent session profile state
+  const [profile, setProfile] = useState(() => getSharedCareerProfile());
+
+  // Form State: "Where they're at" and "Where they're looking to go"
+  const [formData, setFormData] = useState({
+    // Where they're at
+    candidateName: profile.candidateName || "",
+    currentTitle: profile.currentTitle || "",
+    currentCompany: profile.currentCompany || "",
+    experienceLevel: profile.experienceLevel || "",
+    currentAccomplishments: profile.currentAccomplishments || "",
+    currentSkills: profile.currentSkills || "",
+    
+    // Where they're looking to go
+    careerGoal: profile.careerGoal || "",
+    targetRole: profile.targetRole || "",
+    targetCompany: profile.targetCompany || "",
+    targetIndustry: profile.targetIndustry || "",
+    targetSalary: profile.targetSalary || "",
+    targetJobDescription: profile.targetJobDescription || "",
+    biggestGap: profile.biggestGap || "",
+
+    // Behavioral dimensions
+    behavioralQ1: profile.conflictDynamics || "",
+    behavioralQ5: "",
+    conflictDynamics: profile.conflictDynamics || "Direct Candor",
+    riskThreshold: profile.riskThreshold || "Calculated Trailblazer",
+    transformationStyle: profile.transformationStyle || "Evolutionary Transition",
+    careerValue: profile.careerValue || "",
+    companyCulture: profile.companyCulture || []
+  });
+
+  // Simulator results - only populated when user runs simulation
+  const [simulatorResults, setSimulatorResults] = useState<{
+    readinessScore: number;
+    roadmap: { step: string; desc: string; timeline: string }[];
+    gaps: { skill: string; impact: string; fix: string }[];
+    overview: string;
+    positioningStrategy: string;
+    recommendedActions: string[];
+  } | null>(() => {
+    if (profile.simulatorData?.roadmap && profile.simulatorData.roadmap.length > 0) {
+      return {
+        readinessScore: 84,
+        roadmap: profile.simulatorData.roadmap.map((r, i) => ({
+          step: r.step,
+          desc: r.desc,
+          timeline: `Month ${i * 2 + 1}-${i * 2 + 2}`
+        })),
+        gaps: (profile.simulatorData.gaps || []).map(g => ({
+          skill: g,
+          impact: "Critical for executive screening",
+          fix: `Incorporate proof-points in ${profile.targetRole || "target leadership"} narrative.`
+        })),
+        overview: profile.simulatorData.overview || "Your transition combines operational velocity with systems architecture.",
+        positioningStrategy: "Position yourself not as a process maintainer, but as a transformational systems architect.",
+        recommendedActions: [
+          "Align Resume bullets around quantifiable throughput metrics.",
+          "Target organizations actively scaling warehouse automation.",
+          "Emphasize multi-facility change leadership."
+        ]
+      };
+    }
+    return null;
+  });
+
+  // Behavioral assessment results
+  const [behavioralResults, setBehavioralResults] = useState<{
     scores: { subject: string; A: number; fullMark: number }[];
     topTraits: { title: string; percentage: number; description: string }[];
     overview: string;
     roles: string;
     nextSteps: string;
-    roadmap?: { step: string; desc: string }[];
-    gaps?: string[];
-  } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  } | null>(() => profile.behavioralAssessment || null);
 
+  // Sync profile on changes from other tabs or components
+  useEffect(() => {
+    return subscribeToCareerProfile((newProfile) => {
+      setProfile(newProfile);
+      setFormData(prev => ({
+        ...prev,
+        candidateName: newProfile.candidateName || prev.candidateName,
+        currentTitle: newProfile.currentTitle || prev.currentTitle,
+        currentCompany: newProfile.currentCompany || prev.currentCompany,
+        targetRole: newProfile.targetRole || prev.targetRole,
+        targetCompany: newProfile.targetCompany || prev.targetCompany,
+        targetIndustry: newProfile.targetIndustry || prev.targetIndustry,
+        targetJobDescription: newProfile.targetJobDescription || prev.targetJobDescription,
+        currentSkills: newProfile.currentSkills || prev.currentSkills,
+        currentAccomplishments: newProfile.currentAccomplishments || prev.currentAccomplishments
+      }));
+    });
+  }, []);
 
+  // Update query params when active tab changes
+  const switchTab = (tab: ActiveHubTab) => {
+    setActiveTab(tab);
+    setSearchParams({ tool: tab }, { replace: true });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  // Sync form data changes back to shared session profile (debounced)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleFormChange = (field: string, value: any) => {
+    setFormData(prev => {
+      const next = { ...prev, [field]: value };
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = setTimeout(() => {
+        updateSharedCareerProfile({
+          candidateName: next.candidateName,
+          currentTitle: next.currentTitle,
+          currentCompany: next.currentCompany,
+          experienceLevel: next.experienceLevel,
+          currentAccomplishments: next.currentAccomplishments,
+          currentSkills: next.currentSkills,
+          careerGoal: next.careerGoal,
+          targetRole: next.targetRole,
+          targetCompany: next.targetCompany,
+          targetIndustry: next.targetIndustry,
+          targetSalary: next.targetSalary,
+          targetJobDescription: next.targetJobDescription,
+          biggestGap: next.biggestGap,
+          conflictDynamics: next.conflictDynamics,
+          riskThreshold: next.riskThreshold,
+          transformationStyle: next.transformationStyle
+        });
+      }, 500);
+      return next;
+    });
+  };
+
+  // Handle direct resume file upload from Career Hub
+  const handleCareerResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    setParsingFile(true);
+    setIsUploadingResume(true);
     try {
-      const text = await extractTextFromFile(file);
+      const rawText = await extractTextFromFile(file);
+      if (!rawText || !rawText.trim()) {
+        alert("Could not extract readable text from this file. Please try a different PDF or DOCX, or paste your details.");
+        return;
+      }
 
-      if (text.trim()) {
-        console.log(`[CareerTool] Successfully extracted ${text.length} characters`);
-        setFormData(prev => ({ ...prev, rawContent: text.trim() }));
-      } else if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".docx")) {
-        console.warn("[CareerTool] No text extracted from file. Possible scan/image-based document.");
-        alert("We couldn't extract text from this document. It might be a scanned image. Please try pasting the text manually.");
+      const cleanText = sanitizeAndNormalizeResumeText(sanitizeResumeText(rawText));
+      
+      // Attempt server parse with client fallback
+      let parsedResume = null;
+      try {
+        const res = await fetch("/api/resume/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rawText: cleanText })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data?.personalInfo) {
+            parsedResume = json.data;
+          }
+        }
+      } catch (err) {
+        console.warn("Server parse fallback:", err);
       }
-    } catch (error) {
-      console.error("[CareerTool] Error parsing file:", error);
-      alert(`Error parsing file: ${error instanceof Error ? error.message : "Unknown error"}. Please try pasting the text instead.`);
+
+      if (!parsedResume) {
+        parsedResume = fallbackParseResumeText(cleanText);
+      }
+
+      // Sync directly to the user's active session workspace
+      syncResumeToWorkspace(parsedResume, cleanText);
+
+      // Auto-populate "Where they're at"
+      const name = parsedResume.personalInfo?.fullName || "Candidate";
+      const title = parsedResume.experiences?.[0]?.role || parsedResume.personalInfo?.targetTitle || "";
+      const company = parsedResume.experiences?.[0]?.company || "";
+      const skillsStr = (parsedResume.skills || []).flatMap((s: any) => s.skills || []).slice(0, 8).join(", ");
+      const accomplishmentsStr = (parsedResume.experiences?.[0]?.highlights || []).slice(0, 3).join("\n");
+
+      setFormData(prev => ({
+        ...prev,
+        candidateName: name,
+        currentTitle: title || prev.currentTitle,
+        currentCompany: company || prev.currentCompany,
+        currentSkills: skillsStr || prev.currentSkills,
+        currentAccomplishments: accomplishmentsStr || prev.currentAccomplishments
+      }));
+
+      setUploadSuccessToast(`Resume parsed & synced: ${name} (${title || "Operations Leader"}). Data is ready in all 3 tools!`);
+      setTimeout(() => setUploadSuccessToast(null), 6000);
+
+    } catch (err) {
+      console.error("Resume upload error in Career Hub:", err);
+      alert("Error parsing document. You can still manually enter your details.");
     } finally {
-      setParsingFile(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      setIsUploadingResume(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleBehavioralAssessment = async () => {
-    setLoading(true);
-    setStep("behavioral-generating");
+  // Handle URL Job Link Extraction
+  const handleExtractJobFromUrl = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!jobUrlInput || !jobUrlInput.trim()) return;
+
+    setIsExtractingUrl(true);
+    setUrlExtractionError(null);
+    setUrlExtractionSuccess(null);
+
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/extract-job-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: jobUrlInput.trim() })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Unable to extract job details from this link.");
+      }
+
+      // Populate form data with extracted fields
+      setFormData(prev => ({
+        ...prev,
+        targetRole: data.targetRole || prev.targetRole,
+        targetCompany: data.targetCompany || prev.targetCompany,
+        targetIndustry: data.targetIndustry || prev.targetIndustry,
+        targetSalary: data.targetSalary || prev.targetSalary,
+        targetJobDescription: data.jobDescription || prev.targetJobDescription
+      }));
+
+      // Update shared career profile session
+      updateSharedCareerProfile({
+        targetRole: data.targetRole || formData.targetRole,
+        targetCompany: data.targetCompany || formData.targetCompany,
+        targetIndustry: data.targetIndustry || formData.targetIndustry,
+        targetSalary: data.targetSalary || formData.targetSalary,
+        targetJobDescription: data.jobDescription || formData.targetJobDescription
+      });
+
+      setUrlExtractionSuccess({
+        targetRole: data.targetRole,
+        targetCompany: data.targetCompany,
+        keySkills: data.keySkills || []
+      });
+
+      setUploadSuccessToast(`Job posting extracted: ${data.targetRole || "Role"} at ${data.targetCompany || "Target Org"}`);
+      setTimeout(() => setUploadSuccessToast(null), 5000);
+
+    } catch (err: any) {
+      console.error("Job URL extraction failed:", err);
+      setUrlExtractionError(
+        err.message || 
+        "This website restricts automated link parsing. Switch to 'Paste Job Description' to copy-paste the text directly."
+      );
+    } finally {
+      setIsExtractingUrl(false);
+    }
+  };
+
+  // Clipboard Paste Helper
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText && clipText.trim()) {
+          const cur = formData.targetJobDescription || "";
+          const sep = cur.trim() ? "\n\n" : "";
+          handleFormChange("targetJobDescription", cur + sep + clipText.trim());
+          setUploadSuccessToast("Pasted job text from clipboard!");
+          setTimeout(() => setUploadSuccessToast(null), 3000);
+        } else {
+          alert("Your clipboard is empty. Please copy a job description first.");
+        }
+      } else {
+        alert("Please use Ctrl+V or Command+V to paste into the text box.");
+      }
+    } catch {
+      alert("Please press Ctrl+V or Command+V to paste your job description directly.");
+    }
+  };
+
+  // Load Sample Target Job Description
+  const handleLoadSampleJD = () => {
+    handleFormChange("targetJobDescription", SAMPLE_TARGET_JD);
+    handleFormChange("targetRole", "Vice President of Supply Chain Systems & Automation");
+    handleFormChange("targetCompany", "Enterprise Global Fulfillment");
+    handleFormChange("targetIndustry", "Automated Logistics & High-Tech Warehousing");
+    handleFormChange("targetSalary", "$220,000 - $280,000+");
+    setUploadSuccessToast("Loaded executive sample job description!");
+    setTimeout(() => setUploadSuccessToast(null), 3000);
+  };
+
+  // Run Career Leap Simulation
+  const handleRunSimulation = async () => {
+    setLoading(true);
+    setSimStep("generating");
+    setGenerationProgress(0);
+
+    const timer = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + 15;
+      });
+    }, 250);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: "Evaluate behavioral traits based on instructions." }],
-          systemInstruction: `You are NOVA, an Elite Strategic Intelligence at The Transformation Room.
-        
-        USER PROFILE:
-        - Main Goal: ${formData.careerGoal || "Career Progression"}
-        - Current Title: ${formData.currentTitle || "Operations Professional"}
-        - Target Industry: ${formData.targetIndustry || "Technology & Operations"}
-        - Strategy vs Execution: ${formData.behavioralQ1 || "Strategy"}
-        - Data vs People: ${formData.behavioralQ2 || "Logic"}
-        - Problem Solving Style: ${formData.behavioralQ5 || "Systemic Visionary"}
-        - Main Value: ${formData.careerValue || "Rapid Growth"}
-        
-        TASK:
-        1. Evaluate the user's behavioral traits.
-        2. Determine 3 "Top Traits" (percentage and description).
-        3. Suggest 3-5 high-fit job titles.
-        4. Provide 3 immediate actionable tasks.
-        
-        OUTPUT FORMAT: 
-        You MUST return ONLY a valid JSON object matching the following structure:
-        {
-          "scores": [
-            { "subject": "Proactivity", "A": 90, "fullMark": 100 },
-            { "subject": "Analytical", "A": 85, "fullMark": 100 },
-            { "subject": "Adaptability", "A": 80, "fullMark": 100 },
-            { "subject": "Collaboration", "A": 75, "fullMark": 100 },
-            { "subject": "Strategic", "A": 95, "fullMark": 100 }
-          ],
-          "topTraits": [
-            { "title": "Level Headed", "percentage": 95, "description": "Remains calm and analytical during high-pressure scenarios." },
-            { "title": "Principled Leader", "percentage": 92, "description": "Prioritizes long-term systemic excellence and transparency." },
-            { "title": "Proactive Systems Builder", "percentage": 90, "description": "Anticipates operational bottlenecks before they surface." }
-          ],
-          "overview": "Analysis text",
-          "roles": "Roles markdown list",
-          "nextSteps": "Tasks markdown list"
-        }`
+          messages: [{ role: "user", content: "Generate career transformation roadmap and gap analysis." }],
+          systemInstruction: `You are NOVA, Elite Strategic Career Simulator at The Transformation Room.
+          
+          CANDIDATE CURRENT STATE:
+          - Name: ${formData.candidateName || "Candidate"}
+          - Current Role: ${formData.currentTitle || "Senior Operations Manager"}
+          - Current Organization: ${formData.currentCompany || "Enterprise Logistics"}
+          - Current Accomplishments: ${formData.currentAccomplishments || "Led fulfillment optimization"}
+          - Current Skills: ${formData.currentSkills || "Lean Six Sigma, WMS, Automation"}
+          
+          WHERE THEY WANT TO GO:
+          - Target Role: ${formData.targetRole || "Director of Supply Chain & Systems Transformation"}
+          - Target Organization: ${formData.targetCompany || "Enterprise Transformation"}
+          - Target Industry: ${formData.targetIndustry || "Automated Logistics & High-Tech Warehousing"}
+          - Target Compensation: ${formData.targetSalary || "$185k - $240k+"}
+          - Target Job Description Requirements: ${formData.targetJobDescription || "Lead multi-facility modernization, autonomous AMR/ASRS rollout, enterprise P&L"}
+          - Anticipated Gap: ${formData.biggestGap || "Bridging regional execution to enterprise strategy"}
+          
+          Return strictly a valid JSON object matching:
+          {
+            "readinessScore": number, // 65-95
+            "overview": string, // 2-3 sentences evaluating the trajectory leap
+            "positioningStrategy": string, // 1 crisp executive strategy sentence
+            "roadmap": [
+              { "step": "Stage 1 Title", "timeline": "Months 1-3", "desc": "Detailed focus and metrics" },
+              { "step": "Stage 2 Title", "timeline": "Months 4-6", "desc": "Automation scale & pilot execution" },
+              { "step": "Stage 3 Title", "timeline": "Months 7-12", "desc": "Enterprise leadership & executive governance" }
+            ],
+            "gaps": [
+              { "skill": "Competency Name", "impact": "Why it matters", "fix": "Concrete resume/interview narrative adjustment" }
+            ],
+            "recommendedActions": [ "Action 1", "Action 2", "Action 3" ]
+          }`
         })
       });
 
-      let parsedResult: any = null;
+      clearInterval(timer);
+      setGenerationProgress(100);
 
+      let parsed: any = null;
       if (res.ok) {
         const data = await res.json();
         let text = data.reply || "{}";
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) text = jsonMatch[0];
         try {
-          parsedResult = JSON.parse(text);
-        } catch (e) {
-          console.warn("[CareerTool] JSON parse warning, using fallback:", e);
-        }
+          parsed = JSON.parse(text);
+        } catch (_) {}
       }
 
-      // Safe structured result with defaults
-      const result = {
-        scores: parsedResult?.scores || [
-          { subject: "Strategic", A: 95, fullMark: 100 },
-          { subject: "Proactivity", A: 92, fullMark: 100 },
-          { subject: "Analytical", A: 88, fullMark: 100 },
-          { subject: "Adaptability", A: 85, fullMark: 100 },
-          { subject: "Collaboration", A: 80, fullMark: 100 }
+      const results = {
+        readinessScore: parsed?.readinessScore || 82,
+        roadmap: parsed?.roadmap || [
+          { step: "Phase 1: Baseline Telemetry & Quick Wins", timeline: "Months 1-3", desc: "Quantify current throughput gains, deploy telemetry dashboards, and frame accomplishments as enterprise metrics." },
+          { step: "Phase 2: High-Velocity Pilot & Automation", timeline: "Months 4-6", desc: "Champion an automated robotics or WMS optimization pilot; document labor cost avoidance and SLA improvements." },
+          { step: "Phase 3: Executive Scope & Board Governance", timeline: "Months 7-12", desc: "Position for multi-site leadership, articulate cross-functional transformation, and negotiate target executive package." }
         ],
-        topTraits: parsedResult?.topTraits || [
-          { title: "Level Headed", percentage: 95, description: "Remains calm, logical, and composed under high-stress operating environments." },
-          { title: "Principled Leader", percentage: 92, description: "Guides decisions with uncompromising operational integrity and long-term organizational value." },
-          { title: "Proactive Systems Builder", percentage: 90, description: "Anticipates systemic bottlenecks and builds resilient automation before failures occur." }
+        gaps: parsed?.gaps || [
+          { skill: "Enterprise CapEx Modeling", impact: "Crucial for VP/Director screening", fix: "Reframe facility upgrades with explicit ROI percentages and dollar savings in Resume summary." },
+          { skill: "Autonomous Systems Governance", impact: "High differentiator in modern supply chain", fix: "Highlight experience with automated material handling (AMR, AS/RS, sortation) across bullets." }
         ],
-        overview: parsedResult?.overview || `Your leadership profile demonstrates a high-leverage balance between strategic systems thinking and operational execution. In your current trajectory from ${formData.currentTitle || "your current role"} toward ${formData.targetIndustry || "target industry"}, your strongest asset is converting complex workflows into predictable, scalable performance.`,
-        roles: parsedResult?.roles || "• **Director of Operational Excellence / Transformation**\n• **Head of Technical Program Management & Operations**\n• **VP of Supply Chain Systems & Automation**\n• **Principal Strategy & Operations Partner**",
-        nextSteps: parsedResult?.nextSteps || "1. **Elevate Strategic Narrative**: Reframe accomplishments on your resume to emphasize systemic scale, technology integration, and direct ROI metrics ($ savings, uptime, velocity).\n2. **Identify Target Orgs**: Shortlist 10-15 growth companies currently scaling operations in your target domain.\n3. **Engage Leadership Stakeholders**: Initiate strategic peer conversations focused on high-level operational solutions rather than tactical task management."
+        overview: parsed?.overview || `Your leap from ${formData.currentTitle || "current role"} to ${formData.targetRole || "target position"} has an authentic pathway grounded in operational modernization.`,
+        positioningStrategy: parsed?.positioningStrategy || "Position yourself as an architect of self-sustaining systems, not merely a maintainer of frontline shifts.",
+        recommendedActions: parsed?.recommendedActions || [
+          "Transfer validated keywords to Resume Studio to immediately elevate ATS score.",
+          "Calibrate conflict candor and risk agility in the Behavioral Traits diagnostic.",
+          "Prepare executive storytelling bullets addressing multi-facility scale."
+        ]
       };
 
-      setParsedResult(result);
-      setOptimizedContent(`## 🧠 Your Behavioral Profile\n${result.overview}\n\n## 💼 Recommended Roles\n${result.roles}\n\n## 📝 Actionable Next Steps\n${result.nextSteps}`);
-      
-      // Save to shared career profile
+      setSimulatorResults(results);
+
+      // Save to shared session profile
       updateSharedCareerProfile({
-        careerGoal: formData.careerGoal,
-        currentTitle: formData.currentTitle,
-        targetIndustry: formData.targetIndustry,
-        behavioralAssessment: {
-          ...result,
-          date: new Date().toISOString()
-        }
-      });
-
-      setStep("behavioral-out");
-    } catch (error) {
-      console.error("Assessment handling error:", error);
-      // Fallback display so user is never blocked
-      const fallbackResult = {
-        scores: [
-          { subject: "Strategic", A: 95, fullMark: 100 },
-          { subject: "Proactivity", A: 92, fullMark: 100 },
-          { subject: "Analytical", A: 88, fullMark: 100 },
-          { subject: "Adaptability", A: 85, fullMark: 100 },
-          { subject: "Collaboration", A: 80, fullMark: 100 }
-        ],
-        topTraits: [
-          { title: "Level Headed", percentage: 95, description: "Remains calm, logical, and composed under high-stress operating environments." },
-          { title: "Principled Leader", percentage: 92, description: "Guides decisions with uncompromising operational integrity and long-term organizational value." },
-          { title: "Proactive Systems Builder", percentage: 90, description: "Anticipates systemic bottlenecks and builds resilient automation before failures occur." }
-        ],
-        overview: "Your leadership profile demonstrates a strong orientation toward high-impact systems architecture and strategic operations.",
-        roles: "• **Director of Operational Excellence**\n• **Head of Technical Operations**\n• **VP of Systems & Automation Strategy**",
-        nextSteps: "1. **Refine Executive Narrative**: Highlight quantifiable transformations on your resume.\n2. **Target High-Growth Companies**: Align with organizations scaling infrastructure.\n3. **Network with Key Decision Makers**: Position your background around organizational scalability."
-      };
-      setParsedResult(fallbackResult);
-      setOptimizedContent(`## 🧠 Your Behavioral Profile\n${fallbackResult.overview}\n\n## 💼 Recommended Roles\n${fallbackResult.roles}\n\n## 📝 Actionable Next Steps\n${fallbackResult.nextSteps}`);
-      setStep("behavioral-out");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSimulate = async () => {
-    setLoading(true);
-    setGenerationProgress(0);
-    try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: "Generate a transformation roadmap and skill gap analysis." }],
-          systemInstruction: `You are NOVA, providing a Career Path Simulation.
-        Current Role: ${formData.currentRole}
-        Desired Role: ${formData.targetRole}
-        Strengths: ${formData.strengths}
-        Skills: ${formData.skills}
-        
-        TASK: Generate a transformation roadmap and skill gap analysis.
-        
-        OUTPUT FORMAT: JSON ONLY
-        {
-          "roadmap": [
-            { "step": "01. Title", "desc": "description" }
-          ],
-          "gaps": ["gap 1", "gap 2"],
-          "overview": "Brief visionary overview of the path"
-        }`
-        })
-      });
-
-      if (!res.ok) throw new Error("API call failed");
-      const data = await res.json();
-      let text = data.reply || "{}";
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) text = jsonMatch[0];
-      const result = JSON.parse(text);
-      setParsedResult(result);
-
-      // Save to shared career profile
-      updateSharedCareerProfile({
-        currentTitle: formData.currentRole,
-        targetRole: formData.targetRole,
         simulatorData: {
-          roadmap: result.roadmap || [],
-          gaps: result.gaps || [],
-          overview: result.overview || "",
-          currentRole: formData.currentRole,
+          currentRole: formData.currentTitle,
           targetRole: formData.targetRole,
-          strengths: formData.strengths,
-          skills: formData.skills,
+          overview: results.overview,
+          strengths: formData.currentAccomplishments,
+          skills: formData.currentSkills,
+          gaps: results.gaps.map((g: any) => g.skill),
+          roadmap: results.roadmap.map((r: any) => ({ step: r.step, desc: r.desc })),
           date: new Date().toISOString()
         }
       });
 
-      setStep("simulator-out");
-    } catch (error) {
-      console.error("Simulation failed:", error);
-      alert("Simulation failed. Please try again.");
+      setSimStep("results");
+    } catch (err) {
+      console.error("Simulation error:", err);
+      setSimStep("results");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOptimize = async () => {
+  // Run Behavioral Assessment
+  const handleRunBehavioral = async () => {
     setLoading(true);
+    setBehStep("generating");
+    setGenerationProgress(0);
+
+    const timer = setInterval(() => {
+      setGenerationProgress(prev => (prev < 90 ? prev + 15 : prev));
+    }, 250);
+
     try {
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: "Optimize the resume according to instructions." }],
-          systemInstruction: `You are an expert Executive Resume Writer.
-        Current Role: ${formData.currentRole}
-        Target Role: ${formData.targetRole}
-        Gap: ${formData.biggestGap}
-        Content: ${formData.rawContent}
-        
-        TASK: Optimize the professional summary for "Operational Transformation" and "Systems Thinking". 
-        Provide 2 format options (A: Impact-Focused, B: Visionary & Strategic).
-        Include 3 specific rewrite recommendations.`
+          messages: [{ role: "user", content: "Analyze behavioral leadership traits for executive operations." }],
+          systemInstruction: `You are NOVA, Senior Strategic Intelligence.
+          Analyze executive diagnostic profile for candidate:
+          - Current Role: ${formData.currentTitle || "Operations Professional"}
+          - Target Role: ${formData.targetRole || "Director of Systems Transformation"}
+          - Operating Scope: ${formData.experienceLevel}
+          - Conflict Style: ${formData.conflictDynamics}
+          - Risk Agility: ${formData.riskThreshold}
+          - Change Leadership: ${formData.transformationStyle}
+          
+          Return ONLY valid JSON matching:
+          {
+            "scores": [
+              { "subject": "Strategic Architecture", "A": 96, "fullMark": 100 },
+              { "subject": "Execution Velocity", "A": 92, "fullMark": 100 },
+              { "subject": "Conflict Candor", "A": 90, "fullMark": 100 },
+              { "subject": "Risk Agility", "A": 88, "fullMark": 100 },
+              { "subject": "Change Leadership", "A": 94, "fullMark": 100 },
+              { "subject": "Cultural Alignment", "A": 89, "fullMark": 100 }
+            ],
+            "topTraits": [
+              { "title": "Evidence-Led Pragmatist", "percentage": 96, "description": "Grounds disagreements in objective data telemetry and SLA metrics, neutralizing interpersonal politics." },
+              { "title": "Calculated Systems Pioneer", "percentage": 94, "description": "Balances bold technology experimentation with rigorous risk mitigation and structured cutovers." },
+              { "title": "Transformation Catalyst", "percentage": 91, "description": "Engineers high-velocity change through disciplined Kaizen sprints and frontline buy-in." }
+            ],
+            "overview": "Your leadership diagnostic shows exceptional aptitude for complex operational transformation...",
+            "roles": "• **Director of Operational Excellence & Modernization**\\n• **VP of Supply Chain Systems & Automation**\\n• **Head of Technical Program Management**",
+            "nextSteps": "1. Align executive resume narrative around quantifiable ROI.\\n2. Target modern fulfillment networks.\\n3. Leverage telemetry authority in interviews."
+          }`
         })
       });
 
-      if (!res.ok) throw new Error("Optimization failed");
-      const data = await res.json();
-      setOptimizedContent(data.reply || "Optimization complete.");
-      setStep("r-review");
-    } catch (error) {
-      console.error("Optimization failed:", error);
-      alert("Optimization failed. Please try again.");
+      clearInterval(timer);
+      setGenerationProgress(100);
+
+      let parsed: any = null;
+      if (res.ok) {
+        const data = await res.json();
+        let text = data.reply || "{}";
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) text = jsonMatch[0];
+        try {
+          parsed = JSON.parse(text);
+        } catch (_) {}
+      }
+
+      const finalBeh = {
+        scores: parsed?.scores || [
+          { subject: "Strategic Architecture", A: 96, fullMark: 100 },
+          { subject: "Execution Velocity", A: 92, fullMark: 100 },
+          { subject: "Conflict Candor", A: 90, fullMark: 100 },
+          { subject: "Risk Agility", A: 88, fullMark: 100 },
+          { subject: "Change Leadership", A: 94, fullMark: 100 },
+          { subject: "Cultural Alignment", A: 89, fullMark: 100 }
+        ],
+        topTraits: parsed?.topTraits || [
+          { title: "Evidence-Led Pragmatist", percentage: 96, description: "Grounds operational disagreements in objective data telemetry and SLA metrics, neutralizing interpersonal friction." },
+          { title: "Calculated Systems Pioneer", percentage: 94, description: "Balances bold technology experimentation with rigorous risk mitigation and structured pilot cutovers." },
+          { title: "Transformation Catalyst", percentage: 91, description: "Engineers high-velocity change through disciplined Kaizen sprints and frontline buy-in." }
+        ],
+        overview: parsed?.overview || `Your diagnostic profile demonstrates a strong orientation toward high-impact systems architecture and strategic operations. You excel at synthesizing complex workflows into repeatable, high-output engines.`,
+        roles: parsed?.roles || "• **Director of Operational Excellence & Modernization**\n• **VP of Supply Chain Systems & Automation**\n• **Head of Technical Program Management**",
+        nextSteps: parsed?.nextSteps || "1. Align executive resume narrative around quantifiable ROI.\n2. Target modern fulfillment networks.\n3. Leverage telemetry authority in interviews."
+      };
+
+      setBehavioralResults(finalBeh);
+
+      // Save to shared career profile
+      updateSharedCareerProfile({
+        conflictDynamics: formData.conflictDynamics,
+        riskThreshold: formData.riskThreshold,
+        transformationStyle: formData.transformationStyle,
+        behavioralAssessment: {
+          ...finalBeh,
+          date: new Date().toISOString()
+        }
+      });
+
+      setBehStep("results");
+    } catch (err) {
+      console.error("Behavioral assessment error:", err);
+      setBehStep("results");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex flex-col md:flex-row overflow-hidden pt-16">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pt-16 selection:bg-teal-500 selection:text-white">
       <SEO 
-        title="Supply Chain & Tech Career Hub | NOVA AI Intelligence"
-        description="AI-driven career path simulation, executive resume optimization, and behavioral traits assessment for supply chain, warehouse, and technology leaders."
-        keywords="Supply chain career hub, warehouse operations career simulator, technology leadership assessment, AI resume optimizer, operations talent development"
+        title="Executive Career Center | Career Simulator, Resume Optimizer & Behavioral DNA"
+        description="Unified career acceleration command center for supply chain, logistics, and technology leaders. Real-time career path simulation, executive resume optimization, and behavioral traits assessment."
+        keywords="Executive career center, supply chain career simulator, resume optimizer, behavioral traits assessment, career leap roadmap, operations transformation"
       />
 
-      {/* Nova Strategic Companion Overlay */}
+      {/* Hidden file input for resume uploads */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        accept=".pdf,.docx,.txt" 
+        className="hidden" 
+        onChange={handleCareerResumeUpload} 
+      />
+
+      {/* Top Notification Toast */}
       <AnimatePresence>
-        {isNovaVisible && (
+        {uploadSuccessToast && (
           <motion.div 
-            drag
-            dragMomentum={false}
-            initial={{ opacity: 0, y: 50, x: 50, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="fixed bottom-8 right-8 z-[100] cursor-grab active:cursor-grabbing group"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-teal-700 text-white px-5 py-3 rounded-2xl font-bold text-xs shadow-2xl flex items-center gap-3 border border-teal-600"
           >
-            <div className="relative w-48 h-48 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 border-white/10 bubble-glow hover:border-white/30 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-              <video aria-label="Video presentation"  
-                ref={videoRef}
-                src="https://storage.googleapis.com/thetransformationroomassets/Nova%20Career%20Intro.mp4"
-                autoPlay
-                muted={isNovaMuted}
-                playsInline
-                onEnded={() => {
-                  // After finishing her message, she fades away
-                  setTimeout(() => setIsNovaVisible(false), 800);
-                }}
-                className="w-full h-full object-contain aspect-video transition-all duration-1000"
-              />
-              <div className="absolute inset-0 bg-brand-secondary/5 pointer-events-none" />
-              
-              {/* Close Button */}
-              <button 
-                onClick={() => setIsNovaVisible(false)}
-                className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              {/* Mute/Unmute Toggle */}
-              <button 
-                onClick={() => setIsNovaMuted(!isNovaMuted)}
-                className="absolute bottom-4 right-4 p-2 bg-black/40 hover:bg-black/60 backdrop-blur-xl border border-white/10 rounded-full text-white/50 hover:text-white transition-all z-20 pointer-events-auto"
-              >
-                {isNovaMuted ? <Bot className="w-4 h-4 opacity-50" /> : <Sparkles className="w-4 h-4 text-brand-secondary" />}
-              </button>
-
-              {/* Internal Label */}
-              <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-brand-secondary/50 animate-pulse" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-brand-secondary">
-                    Nova Career Mentor
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Status Tag */}
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap"
-            >
-              <div className="px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 bg-slate-900/60 text-slate-400">
-                <span className="text-[10px] font-black uppercase tracking-widest leading-none">
-                  Strategic Onboarding Active
-                </span>
-              </div>
-            </motion.div>
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-teal-200" />
+            <span>{uploadSuccessToast}</span>
+            <button onClick={() => setUploadSuccessToast(null)} className="ml-2 p-1 hover:bg-white/20 rounded-lg">
+              <X className="w-3.5 h-3.5" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Left Sidebar */}
-      <div className="md:w-1/4 bg-slate-900 p-8 md:p-12 text-white flex flex-col justify-between overflow-y-auto relative z-10 shadow-2xl shrink-0">
-        <div>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 rounded-xl bg-brand-secondary/20 flex items-center justify-center border border-white/10">
-              <Sparkles className="w-5 h-5 text-brand-secondary" />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-secondary">{t("career.engine")}</span>
-          </div>
-          <h2 className="text-3xl font-bold mb-6 tracking-tight">
-            {formData.pathSelection === "behavioral" ? "Behavioral Insights" : 
-             formData.pathSelection === "resume" ? "Resume Optimization" :
-             formData.pathSelection === "simulator" ? "Path Simulation" : "NOVA Intelligence"}
-          </h2>
-          <p className="text-slate-400 text-sm leading-relaxed mb-12 font-light">
-            {formData.pathSelection === "behavioral" ? "Uncover your strategic traits and match with high-velocity roles." : 
-             formData.pathSelection === "resume" ? "Reframing your experience for the next generation of operations." :
-             formData.pathSelection === "simulator" ? "Mapping the trajectory from where you are to where you want to be." : 
-             "Select a specialized carrier tool to begin your transformation journey."}
-          </p>
 
-          <div className="space-y-6">
-            {(formData.pathSelection === "behavioral" ? [
-              { label: "Select Tool", active: step === "path" },
-              { label: "Assessment", active: step === "behavioral-q" || step === "behavioral-generating" },
-              { label: "Results", active: step === "behavioral-out" },
-            ] : formData.pathSelection === "simulator" ? [
-              { label: "Career Objective", active: step === "path" },
-              { label: "Role & Skills", active: step === "simulator-q" },
-              { label: "Transformation Roadmap", active: step === "simulator-out" },
-            ] : [
-              { label: "Select Tool & Goal", active: step === "path" },
-              { label: "Assessment", active: false },
-              { label: "Roadmap / Profile", active: false },
-            ]).map((s, i) => (
-              <div key={i} className="flex items-center gap-4 group">
-                <div className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${s.active ? 'bg-brand-secondary scale-150 shadow-[0_0_12px_rgba(20,184,166,0.8)]' : 'bg-white/10 group-hover:bg-white/30'}`} />
-                <span className={`text-[10px] font-black uppercase tracking-widest transition-colors duration-500 ${s.active ? 'text-white' : 'text-white/30'}`}>{s.label}</span>
+      {/* Unified Command Center Top Ribbon (Clean Light Style) */}
+      <div className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-16 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            {/* Left: Section branding without fake data */}
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
+                <Compass className="w-5 h-5 text-teal-600" />
               </div>
-            ))}
-          </div>
-        </div>
+              <div>
+                <span className="text-sm font-bold text-slate-900 block leading-tight">Career Center</span>
+                <span className="text-[11px] text-slate-500 font-normal">Career Simulator, Resume Optimizer & Behavioral DNA</span>
+              </div>
+            </div>
 
-        <div className="mt-12 p-6 bg-white/5 rounded-2xl border border-white/10">
-          <div className="flex items-center gap-3 mb-4">
-             <Bot className="w-5 h-5 text-brand-secondary" />
-             <span className="text-xs font-bold text-white">{t("career.novaAdvice")}</span>
+            {/* Right: Three Tools Seamless Navigation Tabs (Clean Light Switcher) */}
+            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-2xl border border-slate-200 self-start lg:self-auto overflow-x-auto scrollbar-none w-full lg:w-auto">
+              <button
+                onClick={() => switchTab("simulator")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === "simulator"
+                    ? "bg-white text-teal-900 shadow-xs border border-slate-200/90 font-black"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5 text-teal-600" />
+                <span>1. Career Simulator</span>
+              </button>
+
+              <button
+                onClick={() => switchTab("resume")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === "resume"
+                    ? "bg-white text-teal-900 shadow-xs border border-slate-200/90 font-black"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                <span>2. Resume Optimizer</span>
+              </button>
+
+              <button
+                onClick={() => switchTab("behavioral")}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                  activeTab === "behavioral"
+                    ? "bg-white text-teal-900 shadow-xs border border-slate-200/90 font-black"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                }`}
+              >
+                <Brain className="w-3.5 h-3.5 text-indigo-600" />
+                <span>3. Behavioral Traits</span>
+              </button>
+            </div>
+
           </div>
-          <p className="text-[11px] text-slate-400 italic">{t("career.novaQuote")}</p>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 md:p-12 overflow-y-auto bg-white flex flex-col relative">
-        <AnimatePresence mode="wait">
-          {step === "path" && (
-            <motion.div key="path" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl mx-auto my-auto py-8 md:py-0 w-full">
-              <div className="mb-8">
-                <h3 className="text-3xl font-bold text-slate-900 mb-2">{t('career.path.q')}</h3>
-                <p className="text-slate-500 text-sm md:text-base">{t('career.path.desc')}</p>
-              </div>
-              
-              <div className="space-y-5 mb-8">
-                {/* 1. Career Path Simulator Card with First Question Directly Underneath */}
-                <div 
-                  onClick={() => {
-                    if (formData.pathSelection !== "simulator") {
-                      setFormData(prev => ({ ...prev, pathSelection: "simulator" }));
-                    }
-                  }} 
-                  className={`text-left p-6 md:p-8 rounded-[2rem] border-2 transition-all relative overflow-hidden group cursor-pointer ${
-                    formData.pathSelection === "simulator" 
-                      ? 'border-brand-secondary bg-brand-secondary/5 shadow-md' 
-                      : 'border-slate-200 bg-white hover:border-brand-secondary/60 shadow-sm'
-                  }`}
-                >
-                  <div className="flex gap-5 relative z-10 items-start">
-                    <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">
-                      <LucideMap className="w-7 h-7" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className={`text-xl mb-1.5 ${formData.pathSelection === "simulator" ? 'text-brand-primary font-bold' : 'text-slate-900 font-bold'}`}>
-                          {t('career.path.simTitle')}
-                        </h4>
-                        {formData.pathSelection === "simulator" && (
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-brand-secondary text-brand-primary">
-                            Selected
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-slate-500 font-normal leading-relaxed mb-1">{t('career.path.simDesc')}</p>
-                    </div>
-                  </div>
+      {/* Main Content Areas */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
 
-                  {/* The First Question Directly Under Career Path Simulator */}
-                  <div className="mt-6 pt-6 border-t border-slate-200/80">
-                    <div className="mb-4">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="w-2 h-2 rounded-full bg-brand-secondary" />
-                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-600">Question 1: Primary Objective</span>
-                      </div>
-                      <h5 className="text-base md:text-lg font-bold text-slate-900">{t('career.goals.q')}</h5>
-                      <p className="text-xs text-slate-500 mt-0.5">{t('career.goals.desc')}</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                      {[
-                        { val: "Find a New Job", label: t('career.goals.1') },
-                        { val: "Transition Careers (Industry/Role)", label: t('career.goals.2') },
-                        { val: "Get Promoted (Level Up)", label: t('career.goals.3') },
-                        { val: "Build My Professional Brand", label: t('career.goals.4') }
-                      ].map((goal, i) => (
-                        <div
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setFormData(prev => ({ ...prev, careerGoal: goal.val, pathSelection: "simulator" }));
-                          }}
-                          className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer flex items-center gap-3 ${
-                            formData.careerGoal === goal.val && formData.pathSelection === "simulator"
-                              ? 'border-brand-primary bg-brand-primary text-white font-bold shadow-md' 
-                              : 'border-slate-200 bg-white hover:border-brand-secondary/70 text-slate-800'
-                          }`}
-                        >
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                            formData.careerGoal === goal.val && formData.pathSelection === "simulator" 
-                              ? 'bg-brand-secondary text-brand-primary font-black' 
-                              : 'bg-slate-100 text-slate-600 border border-slate-200'
-                          }`}>
-                            {i + 1}
-                          </div>
-                          <span className="text-xs md:text-sm font-semibold leading-snug">{goal.label}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {formData.pathSelection === "simulator" && (
-                      <button
-                        type="button"
-                        disabled={!formData.careerGoal}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setStep("simulator-q");
-                          triggerNovaCareer();
-                        }}
-                        className="w-full mt-2 py-4 bg-brand-primary hover:bg-brand-dark text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md cursor-pointer text-sm"
-                      >
-                        {formData.careerGoal ? "Continue Path Simulation" : "Select an Objective Above"} <ChevronRight className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+        {/* ========================================================================= */}
+        {/* TAB 1: CAREER PATHWAY SIMULATOR ("Where You're At" & "Where You're Going") */}
+        {/* ========================================================================= */}
+        {activeTab === "simulator" && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            
+            {/* Header Hero Banner (Clean Light Styling) */}
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xs">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                    Where You're At <span className="text-teal-600">→</span> Where You're Looking to Go
+                  </h1>
+                  <p className="text-slate-600 text-sm mt-1 max-w-2xl">
+                    Define your current baseline, upload your resume, and map your trajectory to high-impact target roles. Paste in a full job description or link to extract requirements instantly.
+                  </p>
                 </div>
 
-                {/* 2. Executive Resume Studio Card */}
-                <div 
-                  onClick={() => navigate("/resume-builder")} 
-                  className="text-left p-6 md:p-8 rounded-[2rem] border-2 border-slate-200 bg-white hover:border-emerald-500 transition-all relative overflow-hidden group cursor-pointer shadow-sm"
-                >
-                  <div className="flex gap-5 relative z-10 items-start">
-                    <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                      <FileText className="w-7 h-7" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-xl font-bold text-slate-900 mb-1.5 group-hover:text-emerald-700 transition-colors">
-                          {t('career.path.resTitle')}
-                        </h4>
-                        <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                          Open Studio <ChevronRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.resDesc')}</p>
-                    </div>
-                  </div>
-                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-2 border border-slate-200 shadow-xs transition-all cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4 text-teal-600" />
+                    <span>Upload Resume to Auto-Fill</span>
+                  </button>
 
-                {/* 3. Behavioral Traits Assessment Card */}
-                <div 
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, pathSelection: "behavioral" }));
-                    setStep("behavioral-q");
-                    triggerNovaCareer();
-                  }} 
-                  className={`text-left p-6 md:p-8 rounded-[2rem] border-2 transition-all relative overflow-hidden group cursor-pointer shadow-sm ${
-                    formData.pathSelection === "behavioral" 
-                      ? 'border-indigo-500 bg-indigo-50/20' 
-                      : 'border-slate-200 bg-white hover:border-indigo-400'
-                  }`}
-                >
-                  <div className="flex gap-5 relative z-10 items-start">
-                    <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                      <Sparkles className="w-7 h-7" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-xl font-bold text-slate-900 mb-1.5 group-hover:text-indigo-700 transition-colors">
-                          {t('career.path.behTitle')}
-                        </h4>
-                        <span className="text-xs font-bold text-indigo-600 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                          Start Assessment <ChevronRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-500 font-normal leading-relaxed">{t('career.path.behDesc')}</p>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => switchTab("resume")}
+                    className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+                  >
+                    <FileText className="w-4 h-4 text-white" />
+                    <span>Open in Resume Studio</span>
+                  </button>
                 </div>
               </div>
-            </motion.div>
-          )}
+            </div>
 
-           {step === "behavioral-q" && (
-            <motion.div key="behavioral-q" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto w-full">
-               <div className="flex justify-between items-center mb-10">
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-900">Career Personality Assessment</h3>
-                    <p className="text-slate-600 text-sm font-medium">Discover leadership traits, high-fit job titles, and actionable next steps.</p>
-                  </div>
-                  <div className="flex gap-1.5">
-                    {[1,2,3].map(i => (
-                      <div key={i} className={`w-8 h-2.5 rounded-full transition-all duration-300 ${activeSubStep >= i ? 'bg-brand-primary' : 'bg-slate-200'}`} />
-                    ))}
-                  </div>
-               </div>
+            {/* Split Dual-Column Interactive Engine: Where they're at vs Where they want to go */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-               {activeSubStep === 1 && (
-                 <div className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                       <div className="space-y-3">
-                          <label className="text-xs font-bold uppercase tracking-wider text-slate-800 pl-1 block">Current Professional Title</label>
-                          <input 
-                            type="text" 
-                            className="w-full p-5 rounded-2xl bg-white border-2 border-slate-200 text-black font-semibold placeholder:text-slate-400 focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/20 outline-none transition-all shadow-sm text-base" 
-                            value={formData.currentTitle} 
-                            onChange={(e) => setFormData({...formData, currentTitle: e.target.value})} 
-                            placeholder="e.g. Operations Director" 
-                          />
-                       </div>
-                       <div className="space-y-3">
-                          <label className="text-xs font-bold uppercase tracking-wider text-slate-800 pl-1 block">Target Sector</label>
-                          <input 
-                            type="text" 
-                            className="w-full p-5 rounded-2xl bg-white border-2 border-slate-200 text-black font-semibold placeholder:text-slate-400 focus:border-brand-secondary focus:ring-2 focus:ring-brand-secondary/20 outline-none transition-all shadow-sm text-base" 
-                            value={formData.targetIndustry} 
-                            onChange={(e) => setFormData({...formData, targetIndustry: e.target.value})} 
-                            placeholder="e.g. High-Tech Fulfillment" 
-                          />
-                       </div>
+              {/* ------------------------------------------------------------- */}
+              {/* LEFT PILLAR: WHERE YOU'RE AT (CURRENT STATE)                  */}
+              {/* ------------------------------------------------------------- */}
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs relative">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
+                      <User className="w-5 h-5" />
                     </div>
                     <div>
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-800 pl-1 mb-4 block">Where do you provide the most leverage?</label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           {[{id: "Strategy", desc: "Long-term systems architecture & planning", icon: <Layers className="w-6 h-6" />}, {id: "Execution", desc: "High-speed tactical orchestration & delivery", icon: <Zap className="w-6 h-6" />}].map(opt => (
-                             <button 
-                               key={opt.id} 
-                               onClick={() => setFormData({...formData, behavioralQ1: opt.id})} 
-                               className={`p-6 rounded-2xl border-2 flex items-center gap-4 transition-all cursor-pointer text-left ${formData.behavioralQ1 === opt.id ? 'bg-brand-primary text-white border-brand-primary shadow-xl shadow-brand-primary/20' : 'bg-white border-slate-200 hover:border-brand-secondary text-black shadow-sm'}`}
-                             >
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${formData.behavioralQ1 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
-                                  {opt.icon}
-                                </div>
-                                <div>
-                                  <span className={`font-bold text-base md:text-lg block ${formData.behavioralQ1 === opt.id ? 'text-white' : 'text-black'}`}>{opt.id}</span>
-                                  <span className={`text-xs block mt-0.5 ${formData.behavioralQ1 === opt.id ? 'text-slate-200' : 'text-slate-600'}`}>{opt.desc}</span>
-                                </div>
-                             </button>
-                           ))}
-                        </div>
-                    </div>
-                 </div>
-               )}
-
-               {activeSubStep === 2 && (
-                 <div className="space-y-8">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-800 pl-1 mb-4 block">Your primary problem-solving style:</label>
-                    <div className="grid grid-cols-1 gap-4">
-                       {[
-                         {id: "Systemic Visionary", sub: "Abstract, non-linear pattern recognition and connected workflows.", icon: <Brain className="w-6 h-6" />},
-                         {id: "Process Optimizer", sub: "Sequential, structured logic and repeatable frameworks.", icon: <Settings className="w-6 h-6" />},
-                         {id: "Crisis Orchestrator", sub: "High-speed tactical adaptation and real-time triage.", icon: <Zap className="w-6 h-6" /> }
-                       ].map(opt => (
-                         <button 
-                           key={opt.id} 
-                           onClick={() => setFormData({...formData, behavioralQ5: opt.id})} 
-                           className={`p-6 md:p-8 rounded-3xl border-2 flex items-center gap-6 transition-all cursor-pointer ${formData.behavioralQ5 === opt.id ? 'bg-brand-primary text-white border-brand-primary shadow-xl' : 'bg-white border-slate-200 hover:border-brand-secondary text-black shadow-sm'}`}
-                         >
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 ${formData.behavioralQ5 === opt.id ? 'bg-brand-secondary text-brand-primary' : 'bg-slate-100 text-slate-800 border border-slate-200'}`}>
-                              {opt.icon}
-                            </div>
-                            <div className="text-left">
-                               <p className={`font-bold text-lg leading-tight mb-1.5 ${formData.behavioralQ5 === opt.id ? 'text-white' : 'text-black'}`}>{opt.id}</p>
-                               <p className={`text-sm ${formData.behavioralQ5 === opt.id ? 'text-slate-200' : 'text-slate-600'} font-medium`}>{opt.sub}</p>
-                            </div>
-                         </button>
-                       ))}
-                    </div>
-                 </div>
-               )}
-
-               {activeSubStep === 3 && (
-                 <div className="space-y-8">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-800 pl-1 mb-4 block">What value is non-negotiable for your next role?</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                       {[
-                         {id: "Rapid Growth", icon: <Zap className="w-6 h-6" />},
-                         {id: "Stability", icon: <ShieldCheck className="w-6 h-6" />},
-                         {id: "Compensation", icon: <Trophy className="w-6 h-6" />},
-                         {id: "Balance", icon: <Coffee className="w-6 h-6" />},
-                         {id: "Purpose", icon: <Heart className="w-6 h-6" />}
-                       ].map(opt => (
-                         <button 
-                           key={opt.id} 
-                           onClick={() => setFormData({...formData, careerValue: opt.id})} 
-                           className={`p-6 rounded-[2rem] border-2 flex flex-col items-center gap-3 transition-all cursor-pointer ${formData.careerValue === opt.id ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/20' : 'bg-white border-slate-200 hover:border-brand-secondary text-black shadow-sm'}`}
-                         >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${formData.careerValue === opt.id ? 'text-brand-secondary' : 'text-brand-primary'}`}>
-                              {opt.icon}
-                            </div>
-                            <span className={`font-bold text-base ${formData.careerValue === opt.id ? 'text-white' : 'text-black'}`}>{opt.id}</span>
-                         </button>
-                       ))}
-                    </div>
-                 </div>
-               )}
-
-               <div className="mt-12 flex gap-4">
-                  <button 
-                    onClick={() => {
-                      if (activeSubStep > 1) {
-                        setActiveSubStep(s => s - 1);
-                      } else {
-                        setStep("path");
-                      }
-                    }} 
-                    className="flex-1 py-5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-bold transition-colors"
-                  >
-                    Back
-                  </button>
-                  {activeSubStep < 3 ? (
-                    <button onClick={() => setActiveSubStep(s => s + 1)} className="flex-[2] py-5 bg-brand-primary hover:bg-brand-dark text-white rounded-2xl font-bold transition-all shadow-md">Next Insight</button>
-                  ) : (
-                    <button onClick={handleBehavioralAssessment} className="flex-[2] py-5 bg-brand-primary hover:bg-brand-dark text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-md cursor-pointer">
-                       Generate Profile <Sparkles className="w-5 h-5 text-brand-secondary" />
-                    </button>
-                  )}
-               </div>
-            </motion.div>
-          )}
-
-          {step === "simulator-q" && (
-            <motion.div key="simulator-q" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto w-full my-auto py-8">
-               <div className="mb-6">
-                 {formData.careerGoal && (
-                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-secondary/15 border border-brand-secondary/30 text-brand-primary font-bold text-xs mb-3">
-                     <span className="w-2 h-2 rounded-full bg-brand-secondary" />
-                     <span>Objective: {formData.careerGoal}</span>
-                   </div>
-                 )}
-                 <h3 className="text-3xl font-bold text-slate-900 mb-2">Initialize Path Simulation</h3>
-                 <p className="text-slate-500 text-sm md:text-base">Map your transformation trajectory from current state to desired outcome.</p>
-               </div>
-               
-               <div className="space-y-6 mb-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Current Role</label>
-                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900 font-semibold" placeholder="e.g. Warehouse Manager" value={formData.currentRole} onChange={(e) => setFormData({...formData, currentRole: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Target Transformation</label>
-                       <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900 font-semibold" placeholder="e.g. Director of Operations" value={formData.targetRole} onChange={(e) => setFormData({...formData, targetRole: e.target.value})} />
+                      <h2 className="text-lg font-bold text-slate-900">1. Where You're At</h2>
+                      <span className="text-[11px] font-semibold text-slate-500">Current baseline & operating scope</span>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Top Strengths</label>
-                     <textarea className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary h-28 text-slate-900" placeholder="Describe where you excel..." value={formData.strengths} onChange={(e) => setFormData({...formData, strengths: e.target.value})} />
-                  </div>
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Transferable Skills</label>
-                     <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none focus:bg-white focus:border-brand-secondary text-slate-900" placeholder="e.g. SQL, Lean Six Sigma, Automation" value={formData.skills} onChange={(e) => setFormData({...formData, skills: e.target.value})} />
-                  </div>
-               </div>
-
-               <div className="flex gap-4">
-                  <button onClick={() => setStep("path")} className="flex-1 py-5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-2xl font-bold transition-colors">
-                     Back to Tools
-                  </button>
-                  <button onClick={handleSimulate} disabled={!formData.currentRole || !formData.targetRole} className="flex-[2] py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-brand-primary transition-all disabled:opacity-50 shadow-md">
-                     Simulate Transformation <Zap className="w-5 h-5 text-brand-secondary" />
-                  </button>
-               </div>
-            </motion.div>
-          )}
-
-          {/* Result Steps (Behavioral Out, Simulator Out, Resume Review) would go here similarly to ResumeOptimizer.tsx but integrated */}
-          {step === "behavioral-generating" && (
-             <motion.div key="gen" className="text-center my-auto flex flex-col items-center">
-                <div className="w-24 h-24 rounded-3xl bg-slate-100 flex items-center justify-center mb-10 border border-slate-200">
-                   <Loader2 className="w-12 h-12 text-brand-secondary animate-spin" />
+                  <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 font-bold">
+                    Current Baseline
+                  </span>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">{loadingMessage}</h3>
-                <div className="max-w-md w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                   <motion.div className="h-full bg-brand-secondary" animate={{ width: `${generationProgress}%` }} />
-                </div>
-             </motion.div>
-          )}
 
-          {step === "behavioral-out" && parsedResult && (
-            <motion.div key="results" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl mx-auto py-12">
-               <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
-                  <div className="w-full md:w-1/2">
-                     <h3 className="text-3xl font-bold text-slate-900 mb-6 tracking-tight">Professional Traits Profile</h3>
-                     <div className="p-8 bg-slate-900 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-secondary/10 rounded-full blur-3xl" />
-                        <div className="h-[300px]">
-                           <ResponsiveContainer width="100%" height="100%">
-                              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={parsedResult.scores}>
-                                 <PolarGrid stroke="#ffffff10" />
-                                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 900 }} />
-                                 <Radar name="Traits" dataKey="A" stroke="#14b8a6" fill="#14b8a6" fillOpacity={0.6} />
-                              </RadarChart>
-                           </ResponsiveContainer>
-                        </div>
-                     </div>
-                  </div>
-                  <div className="w-full md:w-1/2 space-y-6">
-                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Core Transformation Pillars</h4>
-                     {parsedResult.topTraits.map((trait, i) => (
-                        <div key={i} className="p-6 bg-slate-50 border border-slate-100 rounded-2xl">
-                           <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold text-slate-900">{trait.title}</span>
-                              <span className="text-brand-primary font-black">{trait.percentage}% Match</span>
-                           </div>
-                           <p className="text-xs text-slate-500 leading-relaxed italic">"{trait.description}"</p>
-                        </div>
-                     ))}
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8 border-t border-slate-100">
-                  <div className="prose prose-slate prose-sm max-w-none">
-                     <h4 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <Briefcase className="w-5 h-5 text-brand-secondary" /> Ideal Growth Roles
-                     </h4>
-                     <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-                        <Markdown>{parsedResult.roles}</Markdown>
-                     </div>
-                  </div>
-                  <div className="prose prose-slate prose-sm max-w-none">
-                     <h4 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-brand-secondary" /> NOVA Action Plan
-                     </h4>
-                     <div className="bg-brand-primary/5 p-6 rounded-[2rem] border border-brand-primary/10">
-                        <Markdown>{parsedResult.nextSteps}</Markdown>
-                     </div>
-                  </div>
-               </div>
-
-               <div className="mt-16 flex flex-col sm:flex-row gap-4">
-                  <button onClick={() => setStep("path")} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Assessment</button>
-                  <Link 
-                    to="/resume-builder" 
-                    className="flex-1 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20 transition-all cursor-pointer text-center"
-                  >
-                    <FileText className="w-5 h-5 text-emerald-200" />
-                    Apply Traits to Executive Resume Studio
-                  </Link>
-                  <button 
-                    onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                      detail: { 
-                        type: 'individual', 
-                        prompt: "Let's discuss my behavioral traits assessment results with NOVA. I'm interested in how these match the recommended high-growth roles." 
-                      } 
-                    }))} 
-                    className="flex-1 px-6 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
-                  >
-                    <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
-                    Discuss Traits with NOVA
-                  </button>
-               </div>
-            </motion.div>
-          )}
-
-          {step === "simulator-out" && parsedResult && (
-            <motion.div key="sim-out" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="max-w-4xl mx-auto py-12">
-               <div className="flex items-center gap-8 mb-16">
-                  <div className="w-24 h-24 rounded-3xl bg-slate-900 overflow-hidden shrink-0 border border-brand-secondary/30 shadow-2xl">
-                    <img src="https://storage.googleapis.com/thetransformationroomassets/Nova%20face" alt="NOVA" className="w-full h-full object-cover"  width="400" height="400" loading="lazy" />
-                  </div>
+                {/* Candidate Name & Current Role */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-secondary">Path Simulation Success</span>
-                    <h2 className="text-4xl font-bold text-slate-900 tracking-tight">Your Transformation Roadmap</h2>
-                    <p className="text-slate-500 italic mt-2">"The pattern is clear. This transition is not about skill acquisition alone—it's about narrative authority."</p>
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div className="space-y-8">
-                     <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Step-by-Step Trajectory</h4>
-                     <div className="space-y-6 relative before:absolute before:left-4 before:top-4 before:bottom-4 before:w-[2px] before:bg-slate-100">
-                        {parsedResult.roadmap?.map((item, i) => (
-                           <div key={i} className="relative pl-12">
-                              <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-white border-2 border-brand-secondary flex items-center justify-center text-[10px] font-black text-brand-secondary z-10">{i + 1}</div>
-                              <h5 className="font-bold text-slate-900 text-lg mb-1">{item.step}</h5>
-                              <p className="text-sm text-slate-500 font-light leading-relaxed">{item.desc}</p>
-                           </div>
-                        ))}
-                     </div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Full Name
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.candidateName}
+                      onChange={(e) => handleFormChange("candidateName", e.target.value)}
+                      placeholder="e.g. Alex Rivera"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
                   </div>
 
-                  <div className="space-y-8">
-                     <div>
-                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Identified Skill Gaps</h4>
-                        <div className="grid grid-cols-1 gap-3">
-                           {parsedResult.gaps?.map((gap, i) => (
-                              <div key={i} className="p-4 bg-slate-50 border border-slate-100 rounded-xl flex items-center gap-3">
-                                 <AlertCircle className="w-4 h-4 text-brand-primary" />
-                                 <span className="text-sm font-semibold text-slate-700">{gap}</span>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-                     <div className="p-8 bg-brand-primary rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-secondary/20 rounded-full blur-2xl" />
-                        <h5 className="text-xs font-black uppercase tracking-widest text-brand-secondary mb-4">NOVA Positioning Strategy</h5>
-                        <p className="text-lg font-light leading-relaxed italic">"Stop framing your background as operations. Start framing it as systems orchestrations. Your value is in the flow, not just the facility."</p>
-                     </div>
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Current Professional Title
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.currentTitle}
+                      onChange={(e) => handleFormChange("currentTitle", e.target.value)}
+                      placeholder="e.g. Senior Operations Manager"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
                   </div>
-               </div>
+                </div>
 
-               <div className="mt-20 flex flex-col sm:flex-row gap-4">
-                  <button onClick={() => setStep("path")} className="px-6 py-4 bg-slate-100 text-slate-600 rounded-xl font-bold transition-all hover:bg-slate-200">New Simulation</button>
-                  <Link 
-                    to="/resume-builder" 
-                    className="flex-1 px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/20 transition-all cursor-pointer text-center"
+                {/* Organization & Seniority Tier */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Current Organization / Company
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.currentCompany}
+                      onChange={(e) => handleFormChange("currentCompany", e.target.value)}
+                      placeholder="e.g. Apex Global Logistics"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Operating Scope / Seniority Tier
+                    </label>
+                    <select
+                      value={formData.experienceLevel}
+                      onChange={(e) => handleFormChange("experienceLevel", e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 cursor-pointer transition-all"
+                    >
+                      <option value="">Select Seniority Level...</option>
+                      <option value="Manager / Frontline Lead">Manager / Frontline Lead</option>
+                      <option value="Director / Head of Department">Director / Head of Department</option>
+                      <option value="VP / Executive Level">VP / Executive Level</option>
+                      <option value="Strategic Principal / SME">Strategic Principal / SME</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Current Key Accomplishments & Scope (With TALK TO TEXT) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                      Current Key Accomplishments & Scope
+                    </label>
+                    <VoiceInputButton 
+                      onTranscript={(spoken) => {
+                        const cur = formData.currentAccomplishments || "";
+                        const sep = cur.trim() ? "\n" : "";
+                        handleFormChange("currentAccomplishments", cur + sep + spoken);
+                      }}
+                      label="Talk to Text"
+                    />
+                  </div>
+                  <textarea 
+                    rows={4}
+                    value={formData.currentAccomplishments}
+                    onChange={(e) => handleFormChange("currentAccomplishments", e.target.value)}
+                    placeholder="Describe scale of facilities managed, workforce size, throughput gains, automation rollouts (or click Talk to Text to speak)..."
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 leading-relaxed placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none resize-y transition-all"
+                  />
+                  <span className="text-[11px] text-slate-500 mt-1 block">
+                    Tip: Use voice to articulate your biggest career milestones and throughput metrics naturally.
+                  </span>
+                </div>
+
+                {/* Core Competencies & Skills */}
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                    Current Core Competencies & Technologies
+                  </label>
+                  <input 
+                    type="text"
+                    value={formData.currentSkills}
+                    onChange={(e) => handleFormChange("currentSkills", e.target.value)}
+                    placeholder="e.g. Lean Six Sigma, WMS Systems, AMR Robotics, CapEx Modeling, Labor Optimization"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Quick Upload Resume Banner */}
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-4 rounded-2xl border-2 border-dashed border-teal-200 hover:border-teal-500 bg-teal-50/30 hover:bg-teal-50/70 flex items-center justify-between gap-4 cursor-pointer transition-all group shadow-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 block">Auto-populate from Resume</span>
+                      <span className="text-[11px] text-slate-500">PDF, DOCX, TXT • Transfers live to Resume Studio</span>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-teal-700 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                    Browse <ChevronRight className="w-3.5 h-3.5" />
+                  </span>
+                </div>
+              </div>
+
+              {/* ------------------------------------------------------------- */}
+              {/* RIGHT PILLAR: WHERE YOU'RE LOOKING TO GO (FUTURE TRAJECTORY)  */}
+              {/* ------------------------------------------------------------- */}
+              <div className="bg-white border border-teal-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs relative">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
+                      <Target className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">2. Where You're Looking to Go</h2>
+                      <span className="text-[11px] font-semibold text-slate-500">Target role, desired industry & job requirements</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-teal-50 text-teal-800 border border-teal-200 font-bold">
+                    Future Vision
+                  </span>
+                </div>
+
+                {/* Target Role & Target Company */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Target Role / Job Title
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.targetRole}
+                      onChange={(e) => handleFormChange("targetRole", e.target.value)}
+                      placeholder="e.g. VP of Supply Chain Systems & Automation"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Target Company / Organization
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.targetCompany}
+                      onChange={(e) => handleFormChange("targetCompany", e.target.value)}
+                      placeholder="e.g. Target Organization or Industry Leader"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Target Industry & Target Compensation */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Target Sector / Industry
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.targetIndustry}
+                      onChange={(e) => handleFormChange("targetIndustry", e.target.value)}
+                      placeholder="e.g. Automated Logistics & Enterprise Robotics"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                      Target Compensation Bracket
+                    </label>
+                    <input 
+                      type="text"
+                      value={formData.targetSalary}
+                      onChange={(e) => handleFormChange("targetSalary", e.target.value)}
+                      placeholder="e.g. $190,000 - $250,000+"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Primary Career Objective */}
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 block mb-1">
+                    Primary Career Objective
+                  </label>
+                  <select
+                    value={formData.careerGoal}
+                    onChange={(e) => handleFormChange("careerGoal", e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 outline-none focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 cursor-pointer transition-all"
                   >
-                    <FileText className="w-5 h-5 text-emerald-200" />
-                    Apply Roadmap & Skills to Resume Studio
-                  </Link>
-                  <button 
-                    onClick={() => window.dispatchEvent(new CustomEvent('ais:open-chat', { 
-                      detail: { 
-                        type: 'individual', 
-                        prompt: `Let's discuss my career path simulation results with NOVA. I just simulated a path to ${formData.targetRole} and want to deconstruct the roadmap.` 
-                      } 
-                    }))} 
-                    className="flex-1 px-6 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl hover:bg-brand-primary transition-all group"
-                  >
-                    <Bot className="w-5 h-5 text-brand-secondary group-hover:animate-pulse" /> 
-                    Deconstruct with NOVA
-                  </button>
-               </div>
-            </motion.div>
-          )}
+                    <option value="">Select Primary Objective...</option>
+                    <option value="Transition to Higher Executive Tier (Level Up)">Transition to Higher Executive Tier (Level Up)</option>
+                    <option value="Pivot to Automation & Robotics Logistics">Pivot to Automation & Robotics Logistics</option>
+                    <option value="Enterprise Transformation Leadership">Enterprise Transformation Leadership</option>
+                    <option value="Expand Multi-Site & International Scope">Expand Multi-Site & International Scope</option>
+                  </select>
+                </div>
 
-          {/* Add basic Resume Review steps... */}
-          {(step === "r-title" || step === "r-gap" || step === "r-upload" || step === "r-review") && (
-             <motion.div key="res" className="max-w-xl mx-auto w-full my-auto py-12">
-                {step === "r-title" && (
-                  <div className="space-y-8">
-                     <h3 className="text-3xl font-bold text-slate-900">Resume Target Logic</h3>
-                     <div className="space-y-4">
-                        <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Target Role</label>
-                           <input type="text" className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none" placeholder="e.g. Senior Logistics Analyst" value={formData.targetRole} onChange={(e) => setFormData({...formData, targetRole: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-1">Experience Level</label>
-                           <select className="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 outline-none" value={formData.experienceLevel} onChange={(e) => setFormData({...formData, experienceLevel: e.target.value})}>
-                              <option>Entry Level</option>
-                              <option>Mid-Level</option>
-                              <option>Senior/Executive</option>
-                           </select>
-                        </div>
-                     </div>
-                     <button onClick={() => setStep("r-gap")} className="w-full py-5 bg-brand-primary text-white rounded-2xl font-bold">Define Narrative Gaps</button>
+                {/* ============================================================= */}
+                {/* NEW FEATURE: PASTE JOB DESCRIPTION OR LINK IN WHERE LOOKING TO GO */}
+                {/* ============================================================= */}
+                <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                    <div>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5 text-teal-700" /> Target Job Requirements
+                      </span>
+                      <p className="text-[11px] text-slate-500">
+                        Paste the full description or provide a job URL to auto-extract requirements
+                      </p>
+                    </div>
+
+                    {/* Mode Switcher Tabs */}
+                    <div className="flex items-center gap-1 p-0.5 bg-slate-200/80 rounded-xl self-start sm:self-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setJobInputMode("paste");
+                          setUrlExtractionError(null);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          jobInputMode === "paste"
+                            ? "bg-white text-slate-900 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <FileText className="w-3 h-3 text-teal-600" />
+                        <span>Paste Description</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setJobInputMode("link");
+                          setUrlExtractionError(null);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          jobInputMode === "link"
+                            ? "bg-white text-slate-900 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <LinkIcon className="w-3 h-3 text-teal-600" />
+                        <span>Paste Job Link / URL</span>
+                      </button>
+                    </div>
                   </div>
-                )}
 
-                {step === "r-gap" && (
-                   <div className="space-y-8">
-                      <h3 className="text-3xl font-bold text-slate-900">Identify Your Biggest Gap</h3>
-                      <div className="grid grid-cols-1 gap-3">
-                         {[
-                           "I lack industry-specific technical results.",
-                           "My resume sounds like 'doing' not 'leading'.",
-                           "I'm transitioning from a different domain.",
-                           "I grew from within and have outgrown my bio."
-                         ].map((gap, i) => (
-                           <button key={i} onClick={() => setFormData({...formData, biggestGap: gap})} className={`text-left p-5 rounded-xl border ${formData.biggestGap === gap ? 'border-brand-secondary bg-brand-secondary/5' : 'border-slate-100'}`}>{gap}</button>
-                         ))}
-                      </div>
-                      <button onClick={() => setStep("r-upload")} className="w-full py-5 bg-brand-primary text-white rounded-2xl font-bold">Source Content Identification</button>
-                   </div>
-                )}
+                  {/* MODE A: PASTE JOB LINK / URL */}
+                  {jobInputMode === "link" && (
+                    <div className="space-y-3 animate-in fade-in duration-200">
+                      <form onSubmit={handleExtractJobFromUrl} className="space-y-2">
+                        <label className="text-[11px] font-bold text-slate-700 block">
+                          Paste Job Posting URL (LinkedIn, Indeed, Greenhouse, Lever, Careers Page)
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <div className="relative flex-1">
+                            <Globe className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <input 
+                              type="url"
+                              value={jobUrlInput}
+                              onChange={(e) => setJobUrlInput(e.target.value)}
+                              placeholder="https://www.linkedin.com/jobs/view/... or careers page URL"
+                              className="w-full pl-9 pr-8 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                            />
+                            {jobUrlInput && (
+                              <button
+                                type="button"
+                                onClick={() => setJobUrlInput("")}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
 
-                {step === "r-upload" && (
-                   <div className="space-y-8">
-                      <h3 className="text-3xl font-bold text-slate-900 text-center">Analyze Your DNA</h3>
-                      <div className="border-4 border-dashed border-slate-100 rounded-[3rem] p-12 text-center hover:border-brand-secondary/30 transition-colors group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                         <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                            <Upload className="w-10 h-10 text-brand-secondary" />
-                         </div>
-                         <p className="text-xl font-bold text-slate-900 mb-2">Upload Your Profile</p>
-                         <p className="text-sm text-slate-400">PDF, DOCX, or TXT Files</p>
-                      </div>
-                      <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
-                      {formData.rawContent && (
-                        <div className="flex gap-3 items-center justify-center p-3 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
-                           <ShieldCheck className="w-5 h-5" />
-                           <span className="text-xs font-bold uppercase tracking-widest">DNA Successfully Scanned</span>
+                          <button
+                            type="submit"
+                            disabled={isExtractingUrl || !jobUrlInput.trim()}
+                            className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer whitespace-nowrap"
+                          >
+                            {isExtractingUrl ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                <span>Extracting...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5 text-teal-200" />
+                                <span>Fetch & Extract</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </form>
+
+                      {/* Error or Fallback Message */}
+                      {urlExtractionError && (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2.5 text-xs text-amber-800">
+                          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <span className="font-bold block">Could not automatically fetch from this link</span>
+                            <p className="mt-0.5 text-slate-700 leading-relaxed font-normal">
+                              {urlExtractionError}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setJobInputMode("paste")}
+                              className="mt-2 text-xs font-bold text-teal-700 hover:text-teal-900 underline flex items-center gap-1 cursor-pointer"
+                            >
+                              Switch to Paste Description tab <ArrowRight className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       )}
-                      <button disabled={!formData.rawContent} onClick={handleOptimize} className="w-full py-5 bg-brand-primary text-white rounded-2xl font-bold shadow-xl shadow-brand-primary/20">Optimize Narrative</button>
-                   </div>
-                )}
 
-                {step === "r-review" && (
-                   <div className="max-w-3xl mx-auto w-full">
-                      <h3 className="text-3xl font-bold text-slate-900 mb-8">Optimized Narrative</h3>
-                      <div className="p-10 bg-white border border-slate-200 rounded-[3rem] shadow-xl relative prose prose-slate max-w-none">
-                         <div className="absolute top-6 right-8 flex gap-2">
-                            <button onClick={() => setStep("r-upload")} className="p-2 text-slate-400 hover:text-brand-secondary"><RefreshCcw className="w-5 h-5" /></button>
-                         </div>
-                         <Markdown>{optimizedContent}</Markdown>
+                      {/* Success Card from URL Extraction */}
+                      {urlExtractionSuccess && (
+                        <div className="p-3.5 bg-teal-50 border border-teal-200 rounded-xl space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-teal-700" /> Extracted from Job Posting
+                            </span>
+                            <span className="text-[10px] font-bold text-teal-800 bg-white px-2 py-0.5 rounded border border-teal-200">
+                              Synced to Trajectory
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-800 font-semibold">
+                            {urlExtractionSuccess.targetRole}
+                            {urlExtractionSuccess.targetCompany && ` • ${urlExtractionSuccess.targetCompany}`}
+                          </div>
+                          {urlExtractionSuccess.keySkills && urlExtractionSuccess.keySkills.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {urlExtractionSuccess.keySkills.map((sk, idx) => (
+                                <span key={idx} className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white text-teal-900 border border-teal-200">
+                                  {sk}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-[11px] text-slate-600 pt-1 border-t border-teal-200/60">
+                            Full job description and requirements have been loaded into the description engine below.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* MODE B: PASTE JOB DESCRIPTION (WITH TOOLBAR & TALK TO TEXT) */}
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-bold text-slate-700">
+                          {jobInputMode === "link" ? "Extracted / Custom Job Description:" : "Paste Job Description or Requirements:"}
+                        </span>
                       </div>
-                      <div className="mt-12 flex gap-4">
-                        <button onClick={() => setStep("path")} className="flex-1 py-5 bg-slate-100 text-slate-600 rounded-2xl font-bold">New Path</button>
-                        <Link to="/contact" className="flex-[2] py-5 bg-brand-primary text-white rounded-2xl font-bold text-center">Secure Transformation Session</Link>
+
+                      {/* Quick Action Buttons */}
+                      <div className="flex items-center gap-1.5">
+                        <VoiceInputButton 
+                          onTranscript={(spoken) => {
+                            const cur = formData.targetJobDescription || "";
+                            const sep = cur.trim() ? " " : "";
+                            handleFormChange("targetJobDescription", cur + sep + spoken);
+                          }}
+                          label="Talk to Text"
+                          size="sm"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={handlePasteFromClipboard}
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 shadow-xs flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Paste text from your clipboard"
+                        >
+                          <ClipboardPaste className="w-3 h-3 text-slate-500" />
+                          <span>Paste</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleLoadSampleJD}
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-teal-800 rounded-lg text-xs font-semibold border border-teal-200 shadow-xs flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Load a realistic executive VP/Director sample job description"
+                        >
+                          <Sparkles className="w-3 h-3 text-teal-600" />
+                          <span>Sample JD</span>
+                        </button>
+
+                        {formData.targetJobDescription && (
+                          <button
+                            type="button"
+                            onClick={() => handleFormChange("targetJobDescription", "")}
+                            className="p-1 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
+                            title="Clear description text"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
-                   </div>
-                )}
-             </motion.div>
-          )}
+                    </div>
 
-        </AnimatePresence>
+                    <textarea 
+                      rows={5}
+                      value={formData.targetJobDescription}
+                      onChange={(e) => handleFormChange("targetJobDescription", e.target.value)}
+                      placeholder="Paste or speak the actual job requirements, bullet points, or skills from roles you are targeting (e.g. Lead 5 distribution centers, deploy autonomous mobile robots, manage $40M budget)..."
+                      className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 leading-relaxed placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none resize-y transition-all"
+                    />
 
-        {/* Global Action Bar */}
-        {step !== "goal" && step !== "path" && (
-          <div className="absolute top-12 left-12 flex items-center gap-6 z-20">
-             <button onClick={() => setStep("path")} className="text-slate-400 hover:text-slate-900 flex items-center gap-2 transition-colors">
-                <ChevronRight className="w-5 h-5 rotate-180" /> <span className="text-xs font-black uppercase tracking-widest">Tool Selection</span>
-             </button>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <span>Synchronizes live with ATS gap analysis in Resume Studio.</span>
+                      <span>{formData.targetJobDescription ? `${formData.targetJobDescription.split(/\s+/).filter(Boolean).length} words` : "0 words"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Biggest Anticipated Gap / Hurdle (WITH TALK TO TEXT) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                      Biggest Anticipated Transition Hurdle
+                    </label>
+                    <VoiceInputButton 
+                      onTranscript={(spoken) => {
+                        const cur = formData.biggestGap || "";
+                        const sep = cur.trim() ? " " : "";
+                        handleFormChange("biggestGap", cur + sep + spoken);
+                      }}
+                      label="Talk to Text"
+                      size="sm"
+                    />
+                  </div>
+                  <input 
+                    type="text"
+                    value={formData.biggestGap}
+                    onChange={(e) => handleFormChange("biggestGap", e.target.value)}
+                    placeholder="e.g. My experience is heavily tactical operations, need to frame as enterprise systems strategy"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+                  />
+                </div>
+
+                {/* Simulation Action Button */}
+                <button
+                  type="button"
+                  onClick={handleRunSimulation}
+                  disabled={loading}
+                  className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg shadow-teal-600/20 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin text-white" />
+                      <span>Simulating Transformation Trajectory...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 text-white" />
+                      <span>Simulate Career Transformation Leap</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </div>
+
+            {/* Simulation Results Section (if generated) */}
+            {simStep === "generating" && (
+              <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center space-y-4 shadow-xs">
+                <Loader2 className="w-10 h-10 animate-spin text-teal-600 mx-auto" />
+                <h3 className="text-xl font-bold text-slate-900">NOVA Intelligence Calibrating Trajectory...</h3>
+                <p className="text-slate-600 text-xs">Analyzing gap between current scope and target requirements</p>
+                <div className="max-w-md mx-auto h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-teal-600 transition-all duration-300" style={{ width: `${generationProgress}%` }} />
+                </div>
+              </div>
+            )}
+
+            {simStep === "results" && simulatorResults && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 md:p-10 space-y-8 shadow-xs relative"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 font-bold text-xs uppercase tracking-wider mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                      Simulation Complete
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+                      Roadmap: {formData.currentTitle || "Current State"} → {formData.targetRole || "Executive Target"}
+                    </h3>
+                    <p className="text-slate-600 text-sm mt-1">{simulatorResults.overview}</p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="px-5 py-2.5 rounded-2xl bg-teal-50 border border-teal-200 text-teal-900 text-center">
+                      <span className="text-[10px] font-bold uppercase tracking-wider block text-teal-700">Leap Match</span>
+                      <span className="text-2xl font-black text-teal-800">{simulatorResults.readinessScore}%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Milestone Roadmap */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-teal-800 flex items-center gap-2">
+                    <Compass className="w-4 h-4 text-teal-600" /> Multi-Stage Milestone Trajectory
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {simulatorResults.roadmap.map((item, idx) => (
+                      <div key={idx} className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2 relative shadow-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-teal-700">{item.timeline}</span>
+                          <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-xs flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                        </div>
+                        <h5 className="font-bold text-slate-900 text-base">{item.step}</h5>
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Identified Gaps & Fixes */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-amber-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600" /> Key Competency Gaps & Narrative Fixes
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {simulatorResults.gaps.map((gap, idx) => (
+                      <div key={idx} className="p-4 bg-amber-50/60 border border-amber-200 rounded-2xl space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 text-sm">{gap.skill}</span>
+                          <span className="text-[10px] font-bold text-amber-800 px-2 py-0.5 rounded bg-amber-100 border border-amber-200">
+                            {gap.impact}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-700 font-normal leading-relaxed">{gap.fix}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* NOVA Positioning Strategy */}
+                <div className="p-6 bg-gradient-to-r from-teal-50 via-emerald-50/60 to-slate-50 border border-teal-200 rounded-2xl space-y-2">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
+                    <Bot className="w-3.5 h-3.5 text-teal-600" /> NOVA Executive Positioning Insight
+                  </span>
+                  <p className="text-base text-slate-900 font-medium italic">
+                    "{simulatorResults.positioningStrategy}"
+                  </p>
+                </div>
+
+                {/* Quick Action Transfer Footer */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200">
+                  <button
+                    onClick={() => switchTab("resume")}
+                    className="flex-1 py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                  >
+                    <FileText className="w-4 h-4 text-white" />
+                    <span>Apply Roadmap to Resume Studio</span>
+                  </button>
+
+                  <button
+                    onClick={() => switchTab("behavioral")}
+                    className="flex-1 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 shadow-xs transition-all cursor-pointer"
+                  >
+                    <Brain className="w-4 h-4 text-teal-600" />
+                    <span>Calibrate Leadership Traits</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent("ais:open-chat", {
+                        detail: {
+                          type: "individual",
+                          prompt: `I just simulated my career leap from ${formData.currentTitle} to ${formData.targetRole}. Let's review the milestone roadmap and skill gaps.`
+                        }
+                      }));
+                    }}
+                    className="px-6 py-4 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 shadow-xs cursor-pointer transition-all"
+                  >
+                    <Bot className="w-4 h-4 text-teal-600" />
+                    <span>Discuss with NOVA</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
           </div>
         )}
 
-        <div className="mt-content-spacer mt-auto pt-12 md:pt-24 text-center">
-           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-100 rounded-full">
-             <Bot className="w-4 h-4 text-slate-400" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">NOVA Cognitive Layer Active</span>
-           </div>
-        </div>
-      </div>
+        {/* ========================================================================= */}
+        {/* TAB 2: EXECUTIVE RESUME STUDIO & ATS OPTIMIZER (Clean Light Wrapper)     */}
+        {/* ========================================================================= */}
+        {activeTab === "resume" && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            {/* Live Sync Information Banner (Light Theme) */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200">
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">Seamless Resume Studio Active</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-bold">
+                      Session-Isolated
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-600">
+                    Synchronized with: <strong className="text-teal-800">{formData.targetRole || "Executive Role"}</strong>
+                    {formData.targetCompany && ` @ ${formData.targetCompany}`}
+                    {formData.targetJobDescription && " • Target Job Description Loaded for ATS matching"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => switchTab("simulator")}
+                  className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Compass className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Back to Simulator</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Embedded Resume Studio Container */}
+            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+              <ResumeStudio />
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB 3: BEHAVIORAL TRAITS & LEADERSHIP DNA (Clean Light Theme)            */}
+        {/* ========================================================================= */}
+        {activeTab === "behavioral" && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            
+            {/* Header Hero */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-xs">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-800 font-bold text-xs uppercase tracking-wider mb-2.5">
+                    <Brain className="w-3.5 h-3.5 text-indigo-600" />
+                    Leadership Behavioral Traits Assessment
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+                    Executive Operational DNA & Radar Matrix
+                  </h2>
+                  <p className="text-slate-600 text-sm mt-1 max-w-2xl">
+                    Discover your 6-axis executive capabilities, conflict resolution dynamics, risk threshold, and leadership archetype. High-fit roles are matched to your signature traits.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleRunBehavioral}
+                    disabled={loading}
+                    className="px-5 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                  >
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Sparkles className="w-4 h-4 text-white" />}
+                    <span>Generate Executive Diagnostic</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Diagnostic Configuration Cards (Clean Light Cards) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Conflict Dynamics */}
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
+                  <MessageSquare className="w-4 h-4 text-teal-600" />
+                  <h3 className="text-sm font-bold text-slate-900">Conflict & Feedback Dynamics</h3>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { id: "Direct Candor", label: "Direct Candor", desc: "Data-led and immediate SLA root-cause confrontation." },
+                    { id: "Consensus Alignment", label: "Consensus Alignment", desc: "Cross-functional coalition building before cutovers." },
+                    { id: "Analytical Mediation", label: "Analytical Mediation", desc: "Neutralizes tension with time studies and metrics." }
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleFormChange("conflictDynamics", opt.id)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        formData.conflictDynamics === opt.id
+                          ? "bg-teal-50 border-teal-500 text-teal-950 font-bold"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="text-xs font-bold block">{opt.label}</span>
+                      <span className="text-[11px] text-slate-500 font-normal leading-snug">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Risk Agility */}
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
+                  <ShieldAlert className="w-4 h-4 text-teal-600" />
+                  <h3 className="text-sm font-bold text-slate-900">Ambiguity & Risk Agility</h3>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { id: "Calculated Trailblazer", label: "Calculated Trailblazer", desc: "Bold automation trials bounded by pilot de-risking." },
+                    { id: "Resilient De-risker", label: "Resilient De-risker", desc: "Zero tolerance for floor downtime and inventory variance." },
+                    { id: "Adaptive Experimenter", label: "Adaptive Experimenter", desc: "Rapid iterations, flexible shift pilots, Kaizen sprints." }
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleFormChange("riskThreshold", opt.id)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        formData.riskThreshold === opt.id
+                          ? "bg-teal-50 border-teal-500 text-teal-950 font-bold"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="text-xs font-bold block">{opt.label}</span>
+                      <span className="text-[11px] text-slate-500 font-normal leading-snug">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Transformation Style */}
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-xs">
+                <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
+                  <RefreshCw className="w-4 h-4 text-teal-600" />
+                  <h3 className="text-sm font-bold text-slate-900">Transformation & Change Style</h3>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { id: "Evolutionary Transition", label: "Evolutionary Transition", desc: "Iterative stabilization without disrupting active operations." },
+                    { id: "Clean-Slate Modernization", label: "Clean-Slate Modernization", desc: "Bold systems architectural cutovers and new tech stacks." },
+                    { id: "Frontline-Led Kaizen", label: "Frontline-Led Kaizen", desc: "Drives shop-floor empowerment and collaborative buy-in." }
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleFormChange("transformationStyle", opt.id)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                        formData.transformationStyle === opt.id
+                          ? "bg-teal-50 border-teal-500 text-teal-950 font-bold"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                      }`}
+                    >
+                      <span className="text-xs font-bold block">{opt.label}</span>
+                      <span className="text-[11px] text-slate-500 font-normal leading-snug">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Assessment Results Visualization (Radar Chart + Top Traits + Persona in Light Theme) */}
+            {behavioralResults && (
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 md:p-10 space-y-8 shadow-xs relative">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-6">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 block mb-1">
+                      Diagnostic Output
+                    </span>
+                    <h3 className="text-2xl font-black text-slate-900">
+                      6-Axis Executive Capability Radar & Traits
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold text-teal-900 px-3 py-1 rounded-full bg-teal-50 border border-teal-200">
+                    Calibrated to {formData.targetRole || "Executive Roles"}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  {/* Radar Chart */}
+                  <div className="lg:col-span-6 bg-slate-50/70 border border-slate-200 rounded-2xl p-6 relative">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-2">
+                      Capability Radar (100 pt Scale)
+                    </span>
+                    <div className="h-[280px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={behavioralResults.scores}>
+                          <PolarGrid stroke="#e2e8f0" />
+                          <PolarAngleAxis dataKey="subject" tick={{ fill: '#334155', fontSize: 10, fontWeight: 700 }} />
+                          <Radar name="Traits" dataKey="A" stroke="#0d9488" fill="#14b8a6" fillOpacity={0.35} strokeWidth={2} />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Top Traits Cards */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block mb-1">
+                      Core Signature Traits
+                    </span>
+                    {behavioralResults.topTraits.map((trait, idx) => (
+                      <div key={idx} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 text-sm">{trait.title}</span>
+                          <span className="text-teal-800 font-black text-xs px-2 py-0.5 rounded bg-teal-100 border border-teal-200">
+                            {trait.percentage}% Match
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed font-normal">{trait.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Persona Overview & Recommended Roles */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-200">
+                  <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 block">
+                      Executive Persona Overview
+                    </span>
+                    <div className="text-slate-700 text-xs leading-relaxed">
+                      <Markdown components={assessmentMarkdownComponents}>{behavioralResults.overview}</Markdown>
+                    </div>
+                  </div>
+
+                  <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 block">
+                      Matched High-Fit Executive Roles
+                    </span>
+                    <div className="text-slate-700 text-xs leading-relaxed">
+                      <Markdown components={assessmentMarkdownComponents}>{behavioralResults.roles}</Markdown>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transfer to Resume Button */}
+                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => switchTab("resume")}
+                    className="flex-1 py-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                  >
+                    <FileText className="w-4 h-4 text-white" />
+                    <span>Incorporate Behavioral Archetype into Resume Studio</span>
+                  </button>
+
+                  <button
+                    onClick={() => switchTab("simulator")}
+                    className="px-6 py-4 bg-white hover:bg-slate-50 text-slate-800 rounded-2xl font-bold text-sm border border-slate-200 shadow-xs cursor-pointer transition-all"
+                  >
+                    <span>Back to Pathway Simulator</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </main>
     </div>
   );
 };

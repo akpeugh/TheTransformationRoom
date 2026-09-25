@@ -76,7 +76,7 @@ export const Navbar = () => {
           path: "/organizations?tool=scorecard"
         },
         {
-          name: t("sim.hero.title"),
+          name: t("nav.impactSim"),
           desc: t("nav.simdesc"),
           icon: <BarChart3 className="w-4 h-4" />,
           path: "/impact-simulator"
@@ -198,7 +198,7 @@ export const Navbar = () => {
                 
                 {/* Mega Dropdown Menu */}
                 <div 
-                  className={`absolute top-full right-0 pt-3 w-[540px] transition-all duration-200 origin-top-right z-50 ${
+                  className={`absolute top-full right-0 pt-3 w-[640px] max-w-[calc(100vw-2rem)] transition-all duration-200 origin-top-right z-50 ${
                     toolsOpen 
                       ? 'opacity-100 scale-100 translate-y-0 visible pointer-events-auto' 
                       : 'opacity-0 scale-95 -translate-y-2 invisible pointer-events-none'
@@ -209,7 +209,7 @@ export const Navbar = () => {
                       {toolGroups.map((group) => (
                         <div 
                           key={group.label} 
-                          className={group.label === "Knowledge" || group.label === "NOVA Strategic AI" || group.label === "NOVA IA Estratégica" ? "col-span-2" : "col-span-1"}
+                          className={group.label === t("nav.knowledge") || group.label === t("nav.nova") ? "col-span-2" : "col-span-1"}
                         >
                           <div className="flex items-center gap-2 mb-2 px-2">
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -221,12 +221,12 @@ export const Navbar = () => {
                           <div className="space-y-1">
                             {group.items.map((tool: any) => {
                               const itemContent = (
-                                <div className={`flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-200 group/item cursor-pointer ${
+                                <div className={`flex items-start gap-3 p-2.5 rounded-2xl transition-all duration-200 group/item cursor-pointer ${
                                   tool.highlight 
                                     ? "bg-brand-secondary/10 hover:bg-brand-secondary/20 border border-brand-secondary/20 shadow-xs" 
                                     : "hover:bg-slate-100/80 border border-transparent hover:border-slate-200/60"
                                 }`}>
-                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 ${
+                                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 transition-all duration-200 ${
                                     tool.highlight
                                       ? "bg-brand-secondary text-brand-primary shadow-xs"
                                       : "bg-slate-100 text-slate-700 group-hover/item:bg-brand-primary group-hover/item:text-white"
@@ -234,19 +234,21 @@ export const Navbar = () => {
                                     {tool.icon}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-1.5">
-                                      <p className="text-xs font-bold text-slate-900 leading-tight group-hover/item:text-brand-primary transition-colors truncate">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <p className="text-xs font-bold text-slate-900 leading-snug group-hover/item:text-brand-primary transition-colors">
                                         {tool.name}
                                       </p>
                                       {tool.badge && (
-                                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black uppercase tracking-wider bg-brand-secondary/20 text-brand-primary">
+                                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-brand-secondary/20 text-brand-primary shrink-0">
                                           {tool.badge}
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">{tool.desc}</p>
+                                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed mt-0.5 break-words">
+                                      {tool.desc}
+                                    </p>
                                   </div>
-                                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200 shrink-0 text-brand-primary" />
+                                  <ArrowRight className="w-3.5 h-3.5 text-slate-400 opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200 shrink-0 text-brand-primary mt-1" />
                                 </div>
                               );
 
